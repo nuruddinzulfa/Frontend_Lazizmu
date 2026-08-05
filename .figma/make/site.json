@@ -1,0 +1,10 @@
+{
+  "description": "This web application streamlines content creation by allowing users to generate structured documents based on customizable Markdown templates, enhancing productivity and consistency.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
