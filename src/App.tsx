@@ -178,7 +178,7 @@ export default function App() {
 
       {showFooter && <Footer onNavigate={handleNavigate} />}
 
-      <FloatingElements />
+      {page !== 'dashboard' && <FloatingElements />}
     </div>
   )
 }
