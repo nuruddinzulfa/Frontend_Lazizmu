@@ -10,10 +10,56 @@ const donations = [
 ]
 
 const menuItems = [
-  { key: 'beranda', label: 'Beranda', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
-  { key: 'riwayat', label: 'Riwayat Donasi', icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2' },
-  { key: 'profil', label: 'Profil', icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' },
-  { key: 'sertifikat', label: 'Sertifikat Zakat', icon: 'M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z' },
+  {
+    key: 'dashboard',
+    label: 'Dashboard',
+    icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6',
+  },
+  {
+    key: 'donasi',
+    label: 'Donasi & Transaksi',
+    icon: 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
+  },
+  {
+    key: 'campaign',
+    label: 'Campaign',
+    icon: 'M11 5.882V19.24a1.76 1.76 0 01-3.417.592L6.5 15H4a2 2 0 01-2-2v-2a2 2 0 012-2h2.5l1.083-4.832A1.76 1.76 0 0111 5.882zM15 12h.01M19 12h.01',
+  },
+  {
+    key: 'program',
+    label: 'Program',
+    icon: 'M4 6h16M4 10h16M4 14h16M4 18h10',
+  },
+  {
+    key: 'berita',
+    label: 'Berita',
+    icon: 'M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v12a2 2 0 01-2 2zM7 8h10M7 12h10M7 16h6',
+  },
+  {
+    key: 'artikel',
+    label: 'Artikel',
+    icon: 'M4 5a2 2 0 012-2h12a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V5zM8 7h8M8 11h8M8 15h5',
+  },
+  {
+    key: 'publikasi',
+    label: 'Publikasi',
+    icon: 'M6 2h9l5 5v15H6a2 2 0 01-2-2V4a2 2 0 012-2zM14 2v6h6M8 12h8M8 16h8',
+  },
+  {
+    key: 'users',
+    label: 'Pengguna & Admin',
+    icon: 'M17 20h5v-2a4 4 0 00-4-4h-1M9 20H2v-2a4 4 0 014-4h3m5-8a4 4 0 11-8 0 4 4 0 018 0zm6 2a3 3 0 11-6 0',
+  },
+  {
+    key: 'laporan',
+    label: 'Laporan',
+    icon: 'M3 3v18h18M7 16v-5M12 16V7M17 16v-8',
+  },
+  {
+    key: 'pengaturan',
+    label: 'Pengaturan',
+    icon: 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.827 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.065 2.573c.94 1.543-.827 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.572-1.065c-1.543.94-3.31-.827-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35A1.724 1.724 0 005.383 7.75c-.94-1.543.827-3.31 2.37-2.37a1.724 1.724 0 002.572-1.065z',
+  },
 ]
 
 const fmt = (n: number) => 'Rp ' + n.toLocaleString('id-ID')
@@ -23,7 +69,7 @@ interface DashboardPageProps {
 }
 
 export default function DashboardPage({ onNavigate }: DashboardPageProps) {
-  const [activeMenu, setActiveMenu] = useState('beranda')
+  const [activeMenu, setActiveMenu] = useState('dashboard')
 
   return (
     <div className="min-h-screen bg-[#FFF8F2] pt-20">
@@ -36,8 +82,8 @@ export default function DashboardPage({ onNavigate }: DashboardPageProps) {
                 <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center mb-3">
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
                 </div>
-                <div className="font-bold" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Bapak Ahmad</div>
-                <div className="text-xs opacity-80">ahmad@gmail.com</div>
+                <div className="font-bold" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Super Admin </div>
+                <div className="text-xs opacity-80">LAZISMU Kabupaten Pemalang</div>
               </div>
               <nav className="p-3 space-y-1">
                 {menuItems.map(item => (
@@ -58,8 +104,8 @@ export default function DashboardPage({ onNavigate }: DashboardPageProps) {
           <main className="flex-1 min-w-0 space-y-6">
             {/* Welcome */}
             <div className="bg-gradient-to-br from-[#F58220] to-[#D96D0A] rounded-2xl p-6 text-white">
-              <div className="text-lg font-bold mb-1" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Assalamu&apos;alaikum, Bapak Ahmad!</div>
-              <p className="text-sm opacity-90">Semoga Allah SWT membalas kebaikan Anda berlipat ganda.</p>
+              <div className="text-lg font-bold mb-1" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Assalamu'alaikum, Super Admin</div>
+              <p className="text-sm opacity-90">Selamat datang di Panel Administrasi LAZISMU Kabupaten Pemalang.</p>
             </div>
 
             {/* Stats */}
