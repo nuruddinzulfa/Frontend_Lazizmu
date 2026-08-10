@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import type { NavPage } from '../../App'
-import logo from '../../imports/3-2.png'
+import { login } from "@/service/auth.service";
 
 interface LoginPageProps {
   onNavigate?: (page: NavPage) => void
@@ -13,24 +13,80 @@ export default function LoginPage({ onNavigate }: LoginPageProps) {
   const [error, setError] = useState('')
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError('')
+
+    e.preventDefault();
+
+    setError("");
+
     if (!email || !password) {
-      setError('Email dan kata sandi wajib diisi.')
-      return
+        setError("Email dan kata sandi wajib diisi.");
+        return;
     }
-    setIsLoading(true)
-    await new Promise(r => setTimeout(r, 1500))
-    setIsLoading(false)
-    setError('Email atau kata sandi tidak valid.')
-  }
+
+    try {
+
+        setIsLoading(true);
+
+        const result = await login({
+    email,
+    password,
+});
+
+console.log(result);
+
+localStorage.setItem(
+    "token",
+    result.data.token
+);
+
+localStorage.setItem(
+    "user",
+    JSON.stringify(result.data.user)
+);
+
+const role = result.data.user.role;
+
+if (
+    role === "Super Admin" ||
+    role === "Admin Donasi" ||
+    role === "Admin Konten"
+) {
+    onNavigate?.("dashboard");
+} else {
+    setError("Role pengguna tidak dikenali.");
+}
+
+alert("Login berhasil!");
+
+    } catch (err: any) {
+
+        setError(err.message);
+
+    } finally {
+
+        setIsLoading(false);
+
+    }
+
+};
+
+    // setIsLoading(true)
+    // // await new Promise(r => setTimeout(r, 1500))
+    // setIsLoading(false)
+    // setError('Email atau kata sandi tidak valid.')
+  
 
   return (
     <div className="min-h-screen bg-[#FFF8F2] flex items-center justify-center px-4 py-24">
       <div className="w-full max-w-md bg-white border border-[#F3DEC8] rounded-2xl shadow-sm p-8">
         {/* Logo */}
         <div className="text-center mb-8">
-          <img src={logo} alt="LAZISMU Kabupaten Pemalang" className="h-16 w-auto object-contain mx-auto mb-1" />
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#F58220] to-[#D96D0A] flex items-center justify-center mx-auto mb-3">
+            <svg viewBox="0 0 40 40" fill="none" className="w-8 h-8">
+              <path d="M20 6 L26 14 L34 14 L28 20 L31 29 L20 23 L9 29 L12 20 L6 14 L14 14 Z" fill="white" opacity="0.9" />
+            </svg>
+          </div>
+          <div className="text-lg font-bold text-gray-900" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>LAZISMU Pemalang</div>
           <h1 className="text-2xl font-bold text-gray-900 mt-4" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Masuk ke Akun Anda</h1>
           <p className="text-sm text-gray-500 mt-1">Masukkan kredensial Anda untuk melanjutkan</p>
         </div>
@@ -89,3 +145,4 @@ export default function LoginPage({ onNavigate }: LoginPageProps) {
     </div>
   )
 }
+
