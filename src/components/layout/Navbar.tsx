@@ -137,17 +137,39 @@ export default function Navbar({ currentPage, onNavigate }: NavbarProps) {
 
           {/* Desktop CTA */}
           <div className="hidden lg:flex items-center gap-2">
-            <button
-              onClick={() => handleNav('login')}
-              className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
-                currentPage === 'login' || currentPage === 'dashboard'
-                  ? 'bg-[#FEF0E4] text-[#F58220]'
-                  : 'text-gray-600 hover:text-[#F58220] hover:bg-[#FEF0E4]'
-              }`}
-              style={{ fontFamily: "'Inter', sans-serif" }}
-            >
-              Masuk
-            </button>
+              {isLoggedIn ? (
+    <>
+        <button
+            onClick={() => handleNav('dashboard')}
+            className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
+                currentPage === 'dashboard'
+                    ? 'bg-[#FEF0E4] text-[#F58220]'
+                    : 'text-gray-600 hover:text-[#F58220] hover:bg-[#FEF0E4]'
+            }`}
+        >
+            Dashboard
+        </button>
+
+        <button
+            onClick={handleLogout}
+            disabled={isLoggingOut}
+            className="px-4 py-2 text-sm font-medium rounded-lg text-gray-600 hover:text-red-500 hover:bg-red-50 transition-all duration-200 disabled:opacity-50"
+        >
+            {isLoggingOut ? 'Keluar...' : 'Keluar'}
+        </button>
+    </>
+) : (
+    <button
+        onClick={() => handleNav('login')}
+        className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
+            currentPage === 'login'
+                ? 'bg-[#FEF0E4] text-[#F58220]'
+                : 'text-gray-600 hover:text-[#F58220] hover:bg-[#FEF0E4]'
+        }`}
+    >
+        Masuk
+    </button>
+)}
             <button
               onClick={() => handleNav('donasi')}
               className="btn-primary px-5 py-2.5 text-sm font-semibold"
