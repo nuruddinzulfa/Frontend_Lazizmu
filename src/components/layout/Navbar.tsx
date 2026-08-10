@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import logo from '../../imports/3-2.png'
+import { logout } from '../../service/auth.service'
 
 type Page = 'home' | 'zakat' | 'donasi' | 'about' | 'program' | 'berita' | 'artikel' | 'publikasi' | 'login' | 'register' | 'dashboard'
 
@@ -7,6 +8,8 @@ interface NavbarProps {
   currentPage: Page
   onNavigate: (page: Page) => void
 }
+
+
 
 const pageNavLinks: { label: string; page: Page }[] = [
   { label: 'Beranda', page: 'home' },
@@ -18,14 +21,21 @@ const pageNavLinks: { label: string; page: Page }[] = [
 ]
 
 export default function Navbar({ currentPage, onNavigate }: NavbarProps) {
-  const [scrolled, setScrolled] = useState(false)
-  const [mobileOpen, setMobileOpen] = useState(false)
-
+    const [scrolled, setScrolled] = useState(false)
+    const [mobileOpen, setMobileOpen] = useState(false)
+    const [isLoggedIn, setIsLoggedIn] = useState(false)
+    const [isLoggingOut, setIsLoggingOut] = useState(false)
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 20)
     window.addEventListener('scroll', handler)
     return () => window.removeEventListener('scroll', handler)
   }, [])
+
+  useEffect(() => {
+    const token = localStorage.getItem("token")
+
+    setIsLoggedIn(!!token)
+}, [])
 
   const handleLogoClick = () => {
     onNavigate('home')
@@ -37,6 +47,40 @@ export default function Navbar({ currentPage, onNavigate }: NavbarProps) {
     onNavigate(page)
     setMobileOpen(false)
   }
+
+  const handleLogout = async () => {
+
+    try {
+
+        setIsLoggingOut(true)
+
+        await logout()
+
+        setIsLoggedIn(false)
+        setMobileOpen(false)
+
+        onNavigate('home')
+
+    } catch (error) {
+
+        console.error("Logout gagal:", error)
+
+        // Kalau token sudah tidak valid di server,
+        // tetap bersihkan session lokal.
+        localStorage.removeItem("token")
+        localStorage.removeItem("user")
+
+        setIsLoggedIn(false)
+        setMobileOpen(false)
+
+        onNavigate('login')
+
+    } finally {
+
+        setIsLoggingOut(false)
+
+    }
+}
 
   return (
     <header
@@ -163,12 +207,39 @@ export default function Navbar({ currentPage, onNavigate }: NavbarProps) {
           >
             Kalkulator Zakat
           </button>
-          <button
-            onClick={() => handleNav('login')}
-            className="block w-full text-left px-4 py-2.5 text-sm font-medium text-gray-700 hover:text-[#F58220] hover:bg-[#FEF0E4] rounded-lg transition-colors"
-          >
-            Masuk / Daftar
-          </button>
+          {isLoggedIn ? (
+    <>
+        <button
+            onClick={() => handleNav('dashboard')}
+            className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
+                currentPage === 'dashboard'
+                    ? 'bg-[#FEF0E4] text-[#F58220]'
+                    : 'text-gray-600 hover:text-[#F58220] hover:bg-[#FEF0E4]'
+            }`}
+        >
+            Dashboard
+        </button>
+
+        <button
+            onClick={handleLogout}
+            disabled={isLoggingOut}
+            className="px-4 py-2 text-sm font-medium rounded-lg text-gray-600 hover:text-red-500 hover:bg-red-50 transition-all duration-200 disabled:opacity-50"
+        >
+            {isLoggingOut ? 'Keluar...' : 'Keluar'}
+        </button>
+    </>
+) : (
+    <button
+        onClick={() => handleNav('login')}
+        className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
+            currentPage === 'login'
+                ? 'bg-[#FEF0E4] text-[#F58220]'
+                : 'text-gray-600 hover:text-[#F58220] hover:bg-[#FEF0E4]'
+        }`}
+    >
+        Masuk
+    </button>
+)}
           <div className="pt-1 pb-1">
             <button
               onClick={() => handleNav('donasi')}

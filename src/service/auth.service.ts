@@ -70,3 +70,30 @@ export async function login(
 
     return data;
 }
+
+export async function logout(): Promise<void> {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+        return;
+    }
+
+    const response = await fetch(`${API_URL}/admin/logout`, {
+        method: "POST",
+        headers: {
+            "Accept": "application/json",
+            "Authorization": `Bearer ${token}`,
+        },
+    });
+
+    if (!response.ok) {
+        const data = await response.json().catch(() => null);
+
+        throw new Error(
+            data?.message || "Logout gagal."
+        );
+    }
+
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+}
