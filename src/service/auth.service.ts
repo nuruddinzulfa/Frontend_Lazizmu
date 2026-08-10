@@ -5,24 +5,49 @@ export interface LoginPayload {
     password: string;
 }
 
+export interface User {
+    id: number;
+    name: string;
+    email: string;
+    phone: string;
+    photo?: string | null;
+    status: string;
+    role: string;
+}
+
 export interface LoginResponse {
     success: boolean;
     message: string;
     data: {
         token: string;
-        user: {
-            id: number;
-            name: string;
-            email: string;
-            phone: string;
-            photo?: string | null;
-            status: string;
-            role: string;
-        };
+        user: User;
     };
 }
 
+export async function getProfile(): Promise<User> {
 
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+        throw new Error("Token tidak ditemukan.");
+    }
+
+    const response = await fetch(`${API_URL}/admin/profile`, {
+        method: "GET",
+        headers: {
+            "Accept": "application/json",
+            "Authorization": `Bearer ${token}`,
+        },
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(data.message || "Sesi tidak valid.");
+    }
+
+    return data.data;
+}
 export async function login(
     payload: LoginPayload
 ): Promise<LoginResponse> {
@@ -35,26 +60,9 @@ export async function login(
         },
         body: JSON.stringify(payload),
     });
-    
 
-    const text = await response.text();
 
-    console.log("STATUS:", response.status);
-    console.log("CONTENT TYPE:", response.headers.get("content-type"));
-    console.log("RAW RESPONSE:", text);
-    
-
-    let data: LoginResponse;
-
-    try {
-        data = JSON.parse(text);
-    } catch {
-        console.error("Response bukan JSON:", text);
-
-        throw new Error(
-            "Server mengembalikan response yang bukan JSON."
-        );
-    }
+    const data = await response.json();
 
     if (!response.ok) {
         throw new Error(data.message || "Login gagal");
