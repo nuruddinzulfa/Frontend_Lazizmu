@@ -7,14 +7,13 @@ interface ProgramPageProps {
 }
 
 const programs = [
-  { id: 1, title: 'Beasiswa Pendidikan', category: 'Zakat', description: 'Program beasiswa untuk pelajar kurang mampu dari SD hingga perguruan tinggi agar dapat melanjutkan pendidikan.', target: 100000000, collected: 73500000, image: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=400&h=250&fit=crop' },
-  { id: 2, title: 'Bantuan Kesehatan', category: 'Infaq', description: 'Layanan kesehatan gratis dan bantuan biaya pengobatan bagi masyarakat yang tidak mampu.', target: 75000000, collected: 42000000, image: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400&h=250&fit=crop' },
-  { id: 3, title: 'Pemberdayaan Ekonomi', category: 'Zakat', description: 'Modal usaha dan pelatihan keterampilan untuk keluarga kurang mampu agar mandiri secara ekonomi.', target: 150000000, collected: 98000000, image: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400&h=250&fit=crop' },
-  { id: 4, title: 'Bantuan Pangan', category: 'Sedekah', description: 'Distribusi paket sembako dan makanan bergizi untuk keluarga dhuafa dan lansia terlantar.', target: 50000000, collected: 50000000, image: 'https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=400&h=250&fit=crop' },
-  { id: 5, title: 'Pembangunan Masjid', category: 'Wakaf', description: 'Pembangunan dan renovasi masjid di daerah terpencil Kabupaten Pemalang sebagai pusat ibadah.', target: 200000000, collected: 134000000, image: 'https://images.unsplash.com/photo-1564769625905-50e93615e769?w=400&h=250&fit=crop' },
-  { id: 6, title: 'Pertanian Berkelanjutan', category: 'Infaq', description: 'Bantuan alat pertanian, bibit, dan pendampingan untuk petani kecil di wilayah Pemalang.', target: 80000000, collected: 31000000, image: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400&h=250&fit=crop' },
-  { id: 7, title: 'Tanggap Bencana', category: 'Sedekah', description: 'Bantuan cepat tanggap untuk korban bencana alam berupa logistik, sandang, dan pangan.', target: 60000000, collected: 18000000, image: 'https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?w=400&h=250&fit=crop' },
-  { id: 8, title: 'Wakaf Produktif', category: 'Wakaf', description: 'Program wakaf aset produktif yang hasilnya digunakan untuk mendanai program sosial secara berkelanjutan.', target: 500000000, collected: 210000000, image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=400&h=250&fit=crop' },
+  { id: 1, title: 'Beasiswa Pendidikan', category: 'Pendidikan', description: 'Program beasiswa untuk pelajar kurang mampu dari SD hingga perguruan tinggi agar dapat melanjutkan pendidikan.', target: 100000000, collected: 73500000, image: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=400&h=250&fit=crop' },
+  { id: 2, title: 'Bantuan Kesehatan', category: 'Kesehatan', description: 'Layanan kesehatan gratis dan bantuan biaya pengobatan bagi masyarakat yang tidak mampu.', target: 75000000, collected: 42000000, image: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400&h=250&fit=crop' },
+  { id: 3, title: 'Pemberdayaan Ekonomi', category: 'Ekonomi', description: 'Modal usaha dan pelatihan keterampilan untuk keluarga kurang mampu agar mandiri secara ekonomi.', target: 150000000, collected: 98000000, image: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400&h=250&fit=crop' },
+  { id: 4, title: 'Bantuan Pangan', category: 'Kemanusiaan', description: 'Distribusi paket sembako dan makanan bergizi untuk keluarga dhuafa dan lansia terlantar.', target: 50000000, collected: 50000000, image: 'https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=400&h=250&fit=crop' },
+  { id: 5, title: 'Pembangunan Masjid', category: 'Sosial Dakwah', description: 'Pembangunan dan renovasi masjid di daerah terpencil Kabupaten Pemalang sebagai pusat ibadah.', target: 200000000, collected: 134000000, image: 'https://images.unsplash.com/photo-1564769625905-50e93615e769?w=400&h=250&fit=crop' },
+  { id: 6, title: 'Pertanian Berkelanjutan', category: 'Lingkungan', description: 'Bantuan alat pertanian, bibit, dan pendampingan untuk petani kecil di wilayah Pemalang.', target: 80000000, collected: 31000000, image: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400&h=250&fit=crop' },
+  { id: 7, title: 'Tanggap Bencana', category: 'Kemanusiaan', description: 'Bantuan cepat tanggap untuk korban bencana alam berupa logistik, sandang, dan pangan.', target: 60000000, collected: 18000000, image: 'https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?w=400&h=250&fit=crop' },
 ]
 
 const categoryColors: Record<string, string> = {
@@ -25,17 +24,17 @@ const categoryColors: Record<string, string> = {
 }
 
 const pillars = [
-  { icon: '📚', name: 'Pendidikan', desc: 'Beasiswa & Mentoring untuk generasi unggul' },
-  { icon: '🏥', name: 'Kesehatan', desc: 'Klinik gratis & santunan biaya pengobatan' },
-  { icon: '💼', name: 'Ekonomi', desc: 'Modal UMKM & pelatihan kewirausahaan' },
-  { icon: '🤲', name: 'Sosial', desc: 'Pangan dhuafa & respons kemanusiaan' },
-  { icon: '🕌', name: 'Dakwah', desc: 'Masjid & program Tahfidz Quran' },
-  { icon: '🌱', name: 'Lingkungan', desc: 'Pertanian berkelanjutan & air bersih' },
+  { icon: '📚', name: 'Pendidikan', desc: 'Pendidikan adalah kunci utama untuk membuka pintu masa depan yang cerah. Lazismu, dengan komitmennya dalam membangun masyarakat yang lebih baik, terus berupaya memberikan akses pendidikan berkualitas bagi seluruh lapisan masyarakat, terutama mereka yang kurang beruntung.' },
+  { icon: '🏥', name: 'Kesehatan', desc: 'Dalam hiruk pikuk kehidupan modern, kesehatan menjadi aset yang tak ternilai. Namun, tidak semua orang memiliki akses yang sama terhadap layanan kesehatan berkualitas. Di sinilah Lazismu hadir, dengan komitmennya untuk mewujudkan masyarakat Indonesia yang sehat dan sejahtera.' },
+  { icon: '💼', name: 'Ekonomi', desc: 'Lazismu, sebagai lembaga zakat yang peduli pada kesejahteraan masyarakat, tidak hanya fokus pada aspek sosial dan pendidikan, namun juga pada pengembangan ekonomi masyarakat. Melalui Pilar Ekonomi, Lazismu berkomitmen untuk memberdayakan masyarakat, khususnya mereka yang berada di garis kemiskinan, agar dapat meningkatkan taraf hidup mereka.' },
+  { icon: '🤲', name: 'Sosial Dakwah', desc: 'Lazismu, sebagai lembaga filantropi yang berakar pada nilai-nilai Islam, tidak hanya fokus pada aspek ekonomi dan pendidikan, namun juga pada pengembangan sosial dan dakwah. Melalui Pilar Sosial Dakwah, Lazismu berkomitmen untuk membangun masyarakat yang lebih baik dengan cara menebar kebaikan dan merangkul sesama.' },
+  { icon: '🫂 ', name: 'Kemanusiaan', desc: 'Lazismu, sebagai lembaga filantropi yang berakar pada nilai-nilai Islam, senantiasa hadir di tengah masyarakat untuk memberikan bantuan dan dukungan. Pilar Kemanusiaan Lazismu menjadi manifestasi nyata dari komitmen kami untuk meringankan beban sesama dan membangun masyarakat yang lebih baik.' },
+  { icon: '🌱', name: 'Lingkungan', desc: 'Lazismu, sebagai lembaga filantropi yang peduli terhadap kesejahteraan umat manusia, tidak hanya fokus pada aspek sosial dan ekonomi, namun juga pada pelestarian lingkungan. Pilar Lingkungan Lazismu menjadi manifestasi nyata dari komitmen kami untuk menjaga kelestarian alam dan memberikan kontribusi positif bagi generasi mendatang.' },
 ]
 
 export default function ProgramPage({ onDonateProgram }: ProgramPageProps) {
   const [activeFilter, setActiveFilter] = useState('Semua')
-  const filters = ['Semua', 'Zakat', 'Infaq', 'Sedekah', 'Wakaf']
+  const filters = ['Semua', 'Pendidikan', 'Kesehatan', 'Ekonomi', 'Sosial Dakwah', 'Kemanusiaan', 'Lingkungan'  ]
   const filtered = activeFilter === 'Semua' ? programs : programs.filter(p => p.category === activeFilter)
   const fmt = (n: number) => 'Rp ' + n.toLocaleString('id-ID')
   const pct = (c: number, t: number) => Math.min(Math.round((c / t) * 100), 100)
