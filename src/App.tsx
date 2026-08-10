@@ -44,56 +44,56 @@ export default function App() {
 
     const restoreSession = async () => {
 
-        const token = localStorage.getItem("token")
+      const token = localStorage.getItem("token")
 
-        if (!token) {
-            setAuthLoading(false)
-            return
+      if (!token) {
+        setAuthLoading(false)
+        return
+      }
+
+      try {
+
+        const user = await getProfile()
+
+        localStorage.setItem(
+          "user",
+          JSON.stringify(user)
+        )
+
+        // Pastikan role adalah role yang kita izinkan
+        const allowedRoles = [
+          "Super Admin",
+          "Admin Donasi",
+          "Admin Konten",
+        ]
+
+        if (allowedRoles.includes(user.role)) {
+          setPage("dashboard") //ini setting ketika di refresh baliknya ke page mana  
+        } else {
+          localStorage.removeItem("token")
+          localStorage.removeItem("user")
+          setPage("login")
         }
 
-        try {
+      } catch (error) {
 
-            const user = await getProfile()
+        console.error("Session tidak valid:", error)
 
-            localStorage.setItem(
-                "user",
-                JSON.stringify(user)
-            )
+        localStorage.removeItem("token")
+        localStorage.removeItem("user")
 
-            // Pastikan role adalah role yang kita izinkan
-            const allowedRoles = [
-                "Super Admin",
-                "Admin Donasi",
-                "Admin Konten",
-            ]
+        setPage("login")
 
-            if (allowedRoles.includes(user.role)) {
-                setPage("dashboard") //ini setting ketika di refresh baliknya ke page mana  
-            } else {
-                localStorage.removeItem("token")
-                localStorage.removeItem("user")
-                setPage("login")
-            }
+      } finally {
 
-        } catch (error) {
+        setAuthLoading(false)
 
-            console.error("Session tidak valid:", error)
-
-            localStorage.removeItem("token")
-            localStorage.removeItem("user")
-
-            setPage("login")
-
-        } finally {
-
-            setAuthLoading(false)
-
-        }
+      }
     }
 
     restoreSession()
 
-}, [])
+  }, [])
 
   const handleNavigateToDonasiWithProgram = (program: string) => {
     setSelectedProgram(program)
@@ -108,7 +108,12 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
-  const noFooterPages: NavPage[] = ['login', 'register']
+  const noFooterPages: NavPage[] = [
+    'login',
+    'register',
+    'dashboard',
+  ]
+
   const showFooter = !noFooterPages.includes(page)
 
   const renderPage = () => {
@@ -142,21 +147,32 @@ export default function App() {
 
   if (authLoading) {
     return (
-        <div className="min-h-screen flex items-center justify-center bg-[#FFF8F2]">
-            <div className="text-center">
-                <div className="animate-spin w-8 h-8 border-4 border-[#F58220] border-t-transparent rounded-full mx-auto mb-3" />
+      <div className="min-h-screen flex items-center justify-center bg-[#FFF8F2]">
+        <div className="text-center">
+          <div className="animate-spin w-8 h-8 border-4 border-[#F58220] border-t-transparent rounded-full mx-auto mb-3" />
 
-                <p className="text-sm text-gray-500">
-                    Memeriksa sesi...
-                </p>
-            </div>
+          <p className="text-sm text-gray-500">
+            Memeriksa sesi...
+          </p>
         </div>
+      </div>
     )
-}
+  }
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#FFF8F2', fontFamily: "'Inter', sans-serif" }}>
-      <Navbar currentPage={page} onNavigate={handleNavigate} />
+    <div
+      className="min-h-screen"
+      style={{
+        backgroundColor: '#FFF8F2',
+        fontFamily: "'Inter', sans-serif",
+      }}
+    >
+      {page !== 'dashboard' && (
+        <Navbar
+          currentPage={page}
+          onNavigate={handleNavigate}
+        />
+      )}
 
       {renderPage()}
 

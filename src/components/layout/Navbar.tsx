@@ -1,9 +1,22 @@
 import { useState, useEffect } from 'react'
 import logo from '../../imports/3-2.png'
 import { logout } from '../../service/auth.service'
+import type { NavPage } from '../../App'
 
-type Page = 'home' | 'zakat' | 'donasi' | 'about' | 'program' | 'berita' | 'artikel' | 'publikasi' | 'login' | 'register' | 'dashboard'
-
+type Page =
+  | 'home'
+  | 'zakat'
+  | 'donasi'
+  | 'about'
+  | 'program'
+  | 'berita'
+  | 'artikel'
+  | 'publikasi'
+  | 'login'
+  | 'register'
+  | 'dashboard'
+  | 'baca'
+  
 interface NavbarProps {
   currentPage: Page
   onNavigate: (page: Page) => void
