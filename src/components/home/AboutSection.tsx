@@ -15,10 +15,10 @@ const orgStructure = {
     { role: 'Bendahara', name: 'Hj. Siti Rohmah, S.E.', color: 'bg-green-50 border-green-200 text-green-700' },
   ],
   divisions: [
-    { role: 'Div. Penghimpunan', name: 'Faisal Maulana, S.E.', icon: '📥' },
-    { role: 'Div. Pendayagunaan', name: 'Nur Hidayah, S.Sos.', icon: '🤲' },
-    { role: 'Div. Keuangan', name: 'Tri Wahyuni, S.Ak.', icon: '💼' },
-    { role: 'Div. IT & Humas', name: 'Rizal Firmansyah, S.Kom.', icon: '📡' },
+    { role: 'Div. Penghimpunan', name: 'Faisal Maulana, S.E.', icon: '' },
+    { role: 'Div. Pendayagunaan', name: 'Nur Hidayah, S.Sos.', icon: '' },
+    { role: 'Div. Keuangan', name: 'Tri Wahyuni, S.Ak.', icon: '' },
+    { role: 'Div. IT & Humas', name: 'Rizal Firmansyah, S.Kom.', icon: '' },
   ],
 }
 
@@ -29,10 +29,10 @@ const misi = [
 ]
 
 const milestones = [
-  { year: '2002', label: 'Didirikan PP. Muhammadiyah', icon: '🏛️' },
-  { year: '2002', label: 'SK Menag No. 457 — LAZNAS Nasional', icon: '📜' },
-  { year: '2016', label: 'SK Menag No. 730 — Dikukuhkan kembali', icon: '✅' },
-  { year: '2022', label: 'SK Menag No. 90 — Perpanjangan izin', icon: '🔄' },
+  { year: '2002', label: 'Didirikan PP. Muhammadiyah', icon: '' },
+  { year: '2002', label: 'SK Menag No. 457 — LAZNAS Nasional', icon: '' },
+  { year: '2016', label: 'SK Menag No. 730 — Dikukuhkan kembali', icon: '' },
+  { year: '2022', label: 'SK Menag No. 90 — Perpanjangan izin', icon: '' },
 ]
 
 export default function AboutSection({ onNavigate }: AboutSectionProps) {

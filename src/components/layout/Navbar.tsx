@@ -27,7 +27,7 @@ interface NavbarProps {
 const pageNavLinks: { label: string; page: Page }[] = [
   { label: 'Beranda', page: 'home' },
   { label: 'Tentang Kami', page: 'about' },
-  { label: 'Program', page: 'program' },
+  { label: 'Program & Kampanye', page: 'program' },
   { label: 'Berita', page: 'berita' },
   { label: 'Artikel', page: 'artikel' },
   { label: 'Publikasi', page: 'publikasi' },

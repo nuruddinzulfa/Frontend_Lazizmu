@@ -104,7 +104,7 @@ export default function Footer({ onNavigate }: FooterProps) {
               Program
             </h4>
             <ul className="space-y-2.5 text-sm">
-              {['Beasiswa Pendidikan', 'Layanan Kesehatan', 'Pemberdayaan Ekonomi', 'Pembangunan Masjid', 'Tanggap Bencana'].map(l => (
+              {['Pendidikan', 'Kesehatan', 'Ekonomi', 'Sosial Dakwah', 'Kemanusiaan', 'lingkungan'].map(l => (
                 <li key={l}>
                   <a href="#programs" className="text-gray-400 hover:text-[#F58220] transition-colors">
                     {l}
@@ -141,18 +141,12 @@ export default function Footer({ onNavigate }: FooterProps) {
               </li>
             </ul>
 
-            {/* Newsletter */}
+    
             <div>
-              <div className="text-xs text-gray-500 mb-2">Berlangganan newsletter kami</div>
-              <div className="flex">
-                <input
-                  type="email"
-                  placeholder="email@anda.com"
-                  className="flex-1 bg-gray-800 text-gray-300 text-sm px-3 py-2 rounded-l-lg border border-gray-700 focus:outline-none focus:border-[#F58220] min-w-0"
-                />
-                <button className="bg-[#F58220] hover:bg-[#D96D0A] text-white px-3 py-2 rounded-r-lg transition-colors">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+              <div></div>
+              <div>
+                <button>
+                  <svg >
                   </svg>
                 </button>
               </div>

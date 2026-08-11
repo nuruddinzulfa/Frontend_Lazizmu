@@ -21,7 +21,7 @@ const campaigns = [
   {
     id: 2,
     title: 'Bantuan Pangan Keluarga Dhuafa',
-    category: 'Sosial',
+    category: 'Ekonomi',
     categoryColor: 'bg-green-100 text-green-700',
     image: 'https://images.unsplash.com/photo-1637034132661-4f015591b84a?w=600&h=400&fit=crop&auto=format',
     alt: 'Distribusi bantuan pangan',
@@ -34,7 +34,7 @@ const campaigns = [
   {
     id: 3,
     title: 'Renovasi Masjid Desa Terpencil',
-    category: 'Keagamaan',
+    category: 'Sosial Dakwah',
     categoryColor: 'bg-purple-100 text-purple-700',
     image: 'https://images.unsplash.com/photo-1708481686679-1bfebe1afefc?w=600&h=400&fit=crop&auto=format',
     alt: 'Masjid yang akan direnovasi',
@@ -136,12 +136,12 @@ export default function FeaturedCampaigns({ onNavigate }: FeaturedCampaignsProps
           ref={ref as React.RefObject<HTMLDivElement>}
           className={`text-center mb-12 transition-all duration-700 ${inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
         >
-          <span className="text-[#F58220] text-sm font-semibold uppercase tracking-wider">Campaign</span>
+          <span className="text-[#F58220] text-sm font-semibold uppercase tracking-wider">Kampanye</span>
           <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mt-2 mb-4" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-            Campaign Unggulan
+            Kampanye Unggulan
           </h2>
           <p className="text-gray-500 max-w-xl mx-auto">
-            Pilih campaign yang sesuai dengan niat kebaikan Anda. Setiap rupiah bernilai ibadah.
+            Pilih Kampanye yang sesuai dengan niat kebaikan Anda. Setiap rupiah bernilai ibadah.
           </p>
         </div>
 
@@ -157,7 +157,7 @@ export default function FeaturedCampaigns({ onNavigate }: FeaturedCampaignsProps
             className="border-2 border-[#F58220] text-[#F58220] hover:bg-[#F58220] hover:text-white transition-all duration-200 px-8 py-3 rounded-xl font-semibold text-sm"
             style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
           >
-            Lihat Semua Campaign →
+            Lihat Semua Kampanye →
           </button>
         </div>
       </div>

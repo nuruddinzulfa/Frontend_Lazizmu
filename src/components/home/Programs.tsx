@@ -23,7 +23,7 @@ const programs = [
     beneficiaries: '2.185',
   },
   {
-    title: 'Tanggap Bencana',
+    title: 'Kemanusiaan',
     desc: 'Respon darurat cepat, distribusi logistik, dan pemulihan pasca bencana alam.',
     image: 'https://images.unsplash.com/photo-1637034132661-4f015591b84a?w=600&h=400&fit=crop&auto=format',
     alt: 'Tanggap bencana',
@@ -32,7 +32,7 @@ const programs = [
     beneficiaries: '1.890',
   },
   {
-    title: 'Pemberdayaan Ekonomi',
+    title: 'Ekonomi',
     desc: 'Modal usaha, pelatihan keterampilan, dan pendampingan usaha mikro keluarga dhuafa.',
     image: 'https://images.unsplash.com/photo-1611087802810-046bb671e644?w=600&h=400&fit=crop&auto=format',
     alt: 'Pemberdayaan ekonomi',
@@ -41,7 +41,7 @@ const programs = [
     beneficiaries: '980',
   },
   {
-    title: 'Pembangunan Masjid',
+    title: 'Sosial Dakwah',
     desc: 'Renovasi dan pembangunan masjid serta musholla di desa-desa yang membutuhkan.',
     image: 'https://images.unsplash.com/photo-1708481686679-1bfebe1afefc?w=600&h=400&fit=crop&auto=format',
     alt: 'Pembangunan masjid',
@@ -50,7 +50,7 @@ const programs = [
     beneficiaries: '4.200',
   },
   {
-    title: 'Bantuan Pangan',
+    title: 'Lingkungan',
     desc: 'Distribusi sembako, dapur umum, dan program ketahanan pangan keluarga miskin.',
     image: 'https://images.unsplash.com/photo-1710093072228-8c3129f27357?w=600&h=400&fit=crop&auto=format',
     alt: 'Bantuan pangan',

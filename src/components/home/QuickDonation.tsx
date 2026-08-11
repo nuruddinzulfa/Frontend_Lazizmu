@@ -142,9 +142,9 @@ export default function QuickDonation({ onNavigate }: QuickDonationProps) {
                 {/* Trust badges */}
                 <div className="flex justify-center gap-6 mt-8 pt-6 border-t border-[#F3DEC8]">
                   {[
-                    { icon: '🔒', label: 'Transaksi Aman' },
-                    { icon: '✅', label: 'Resmi LAZNAS' },
-                    { icon: '📊', label: 'Transparan' },
+                    { icon: '', label: 'Transaksi Aman' },
+                    { icon: '', label: 'Resmi LAZNAS' },
+                    { icon: '', label: 'Transparan' },
                   ].map(b => (
                     <div key={b.label} className="flex flex-col items-center gap-1">
                       <span className="text-xl">{b.icon}</span>

@@ -11,9 +11,9 @@ const allocationData = [
 ]
 
 const reports = [
-  { year: '2024', title: 'Laporan Tahunan 2024', size: '2.4 MB', icon: '📊' },
-  { year: '2023', title: 'Laporan Tahunan 2023', size: '1.9 MB', icon: '📊' },
-  { year: 'Q1 2025', title: 'Laporan Triwulan I 2025', size: '856 KB', icon: '📋' },
+  { year: '2024', title: 'Laporan Tahunan 2024', size: '2.4 MB', icon: '' },
+  { year: '2023', title: 'Laporan Tahunan 2023', size: '1.9 MB', icon: '' },
+  { year: 'Q1 2025', title: 'Laporan Triwulan I 2025', size: '856 KB', icon: '' },
 ]
 
 function DonutChart() {
