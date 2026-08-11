@@ -57,11 +57,22 @@ const handleNavigate = (p: NavPage) => {
   })
 }
 
-  const handlePayZakat = (amount: number) => {
-    setZakatAmount(amount)
-    setPage('donasi')
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }
+const handlePayZakat = (amount: number) => {
+  setZakatAmount(amount)
+  setCurrentContent(null)
+  setPage('donasi')
+
+  window.history.pushState(
+    { page: 'donasi' },
+    '',
+    '/donasi'
+  )
+
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth',
+  })
+}
 
   useEffect(() => {
 
@@ -134,7 +145,7 @@ const handleOpenContent = (
   setCurrentContent(content)
   setPage('baca')
 
-  window.history.replaceState(
+  window.history.pushState(
     {
       page: 'baca',
       content,
@@ -143,14 +154,35 @@ const handleOpenContent = (
     `/${type}/${id}`
   )
 
-  window.scrollTo({ top: 0, behavior: 'smooth' })
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth',
+  })
 }
 useEffect(() => {
-  const handlePopState = () => {
-    setPage('home')
-    setCurrentContent(null)
-    setZakatAmount(null)
-    setSelectedProgram(null)
+  const handlePopState = (event: PopStateEvent) => {
+    const state = event.state
+
+    if (state?.page) {
+      setPage(state.page)
+
+      if (state.content) {
+        setCurrentContent(state.content)
+      } else {
+        setCurrentContent(null)
+      }
+
+      if (state.page !== 'donasi') {
+        setZakatAmount(null)
+        setSelectedProgram(null)
+      }
+    } else {
+      // Jika tidak ada state, anggap sebagai Beranda
+      setPage('home')
+      setCurrentContent(null)
+      setZakatAmount(null)
+      setSelectedProgram(null)
+    }
 
     window.scrollTo({
       top: 0,
@@ -165,13 +197,11 @@ useEffect(() => {
   }
 }, [])
 useEffect(() => {
-  if (!window.history.state?.page) {
-    window.history.replaceState(
-      { page: 'home' },
-      '',
-      window.location.pathname
-    )
-  }
+  window.history.replaceState(
+    { page: 'home' },
+    '',
+    '/'
+  )
 }, [])
 
   const noFooterPages: NavPage[] = [
