@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-type TabKey = 'zakat' | 'infaq' | 'pilar'
+type TabKey = 'zakat' | 'infaq' | 'pilar'| 'kampanye'
 
 interface ProgramItem {
   id: string
@@ -165,18 +165,77 @@ const pilarPrograms: ProgramItem[] = [
   },
 ]
 
-const allPrograms: ProgramItem[] = [...zakatPrograms, ...infaqPrograms, ...pilarPrograms]
+const kampanyePrograms: ProgramItem[] = [
+    {
+    id: 'kampanye-pendidikan',
+    tab: 'kampanye',
+    type: 'kampanye',
+    label: 'Beasiswa Anak Kurang Mampu Pemalang',
+    image: 'https://images.unsplash.com/photo-1549431971-f54b3f5c82d8?w=600&h=400&fit=crop&auto=format',
+    terkumpul: 48750000,
+    donatur: 312,
+  },
+  {
+    id: 'kampanye-kemanusiaan',
+    tab: 'kampanye',
+    type: 'kampanye',
+    label: 'Bantuan Pangan Keluarga Dhuafa',
+    image: 'https://images.unsplash.com/photo-1637034132661-4f015591b84a?w=600&h=400&fit=crop&auto=format',
+    terkumpul: 134200000,
+    donatur: 521,
+  },
+  {
+    id: 'kampanye-Sosial Dakwah',
+    tab: 'kampanye',
+    type: 'kampanye',
+    label: 'Renovasi Masjid Desa Terpencil',
+    image: 'https://images.unsplash.com/photo-1708481686679-1bfebe1afefc?w=600&h=400&fit=crop&auto=format',
+    terkumpul: 67800000,
+    donatur: 289,
+  },
+  {
+    id: 'pilar-yatim',
+    tab: 'pilar',
+    type: 'Program Pilar',
+    label: 'Beasiswa 50 Anak Yatim Semester Ganjil 2025',
+    image: 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=600&h=400&fit=crop&auto=format',
+    terkumpul: 92300000,
+    donatur: 418,
+  },
+  {
+    id: 'kampanye-umkm',
+    tab: 'kampanye',
+    type: 'kampanye',
+    label: 'Alat Produksi UMKM Kerajinan Batik Dhuafa',
+    image: 'https://images.unsplash.com/photo-1611087802810-046bb671e644?w=600&h=400&fit=crop&auto=format',
+    terkumpul: 38450000,
+    donatur: 176,
+  },
+  {
+    id: 'kampanye-tahfidz',
+    tab: 'kampanye',
+    type: 'kampanye',
+    label: 'Majelis Tahfidz Quran untuk 30 Santri',
+    image: 'https://images.unsplash.com/photo-1585036156171-384164a8c675?w=600&h=400&fit=crop&auto=format',
+    terkumpul: 54100000,
+    donatur: 234,
+  },
+]
+
+const allPrograms: ProgramItem[] = [...zakatPrograms, ...infaqPrograms, ...pilarPrograms, ...kampanyePrograms]
 
 const programsByTab: Record<TabKey, ProgramItem[]> = {
   zakat: zakatPrograms,
   infaq: infaqPrograms,
   pilar: pilarPrograms,
+  kampanye: kampanyePrograms,
 }
 
 const tabs: { key: TabKey; label: string }[] = [
   { key: 'zakat', label: 'Zakat' },
   { key: 'infaq', label: 'Infaq' },
   { key: 'pilar', label: 'Program Pilar' },
+  { key: 'kampanye', label: 'kampanye' },
 ]
 
 const presets = [10000, 25000, 50000, 100000, 250000, 500000]
@@ -188,7 +247,7 @@ const paymentMethods = [
     group: 'Virtual Account',
     accountNumber: '8000-1234-5678-9012',
     bank: 'BCA',
-    logo: '🏦',
+    logo: '',
   },
   {
     id: 'va-bsi',
@@ -196,7 +255,7 @@ const paymentMethods = [
     group: 'Virtual Account',
     accountNumber: '9000-8765-4321-0987',
     bank: 'BSI',
-    logo: '🕌',
+    logo: '',
   },
   {
     id: 'va-mandiri',
@@ -204,7 +263,7 @@ const paymentMethods = [
     group: 'Virtual Account',
     accountNumber: '8855-0011-2233-4455',
     bank: 'Mandiri',
-    logo: '🏛️',
+    logo: '',
   },
   {
     id: 'va-bni',
@@ -212,7 +271,7 @@ const paymentMethods = [
     group: 'Virtual Account',
     accountNumber: '9889-1122-3344-5566',
     bank: 'BNI',
-    logo: '🏦',
+    logo: '',
   },
   {
     id: 'qris',
@@ -220,7 +279,7 @@ const paymentMethods = [
     group: 'QRIS',
     accountNumber: '',
     bank: 'QRIS',
-    logo: '📱',
+    logo: '',
   },
   {
     id: 'transfer-bca',
@@ -228,7 +287,7 @@ const paymentMethods = [
     group: 'Transfer Bank',
     accountNumber: '123-456-7890',
     bank: 'BCA a.n. LAZISMU Pemalang',
-    logo: '🏦',
+    logo: '',
   },
   {
     id: 'transfer-bsi',
@@ -236,7 +295,7 @@ const paymentMethods = [
     group: 'Transfer Bank',
     accountNumber: '710-1234-567',
     bank: 'BSI a.n. LAZISMU Pemalang',
-    logo: '🕌',
+    logo: '',
   },
 ]
 
