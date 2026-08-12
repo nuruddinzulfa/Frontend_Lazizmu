@@ -24,21 +24,55 @@ export default function App() {
   const [zakatAmount, setZakatAmount] = useState<number | null>(null)
   const [selectedProgram, setSelectedProgram] = useState<string | null>(null)
   const [currentContent, setCurrentContent] = useState<{ type: 'berita' | 'artikel'; id: number } | null>(null)
-
-  const handleNavigate = (p: NavPage) => {
-    if (p !== 'donasi') {
-      setZakatAmount(null)
-      setSelectedProgram(null)
-    }
-    setPage(p)
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+  const getPathForPage = (p: NavPage) => {
+  if (p === 'home') return '/'
+  return `/${p}`
+}
+const handleNavigate = (p: NavPage) => {
+  if (p !== 'donasi') {
+    setZakatAmount(null)
+    setSelectedProgram(null)
   }
 
-  const handlePayZakat = (amount: number) => {
-    setZakatAmount(amount)
-    setPage('donasi')
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+  setCurrentContent(null)
+  setPage(p)
+
+  if (p === 'home') {
+    window.history.pushState(
+      { page: 'home' },
+      '',
+      '/'
+    )
+  } else {
+    window.history.pushState(
+      { page: p },
+      '',
+      getPathForPage(p)
+    )
   }
+
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth',
+  })
+}
+
+const handlePayZakat = (amount: number) => {
+  setZakatAmount(amount)
+  setCurrentContent(null)
+  setPage('donasi')
+
+  window.history.pushState(
+    { page: 'donasi' },
+    '',
+    '/donasi'
+  )
+
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth',
+  })
+}
 
   useEffect(() => {
 
@@ -102,11 +136,73 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
-  const handleOpenContent = (type: 'berita' | 'artikel', id: number) => {
-    setCurrentContent({ type, id })
-    setPage('baca')
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+const handleOpenContent = (
+  type: 'berita' | 'artikel',
+  id: number
+) => {
+  const content = { type, id }
+
+  setCurrentContent(content)
+  setPage('baca')
+
+  window.history.pushState(
+    {
+      page: 'baca',
+      content,
+    },
+    '',
+    `/${type}/${id}`
+  )
+
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth',
+  })
+}
+useEffect(() => {
+  const handlePopState = (event: PopStateEvent) => {
+    const state = event.state
+
+    if (state?.page) {
+      setPage(state.page)
+
+      if (state.content) {
+        setCurrentContent(state.content)
+      } else {
+        setCurrentContent(null)
+      }
+
+      if (state.page !== 'donasi') {
+        setZakatAmount(null)
+        setSelectedProgram(null)
+      }
+    } else {
+      // Jika tidak ada state, anggap sebagai Beranda
+      setPage('home')
+      setCurrentContent(null)
+      setZakatAmount(null)
+      setSelectedProgram(null)
+    }
+
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth',
+    })
   }
+
+  window.addEventListener('popstate', handlePopState)
+
+  return () => {
+    window.removeEventListener('popstate', handlePopState)
+  }
+}, [])
+useEffect(() => {
+  window.history.replaceState(
+    { page: 'home' },
+    '',
+    '/'
+  )
+}, [])
 
   const noFooterPages: NavPage[] = [
     'login',
