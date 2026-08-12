@@ -1,21 +1,51 @@
-'use client';
+'use client'
 
-import React from 'react';
-import logo from '../imports/3-2.png';
-import SidebarUser from './SidebarUser';
-import SidebarMenu from './SidebarMenu';
-import SidebarFooter from './SidebarFooter';
+import React from 'react'
+import logo from '../imports/3-2.png'
+
+import SidebarUser from './SidebarUser'
+import SidebarMenu from './SidebarMenu'
+import SidebarFooter from './SidebarFooter'
+
+interface AdminSidebarProps {
+  activeMenu: string
+  onMenuChange: (menu: string) => void
+  onLogout: () => void
+ 
+}
 
 type AdminRole =
   | 'Super Admin'
   | 'Admin Konten'
   | 'Admin Donasi'
 
+const roleMenus: Record<AdminRole, string[]> = {
+  'Super Admin': [
+    'dashboard',
+    'donasi',
+    'campaign',
+    'program',
+    'berita',
+    'artikel',
+    'publikasi',
+    'users',
+    'laporan',
+    'pengaturan',
+  ],
 
-interface AdminSidebarProps {
-  activeMenu: string;
-  onMenuChange: (menu: string) => void;
-  onLogout: () => void;
+  'Admin Konten': [
+    'dashboard',
+    'campaign',
+    'program',
+    'berita',
+    'artikel',
+    'publikasi',
+  ],
+
+  'Admin Donasi': [
+    'dashboard',
+    'donasi',
+  ],
 }
 
 export default function AdminSidebar({
@@ -23,27 +53,43 @@ export default function AdminSidebar({
   onMenuChange,
   onLogout,
 }: AdminSidebarProps) {
-  const [role, setRole] = React.useState<AdminRole>('Super Admin')
 
-  React.useEffect(() => {
-    try {
-      const storedUser = localStorage.getItem('user')
+  /*
+  |--------------------------------------------------------------------------
+  | Ambil user dari localStorage
+  |--------------------------------------------------------------------------
+  */
 
-      if (!storedUser) return
+  let user: any = null
 
-      const user = JSON.parse(storedUser)
+  try {
+    const userStorage =
+      localStorage.getItem('user')
 
-      if (
-        user.role === 'Super Admin' ||
-        user.role === 'Admin Konten' ||
-        user.role === 'Admin Donasi'
-      ) {
-        setRole(user.role)
-      }
-    } catch (error) {
-      console.error('Gagal membaca role admin:', error)
+    if (userStorage) {
+      user = JSON.parse(userStorage)
     }
-  }, [])
+  } catch (error) {
+    console.error(
+      'Gagal membaca data user:',
+      error
+    )
+  }
+
+  const role =
+    user?.role as AdminRole | undefined
+
+  /*
+  |--------------------------------------------------------------------------
+  | Tentukan menu berdasarkan role
+  |--------------------------------------------------------------------------
+  */
+
+  const allowedMenus =
+    role && roleMenus[role]
+      ? roleMenus[role]
+      : ['dashboard']
+
   return (
     <aside
       className="
@@ -56,37 +102,55 @@ export default function AdminSidebar({
         w-52
         flex-col
         border-r
-        border-orange-100
+        border-[#F3DEC8]
         bg-white
       "
     >
-      {/* Logo */}
-      <div className="flex h-[72px] items-center px-4 border-b border-orange-100">
+
+      {/* ================================================================
+          LOGO
+      ================================================================= */}
+
+      <div className="flex h-[62px] items-center justify-center border-b border-[#F3DEC8] px-4">
         <img
           src={logo}
           alt="LAZISMU Kabupaten Pemalang"
-          className="h-16 w-auto object-contain"
+          className="h-11 w-auto object-contain"
         />
       </div>
 
-      {/* User */}
-      <div className="shrink-0">
-        <SidebarUser />
-      </div>
+      {/* ================================================================
+          USER
+      ================================================================= */}
 
-      {/* Menu */}
-      <div className="min-h-0 flex-1 overflow-y-auto px-2 py-4">
+      <SidebarUser
+        name={user?.name ?? 'Administrator'}
+        role={role ?? 'Administrator'}
+        photo={user?.photo ?? null}
+      />
+
+      {/* ================================================================
+          MENU
+      ================================================================= */}
+
+      <div className="flex-1 overflow-y-auto px-3 py-5">
+
         <SidebarMenu
           activeMenu={activeMenu}
           onMenuChange={onMenuChange}
-          role={role}
+          allowedMenus={allowedMenus}
         />
+
       </div>
 
-      {/* Footer */}
-      <div className="shrink-0">
-        <SidebarFooter onLogout={onLogout} />
-      </div>
+      {/* ================================================================
+          FOOTER
+      ================================================================= */}
+
+      <SidebarFooter
+        onLogout={onLogout}
+      />
+
     </aside>
-  );
+  )
 }

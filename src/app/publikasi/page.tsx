@@ -32,8 +32,8 @@ export default function PublikasiPage() {
     <div className="min-h-screen bg-[#FFF8F2]">
       <div className="bg-gradient-to-br from-[#F58220] to-[#D96D0A] text-white py-16 pt-32">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-sm mb-3 opacity-80"><span>Beranda</span><span className="mx-2">/</span><span>Publikasi</span></div>
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Publikasi &amp; Laporan</h1>
+          <div className="text-sm mb-3 opacity-80"><span>Beranda</span><span className="mx-2">/</span><span>Laporan</span></div>
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Laporan</h1>
           <p className="mt-4 text-lg opacity-90 max-w-2xl">Laporan keuangan dan program LAZISMU Pemalang yang transparan dan akuntabel.</p>
         </div>
       </div>

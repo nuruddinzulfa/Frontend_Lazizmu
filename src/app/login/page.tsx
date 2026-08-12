@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { NavPage } from '../../App'
 import { login } from "@/service/auth.service";
 
+
 interface LoginPageProps {
   onNavigate?: (page: NavPage) => void
 }
@@ -12,8 +13,7 @@ export default function LoginPage({ onNavigate }: LoginPageProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
 
-  const handleSubmit = async (e: React.FormEvent) => {
-
+const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     setError("");
@@ -24,50 +24,85 @@ export default function LoginPage({ onNavigate }: LoginPageProps) {
     }
 
     try {
-
         setIsLoading(true);
 
         const result = await login({
-    email,
-    password,
-});
+            email,
+            password,
+        });
 
-console.log(result);
+        console.log("LOGIN RESPONSE:", result);
+
+        const user = result.data.user;
+        const role = user.role;
+
+        /*
+        |--------------------------------------------------------------------------
+        | Simpan session
+        |--------------------------------------------------------------------------
+        */
+
+        localStorage.setItem(
+  "token",
+  result.data.token
+)
 
 localStorage.setItem(
-    "token",
-    result.data.token
-);
+  "user",
+  JSON.stringify(result.data.user)
+)
 
-localStorage.setItem(
-    "user",
-    JSON.stringify(result.data.user)
-);
+sessionStorage.setItem(
+  "adminDashboard",
+  "true"
+)
 
-const role = result.data.user.role;
+onNavigate?.("dashboard")
+        /*
+        |--------------------------------------------------------------------------
+        | Cek Role
+        |--------------------------------------------------------------------------
+        */
 
-if (
-    role === "Super Admin" ||
-    role === "Admin Donasi" ||
-    role === "Admin Konten"
-) {
-    onNavigate?.("dashboard");
-} else {
-    setError("Role pengguna tidak dikenali.");
-}
+        if (role === "Super Admin") {
+            onNavigate?.("dashboard");
+            return;
+        }
 
-alert("Login berhasil!");
+        if (role === "Admin Konten") {
+            onNavigate?.("dashboard");
+            return;
+        }
 
-    } catch (err: any) {
+        if (role === "Admin Donasi") {
+            onNavigate?.("dashboard");
+            return;
+        }
 
-        setError(err.message);
+        /*
+        |--------------------------------------------------------------------------
+        | Role tidak dikenal
+        |--------------------------------------------------------------------------
+        */
 
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+
+        setError(
+            "Akun Anda tidak memiliki akses ke dashboard."
+        );
+
+    } catch (err) {
+        console.error("LOGIN ERROR:", err);
+
+        setError(
+            err instanceof Error
+                ? err.message
+                : "Login gagal."
+        );
     } finally {
-
         setIsLoading(false);
-
     }
-
 };
 
     // setIsLoading(true)

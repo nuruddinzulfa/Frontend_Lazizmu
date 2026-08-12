@@ -30,7 +30,7 @@ const pageNavLinks: { label: string; page: Page }[] = [
   { label: 'Program & Kampanye', page: 'program' },
   { label: 'Berita', page: 'berita' },
   { label: 'Artikel', page: 'artikel' },
-  { label: 'Publikasi', page: 'publikasi' },
+  { label: 'Laporan', page: 'publikasi' },
 ]
 
 export default function Navbar({ currentPage, onNavigate }: NavbarProps) {

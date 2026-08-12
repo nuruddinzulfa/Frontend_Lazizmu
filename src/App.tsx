@@ -75,59 +75,86 @@ const handlePayZakat = (amount: number) => {
 }
 
   useEffect(() => {
+  const restoreSession = async () => {
 
-    const restoreSession = async () => {
+    const token =
+      localStorage.getItem("token")
 
-      const token = localStorage.getItem("token")
+    if (!token) {
+      setAuthLoading(false)
+      return
+    }
 
-      if (!token) {
-        setAuthLoading(false)
-        return
-      }
+    try {
 
-      try {
+      const user = await getProfile()
 
-        const user = await getProfile()
+      localStorage.setItem(
+        "user",
+        JSON.stringify(user)
+      )
 
-        localStorage.setItem(
-          "user",
-          JSON.stringify(user)
-        )
+      const allowedRoles = [
+        "Super Admin",
+        "Admin Donasi",
+        "Admin Konten",
+      ]
 
-        // Pastikan role adalah role yang kita izinkan
-        const allowedRoles = [
-          "Super Admin",
-          "Admin Donasi",
-          "Admin Konten",
-        ]
-
-        if (allowedRoles.includes(user.role)) {
-          setPage("dashboard") //ini setting ketika di refresh baliknya ke page mana  
-        } else {
-          localStorage.removeItem("token")
-          localStorage.removeItem("user")
-          setPage("login")
-        }
-
-      } catch (error) {
-
-        console.error("Session tidak valid:", error)
+      if (!allowedRoles.includes(user.role)) {
 
         localStorage.removeItem("token")
         localStorage.removeItem("user")
 
+        sessionStorage.removeItem(
+          "adminDashboard"
+        )
+
         setPage("login")
 
-      } finally {
-
-        setAuthLoading(false)
-
+        return
       }
+
+      /*
+      |--------------------------------------------------------------------------
+      | Hanya masuk dashboard otomatis jika
+      | sebelumnya memang sedang berada di dashboard.
+      |--------------------------------------------------------------------------
+      */
+
+      const shouldOpenDashboard =
+        sessionStorage.getItem(
+          "adminDashboard"
+        ) === "true"
+
+      if (shouldOpenDashboard) {
+        setPage("dashboard")
+      }
+
+    } catch (error) {
+
+      console.error(
+        "Session tidak valid:",
+        error
+      )
+
+      localStorage.removeItem("token")
+      localStorage.removeItem("user")
+
+      sessionStorage.removeItem(
+        "adminDashboard"
+      )
+
+      setPage("login")
+
+    } finally {
+
+      setAuthLoading(false)
+
     }
+  }
 
-    restoreSession()
-
-  }, [])
+  restoreSession()
+}, [])
 
   const handleNavigateToDonasiWithProgram = (program: string) => {
     setSelectedProgram(program)
