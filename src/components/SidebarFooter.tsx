@@ -10,9 +10,9 @@ export default function SidebarFooter({
     onLogout,
 }: SidebarFooterProps) {
     const handleVisitWebsite = () => {
-        window.location.href = '/';
-    };
-
+  sessionStorage.removeItem("adminDashboard")
+  window.location.href = '/'
+}
     return (
         <div className="border-t border-orange-100 p-3">
             {/* Lihat Website */}
@@ -72,7 +72,7 @@ export default function SidebarFooter({
                     />
                 </svg>
 
-                <span>Keluar</span>
+                <span>Logout</span>
             </button>
         </div>
     );
