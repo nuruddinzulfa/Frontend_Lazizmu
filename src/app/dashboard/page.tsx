@@ -3,8 +3,9 @@ import type { NavPage } from '../../App'
 
 import AdminSidebar from '../../components/AdminSidebar'
 import AdminHeader from '../../components/AdminHeader'
-
 import DashboardContent from '../../components/admin/dashboard/DashboardContent'
+import ContentDashboard from '../../components/admin-konten/dashboard/ContentDashboard'
+import DonationDashboard from '../../components/admin-donasi/dashboard/DonationDashboard'
 import DonationManagement from '../../components/admin/donasi/DonationManagement'
 import CampaignManagement from '../../components/admin/campaign/CampaignManagement'
 import ProgramManagement from '../../components/admin/program/ProgramManagement'
@@ -64,6 +65,12 @@ interface DashboardPageProps {
 export default function DashboardPage({
   onNavigate,
 }: DashboardPageProps) {
+  const user = JSON.parse(
+    localStorage.getItem('user') || '{}'
+  )
+
+  const userRole = user.role
+
   const [activeMenu, setActiveMenu] =
     useState('dashboard')
 
@@ -73,13 +80,22 @@ export default function DashboardPage({
 
   const renderContent = () => {
   switch (activeMenu) {
-    case 'dashboard':
-      return (
-        <DashboardContent
-          donations={donations}
-          fmt={fmt}
-        />
-      )
+case 'dashboard':
+
+  if (userRole === 'Admin Konten') {
+    return <ContentDashboard />
+  }
+
+  if (userRole === 'Admin Donasi') {
+    return <DonationDashboard />
+  }
+
+  return (
+    <DashboardContent
+      donations={donations}
+      fmt={fmt}
+    />
+  )
 
     case 'donasi':
       return <DonationManagement />

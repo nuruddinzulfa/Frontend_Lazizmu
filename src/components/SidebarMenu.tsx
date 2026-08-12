@@ -3,6 +3,7 @@ import React from 'react';
 interface SidebarMenuProps {
     activeMenu: string;
     onMenuChange: (menu: string) => void;
+    role: 'Super Admin' | 'Admin Konten' | 'Admin Donasi';
 }
 
 interface MenuItem {
@@ -100,16 +101,58 @@ const sections: MenuItem['section'][] = [
     'Sistem',
 ];
 
+const roleMenuMap: Record<
+    SidebarMenuProps['role'],
+    string[]
+> = {
+    'Super Admin': [
+        'dashboard',
+        'donasi',
+        'campaign',
+        'program',
+        'berita',
+        'artikel',
+        'publikasi',
+        'users',
+        'laporan',
+        'pengaturan',
+    ],
+
+    'Admin Konten': [
+        'dashboard',
+        'campaign',
+        'program',
+        'berita',
+        'artikel',
+        'publikasi',
+    ],
+
+    'Admin Donasi': [
+        'dashboard',
+        'donasi',
+        'campaign',
+        'laporan',
+    ],
+};
+
 export default function SidebarMenu({
     activeMenu,
     onMenuChange,
+    role,
 }: SidebarMenuProps) {
     return (
         <nav className="space-y-5">
             {sections.map((section) => {
+                const allowedMenus = roleMenuMap[role] ?? [];
+
                 const items = menuItems.filter(
-                    (item) => item.section === section
+                    (item) =>
+                        item.section === section &&
+                        allowedMenus.includes(item.key)
                 );
+                if (items.length === 0) {
+                    return null;
+                }
 
                 return (
                     <div key={section}>
@@ -130,11 +173,10 @@ export default function SidebarMenu({
                                         onClick={() =>
                                             onMenuChange(item.key)
                                         }
-                                        className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm transition ${
-                                            isActive
+                                        className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm transition ${isActive
                                                 ? 'bg-[#F58220] text-white shadow-sm'
                                                 : 'text-gray-600 hover:bg-orange-50 hover:text-[#F58220]'
-                                        }`}
+                                            }`}
                                     >
                                         <svg
                                             xmlns="http://www.w3.org/2000/svg"

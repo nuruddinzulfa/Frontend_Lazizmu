@@ -6,6 +6,12 @@ import SidebarUser from './SidebarUser';
 import SidebarMenu from './SidebarMenu';
 import SidebarFooter from './SidebarFooter';
 
+type AdminRole =
+  | 'Super Admin'
+  | 'Admin Konten'
+  | 'Admin Donasi'
+
+
 interface AdminSidebarProps {
   activeMenu: string;
   onMenuChange: (menu: string) => void;
@@ -17,6 +23,27 @@ export default function AdminSidebar({
   onMenuChange,
   onLogout,
 }: AdminSidebarProps) {
+  const [role, setRole] = React.useState<AdminRole>('Super Admin')
+
+  React.useEffect(() => {
+    try {
+      const storedUser = localStorage.getItem('user')
+
+      if (!storedUser) return
+
+      const user = JSON.parse(storedUser)
+
+      if (
+        user.role === 'Super Admin' ||
+        user.role === 'Admin Konten' ||
+        user.role === 'Admin Donasi'
+      ) {
+        setRole(user.role)
+      }
+    } catch (error) {
+      console.error('Gagal membaca role admin:', error)
+    }
+  }, [])
   return (
     <aside
       className="
@@ -33,14 +60,14 @@ export default function AdminSidebar({
         bg-white
       "
     >
- {/* Logo */}
-<div className="flex h-[72px] items-center px-4 border-b border-orange-100">
-    <img
-        src={logo}
-        alt="LAZISMU Kabupaten Pemalang"
-        className="h-16 w-auto object-contain"
-    />
-</div>
+      {/* Logo */}
+      <div className="flex h-[72px] items-center px-4 border-b border-orange-100">
+        <img
+          src={logo}
+          alt="LAZISMU Kabupaten Pemalang"
+          className="h-16 w-auto object-contain"
+        />
+      </div>
 
       {/* User */}
       <div className="shrink-0">
@@ -52,6 +79,7 @@ export default function AdminSidebar({
         <SidebarMenu
           activeMenu={activeMenu}
           onMenuChange={onMenuChange}
+          role={role}
         />
       </div>
 
