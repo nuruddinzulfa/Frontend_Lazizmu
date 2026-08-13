@@ -12,4 +12,3 @@ logs/
 .claude-replay.*
 .tmp-*
 
-src/lib/api.ts

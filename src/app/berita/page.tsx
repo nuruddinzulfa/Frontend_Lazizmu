@@ -139,11 +139,11 @@ export default function BeritaPage({
 
       {/* Header */}
 
-      <div className="bg-[#FEF0E4] pt-32 pb-12">
+      <div className="bg-gradient-to-br from-[#F58220] to-[#D96D0A] text-white py-16 pt-32">
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-          <p className="text-sm text-gray-500 mb-3">
+          <p className="mt-4 text-lg opacity-90 max-w-2xl">
             Beranda / Berita
           </p>
 
@@ -156,7 +156,7 @@ export default function BeritaPage({
             Berita & Informasi
           </h1>
 
-          <p className="text-gray-600 mt-3">
+          <p className="mt-4 text-lg opacity-90 max-w-2xl">
             Informasi terkini kegiatan dan pengumuman
             LAZISMU Pemalang.
           </p>

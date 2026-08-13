@@ -1,6 +1,7 @@
 'use client'
 import API_URL from "@/lib/api"
 import { useEffect, useMemo, useState } from 'react'
+import RichTextEditor from '../../RichTextEditor'
 import {
   getAdminNews,
   getAdminNewsById,
@@ -90,23 +91,23 @@ export default function NewsManagement() {
   */
 
   const loadNews = async () => {
-  try {
-    setLoading(true);
-    setError("");
+    try {
+      setLoading(true);
+      setError("");
 
-    const data = await getAdminNews();
+      const data = await getAdminNews();
 
-    setNews(data);
-  } catch (err) {
-    setError(
-      err instanceof Error
-        ? err.message
-        : "Gagal mengambil berita."
-    );
-  } finally {
-    setLoading(false);
-  }
-};
+      setNews(data);
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Gagal mengambil berita."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     loadNews()
@@ -523,18 +524,15 @@ export default function NewsManagement() {
                 Isi Berita
               </label>
 
-              <textarea
-                id="news-content"
+              <RichTextEditor
                 value={form.content}
-                onChange={(e) =>
-                  handleInputChange(
-                    'content',
-                    e.target.value
-                  )
+                onChange={(value) =>
+                  setForm((current) => ({
+                    ...current,
+                    content: value,
+                  }))
                 }
-                rows={10}
                 placeholder="Tulis isi berita..."
-                className="w-full resize-y rounded-xl border border-gray-200 px-4 py-2.5 text-sm outline-none transition focus:border-[#F58220] focus:ring-1 focus:ring-[#F58220]"
               />
             </div>
 
@@ -679,9 +677,9 @@ export default function NewsManagement() {
               onChange={(e) =>
                 setStatusFilter(
                   e.target.value as
-                    | 'all'
-                    | 'published'
-                    | 'draft'
+                  | 'all'
+                  | 'published'
+                  | 'draft'
                 )
               }
               className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm outline-none transition focus:border-[#F58220] focus:ring-1 focus:ring-[#F58220]"
@@ -810,10 +808,9 @@ export default function NewsManagement() {
                       <td className="px-5 py-4">
 
                         <span
-                          className={`rounded-full px-2.5 py-1 text-xs font-medium ${
-                            categoryColors[item.category] ??
+                          className={`rounded-full px-2.5 py-1 text-xs font-medium ${categoryColors[item.category] ??
                             'bg-gray-100 text-gray-700'
-                          }`}
+                            }`}
                         >
                           {item.category}
                         </span>
@@ -836,11 +833,10 @@ export default function NewsManagement() {
                       <td className="px-5 py-4">
 
                         <span
-                          className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
-                            item.status === 'published'
+                          className={`rounded-full px-2.5 py-1 text-xs font-semibold ${item.status === 'published'
                               ? 'bg-green-100 text-green-700'
                               : 'bg-gray-100 text-gray-600'
-                          }`}
+                            }`}
                         >
                           {item.status === 'published'
                             ? 'Published'

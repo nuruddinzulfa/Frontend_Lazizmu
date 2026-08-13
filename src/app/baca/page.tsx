@@ -568,16 +568,24 @@ export default function BacaPage({
 
             {/* Body */}
 
-            <article
-              className="
-                whitespace-pre-line
-                text-base
-                leading-8
-                text-gray-700
-              "
-            >
-              {contentData.content}
-            </article>
+          <article
+  className="
+    prose
+    prose-gray
+    max-w-none
+    text-gray-700
+    leading-8
+    prose-headings:font-bold
+    prose-headings:text-gray-900
+    prose-a:text-[#F58220]
+    prose-strong:text-gray-900
+    prose-blockquote:border-[#F58220]
+    prose-blockquote:text-gray-600
+  "
+  dangerouslySetInnerHTML={{
+    __html: contentData.content,
+  }}
+/>
 
             {/* Share */}
 

@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-
+import RichTextEditor from '../../RichTextEditor'
 import {
   getAdminArticles,
   getAdminArticleById,
@@ -258,37 +258,37 @@ export default function ArticleManagement() {
         thumbnail: form.thumbnail,
       }
 
-if (formMode === 'create') {
-  await createArticle(payload)
+      if (formMode === 'create') {
+        await createArticle(payload)
 
-  await loadArticles()
+        await loadArticles()
 
-  setSuccess(
-    'Artikel berhasil ditambahkan.'
-  )
+        setSuccess(
+          'Artikel berhasil ditambahkan.'
+        )
 
-  closeForm()
-  return
-}
+        closeForm()
+        return
+      }
 
-   if (
-  formMode === 'edit' &&
-  editingId !== null
-) {
-  await updateArticle(
-    editingId,
-    payload
-  )
+      if (
+        formMode === 'edit' &&
+        editingId !== null
+      ) {
+        await updateArticle(
+          editingId,
+          payload
+        )
 
-  await loadArticles()
+        await loadArticles()
 
-  setSuccess(
-    'Artikel berhasil diperbarui.'
-  )
+        setSuccess(
+          'Artikel berhasil diperbarui.'
+        )
 
-  closeForm()
-  return
-}
+        closeForm()
+        return
+      }
 
       closeForm()
     } catch (err) {
@@ -530,9 +530,9 @@ if (formMode === 'create') {
               onChange={(e) =>
                 setStatusFilter(
                   e.target.value as
-                    | 'all'
-                    | 'published'
-                    | 'draft'
+                  | 'all'
+                  | 'published'
+                  | 'draft'
                 )
               }
               className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm outline-none transition focus:border-[#F58220] focus:ring-1 focus:ring-[#F58220]"
@@ -671,7 +671,7 @@ if (formMode === 'create') {
                       <td className="px-5 py-4 text-xs text-gray-500">
                         {formatDate(
                           article.published_at ??
-                            article.created_at
+                          article.created_at
                         )}
                       </td>
 
@@ -688,15 +688,14 @@ if (formMode === 'create') {
                       <td className="px-5 py-4">
 
                         <span
-                          className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
-                            article.status ===
-                            'published'
+                          className={`rounded-full px-2.5 py-1 text-xs font-semibold ${article.status ===
+                              'published'
                               ? 'bg-green-100 text-green-700'
                               : 'bg-gray-100 text-gray-600'
-                          }`}
+                            }`}
                         >
                           {article.status ===
-                          'published'
+                            'published'
                             ? 'Published'
                             : 'Draft'}
                         </span>
@@ -747,7 +746,7 @@ if (formMode === 'create') {
                             className="text-xs font-medium text-red-500 hover:underline disabled:cursor-not-allowed disabled:opacity-50"
                           >
                             {deletingId ===
-                            article.id
+                              article.id
                               ? 'Menghapus...'
                               : 'Hapus'}
                           </button>
@@ -762,7 +761,7 @@ if (formMode === 'create') {
 
                 {!loading &&
                   filteredArticles.length ===
-                    0 && (
+                  0 && (
                     <tr>
                       <td
                         colSpan={7}
@@ -905,8 +904,8 @@ if (formMode === 'create') {
                         ...current,
                         status:
                           e.target.value as
-                            | 'draft'
-                            | 'published',
+                          | 'draft'
+                          | 'published',
                       }))
                     }
                     className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:border-[#F58220] focus:ring-1 focus:ring-[#F58220]"
@@ -930,18 +929,15 @@ if (formMode === 'create') {
                   Isi Artikel
                 </label>
 
-                <textarea
+                <RichTextEditor
                   value={form.content}
-                  onChange={(e) =>
+                  onChange={(value) =>
                     setForm((current) => ({
                       ...current,
-                      content:
-                        e.target.value,
+                      content: value,
                     }))
                   }
-                  rows={12}
-                  placeholder="Tulis isi artikel..."
-                  className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-[#F58220] focus:ring-1 focus:ring-[#F58220]"
+                  placeholder="Tulis isi berita..."
                 />
               </div>
 
