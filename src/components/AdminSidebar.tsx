@@ -29,7 +29,6 @@ const roleMenus: Record<AdminRole, string[]> = {
     'artikel',
     'publikasi',
     'users',
-    'laporan',
     'pengaturan',
   ],
 
