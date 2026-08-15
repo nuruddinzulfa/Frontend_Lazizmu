@@ -28,6 +28,7 @@ const roleMenus: Record<AdminRole, string[]> = {
     'berita',
     'artikel',
     'publikasi',
+    'tentang-kami',
     'users',
     'pengaturan',
   ],
@@ -39,6 +40,7 @@ const roleMenus: Record<AdminRole, string[]> = {
     'berita',
     'artikel',
     'publikasi',
+    'tentang-kami',
   ],
 
   'Admin Donasi': [

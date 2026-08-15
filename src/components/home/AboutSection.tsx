@@ -1,26 +1,13 @@
+import { useEffect, useState } from 'react'
 import { useInView } from '../../hooks/useInView'
 import type { NavPage } from '../../App'
+import {
+  getPublicOrganizationMembers,
+  getOrganizationMemberPhotoUrl,
+  type OrganizationMember,
+} from '../../service/organization-member.service'
 
 interface AboutSectionProps { onNavigate: (page: NavPage) => void }
-
-const orgStructure = {
-  top: { role: 'Dewan Pengawas Syariah', name: 'Dr. H. Ahmad Fauzi, M.Ag.', color: 'bg-purple-50 border-purple-200 text-purple-700' },
-  head: { role: 'Ketua', name: 'H. Muhamad Ridwan, S.E.', color: 'bg-[#F58220] text-white' },
-  deputies: [
-    { role: 'Wakil Ketua I', name: 'Drs. H. Suharto, M.Pd.', color: 'bg-orange-50 border-orange-200' },
-    { role: 'Wakil Ketua II', name: 'Ir. H. Bambang Eko, M.T.', color: 'bg-orange-50 border-orange-200' },
-  ],
-  support: [
-    { role: 'Sekretaris', name: 'Ahmad Zainudin, S.H.', color: 'bg-blue-50 border-blue-200 text-blue-700' },
-    { role: 'Bendahara', name: 'Hj. Siti Rohmah, S.E.', color: 'bg-green-50 border-green-200 text-green-700' },
-  ],
-  divisions: [
-    { role: 'Div. Penghimpunan', name: 'Faisal Maulana, S.E.', icon: '' },
-    { role: 'Div. Pendayagunaan', name: 'Nur Hidayah, S.Sos.', icon: '' },
-    { role: 'Div. Keuangan', name: 'Tri Wahyuni, S.Ak.', icon: '' },
-    { role: 'Div. IT & Humas', name: 'Rizal Firmansyah, S.Kom.', icon: '' },
-  ],
-}
 
 const misi = [
   'Meningkatkan kualitas pengelolaan ZIS yang amanah, profesional, dan transparan.',
@@ -183,88 +170,207 @@ export default function AboutSection({ onNavigate }: AboutSectionProps) {
     </section>
   )
 }
-
-function OrgChart({ onNavigate }: { onNavigate: (page: NavPage) => void }) {
+function OrgChart({
+  onNavigate,
+}: {
+  onNavigate: (page: NavPage) => void
+}) {
   const { inView, ref } = useInView()
+
+  const [members, setMembers] =
+    useState<OrganizationMember[]>([])
+
+  const [loading, setLoading] =
+    useState(true)
+
+  const [error, setError] =
+    useState(false)
+
+  useEffect(() => {
+    let mounted = true
+
+    async function loadMembers() {
+      try {
+        setLoading(true)
+        setError(false)
+
+        const memberData =
+          await getPublicOrganizationMembers()
+
+        if (!mounted) return
+
+        setMembers(
+          [...memberData].sort(
+            (a, b) =>
+              a.sort_order - b.sort_order ||
+              a.id - b.id
+          )
+        )
+      } catch (err) {
+        if (!mounted) return
+
+        console.error(
+          'Gagal mengambil data pengurus:',
+          err
+        )
+
+        setError(true)
+        setMembers([])
+      } finally {
+        if (mounted) {
+          setLoading(false)
+        }
+      }
+    }
+
+    loadMembers()
+
+    return () => {
+      mounted = false
+    }
+  }, [])
 
   return (
     <div
       ref={ref as React.RefObject<HTMLDivElement>}
-      className={`transition-all duration-700 delay-100 ${inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+      className={`transition-all duration-700 delay-100 ${
+        inView
+          ? 'opacity-100 translate-y-0'
+          : 'opacity-0 translate-y-8'
+      }`}
     >
+      {/* HEADER */}
       <div className="text-center mb-12">
-        <span className="text-[#F58220] text-sm font-semibold uppercase tracking-wider">Kepengurusan</span>
-        <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mt-2" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Struktur Organisasi</h2>
-        <p className="text-gray-400 text-sm mt-3">Periode 2022–2026</p>
+        <span className="text-[#F58220] text-sm font-semibold uppercase tracking-wider">
+          Kepengurusan
+        </span>
+
+        <h2
+          className="text-3xl sm:text-4xl font-bold text-gray-900 mt-2"
+          style={{
+            fontFamily:
+              "'Plus Jakarta Sans', sans-serif",
+          }}
+        >
+          Struktur Organisasi
+        </h2>
+
+        <p className="text-gray-400 text-sm mt-3">
+          Data pengurus terbaru
+        </p>
       </div>
 
-      <div className="flex flex-col items-center gap-0">
-        <div className={`px-7 py-4 rounded-2xl border-2 text-center ${orgStructure.top.color} w-64 shadow-sm`}>
-          <div className="text-xs font-semibold uppercase tracking-wide opacity-60 mb-1">{orgStructure.top.role}</div>
-          <div className="font-bold text-sm" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{orgStructure.top.name}</div>
+      {/* LOADING */}
+      {loading && (
+        <div className="bg-white border border-[#F3DEC8] rounded-2xl p-10 text-center">
+          <p className="text-sm text-gray-400">
+            Memuat data struktur organisasi...
+          </p>
         </div>
-        <div className="w-px h-8 bg-[#F3DEC8]" />
-        <div className={`px-8 py-4 rounded-2xl text-center ${orgStructure.head.color} w-72 shadow-md`}>
-          <div className="text-xs font-semibold uppercase tracking-wide opacity-75 mb-1">{orgStructure.head.role}</div>
-          <div className="font-bold" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{orgStructure.head.name}</div>
+      )}
+
+      {/* ERROR */}
+      {!loading && error && (
+        <div className="bg-white border border-red-100 rounded-2xl p-10 text-center">
+          <p className="text-sm text-red-500">
+            Data struktur organisasi gagal dimuat.
+          </p>
         </div>
-        <div className="w-px h-8 bg-[#F3DEC8]" />
-        <div className="relative flex gap-6 justify-center">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[calc(100%-80px)] h-px bg-[#F3DEC8]" />
-          {orgStructure.deputies.map((d) => (
-            <div key={d.role} className="flex flex-col items-center">
-              <div className="w-px h-8 bg-[#F3DEC8]" />
-              <div className={`px-6 py-4 rounded-2xl border-2 text-center ${d.color} w-52 shadow-sm`}>
-                <div className="text-xs font-semibold text-[#F58220] uppercase tracking-wide mb-1">{d.role}</div>
-                <div className="font-bold text-sm text-gray-800" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{d.name}</div>
-              </div>
-            </div>
-          ))}
-        </div>
-        <div className="w-px h-8 bg-[#F3DEC8]" />
-        <div className="relative flex gap-6 justify-center">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[calc(100%-80px)] h-px bg-[#F3DEC8]" />
-          {orgStructure.support.map((s) => (
-            <div key={s.role} className="flex flex-col items-center">
-              <div className="w-px h-8 bg-[#F3DEC8]" />
-              <div className={`px-6 py-4 rounded-2xl border-2 text-center ${s.color} w-52 shadow-sm`}>
-                <div className="text-xs font-semibold uppercase tracking-wide mb-1 opacity-70">{s.role}</div>
-                <div className="font-bold text-sm text-gray-800" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{s.name}</div>
-              </div>
-            </div>
-          ))}
-        </div>
-        <div className="w-px h-8 bg-[#F3DEC8]" />
-        <div className="relative w-full max-w-3xl">
-          <div className="absolute top-0 left-0 right-0 h-px bg-[#F3DEC8]" />
-          <div className="flex justify-around">
-            {orgStructure.divisions.map((div) => (
-              <div key={div.role} className="flex flex-col items-center">
-                <div className="w-px h-8 bg-[#F3DEC8]" />
-                <div className="bg-white border-2 border-[#F3DEC8] hover:border-[#F58220] rounded-2xl p-4 text-center w-40 shadow-sm transition-all duration-200">
-                  <div className="text-2xl mb-2">{div.icon}</div>
-                  <div className="text-xs font-bold text-[#F58220] mb-1" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{div.role}</div>
-                  <div className="text-xs text-gray-500 leading-snug">{div.name}</div>
-                </div>
-              </div>
-            ))}
+      )}
+
+      {/* EMPTY */}
+      {!loading &&
+        !error &&
+        members.length === 0 && (
+          <div className="bg-white border border-[#F3DEC8] rounded-2xl p-10 text-center">
+            <p className="text-sm text-gray-400">
+              Data struktur organisasi belum tersedia.
+            </p>
           </div>
-        </div>
-      </div>
+        )}
 
+      {/* MEMBERS */}
+      {!loading &&
+        !error &&
+        members.length > 0 && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+
+            {members.map((person) => {
+              const photoUrl =
+                getOrganizationMemberPhotoUrl(
+                  person.photo
+                )
+
+              return (
+                <div
+                  key={person.id}
+                  className="bg-white border-2 border-[#F3DEC8] hover:border-[#F58220] rounded-2xl p-5 shadow-sm transition-all"
+                >
+                  <div className="flex items-center gap-4">
+
+                    {/* FOTO */}
+                    <div className="w-14 h-14 rounded-full bg-[#FEF0E4] flex items-center justify-center flex-shrink-0 overflow-hidden">
+
+                      {photoUrl ? (
+                        <img
+                          src={photoUrl}
+                          alt={person.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <span className="text-[#F58220] font-bold text-lg">
+                          {person.name
+                            .slice(0, 2)
+                            .toUpperCase()}
+                        </span>
+                      )}
+
+                    </div>
+
+                    {/* INFORMASI */}
+                    <div className="min-w-0">
+
+                      <div
+                        className="font-bold text-gray-900"
+                        style={{
+                          fontFamily:
+                            "'Plus Jakarta Sans', sans-serif",
+                        }}
+                      >
+                        {person.name}
+                      </div>
+
+                      <div className="text-sm font-semibold text-[#F58220] mt-1">
+                        {person.position}
+                      </div>
+
+                      {person.period && (
+                        <div className="text-xs text-gray-400 mt-2">
+                          Periode {person.period}
+                        </div>
+                      )}
+
+                    </div>
+
+                  </div>
+                </div>
+              )
+            })}
+
+          </div>
+        )}
+
+      {/* BUTTON */}
       <div className="text-center mt-10">
+
         <button
           onClick={() => onNavigate('about')}
           className="border-2 border-[#F58220] text-[#F58220] hover:bg-[#F58220] hover:text-white transition-all duration-200 px-8 py-3 rounded-xl font-semibold text-sm"
-          style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
         >
           Lihat Profil Lengkap →
         </button>
-      </div>
 
-      <p className="text-center text-xs text-gray-400 mt-4">
-        * Nama pengurus bersifat ilustratif. Silakan hubungi kantor LAZISMU Pemalang untuk data resmi terkini.
-      </p>
+      </div>
     </div>
   )
 }
