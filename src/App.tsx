@@ -1,272 +1,748 @@
-import Navbar from './components/layout/Navbar'
-import Footer from './components/layout/Footer'
-import FloatingElements from './components/ui/FloatingElements'
-import ZakatCalculator from './components/donation/ZakatCalculator'
-import DonationForm from './app/donasi/page'
-import HomePage from './app/page'
-import AboutPage from './app/about/page'
-import ProgramPage from './app/program/page'
-import BeritaPage from './app/berita/page'
-import ArtikelPage from './app/artikel/page'
-import PublikasiPage from './app/publikasi/page'
-import LoginPage from './app/login/page'
-import RegisterPage from './app/register/page'
-import DashboardPage from './app/dashboard/page'
-import BacaPage from './app/baca/page'
-import { useState, useEffect } from 'react'
-import { getProfile } from './service/auth.service'
+import { useEffect, useState } from "react";
 
-export type NavPage = 'home' | 'zakat' | 'donasi' | 'about' | 'program' | 'berita' | 'artikel' | 'publikasi' | 'login' | 'register' | 'dashboard' | 'baca'
+import Navbar from "./components/layout/Navbar";
+import Footer from "./components/layout/Footer";
+import FloatingElements from "./components/ui/FloatingElements";
+import ZakatCalculator from "./components/donation/ZakatCalculator";
+
+import DonationForm from "./app/donasi/page";
+import HomePage from "./app/page";
+import AboutPage from "./app/about/page";
+import ProgramPage from "./app/program/page";
+import BeritaPage from "./app/berita/page";
+import ArtikelPage from "./app/artikel/page";
+import PublikasiPage from "./app/publikasi/page";
+import LoginPage from "./app/login/page";
+import DashboardPage from "./app/dashboard/page";
+import BacaPage from "./app/baca/page";
+
+import { authService } from "./services/auth.service";
+
+export type NavPage =
+  | "home"
+  | "zakat"
+  | "donasi"
+  | "about"
+  | "program"
+  | "berita"
+  | "artikel"
+  | "publikasi"
+  | "login"
+  | "dashboard"
+  | "baca";
 
 export default function App() {
-  const [page, setPage] = useState<NavPage>('home')
-  const [authLoading, setAuthLoading] = useState(true)
-  const [zakatAmount, setZakatAmount] = useState<number | null>(null)
-  const [selectedProgram, setSelectedProgram] = useState<string | null>(null)
-  const [currentContent, setCurrentContent] = useState<{ type: 'berita' | 'artikel'; id: number } | null>(null)
-  const getPathForPage = (p: NavPage) => {
-  if (p === 'home') return '/'
-  return `/${p}`
-}
-const handleNavigate = (p: NavPage) => {
-  if (p !== 'donasi') {
-    setZakatAmount(null)
-    setSelectedProgram(null)
-  }
+  const [page, setPage] =
+    useState<NavPage>("home");
 
-  setCurrentContent(null)
-  setPage(p)
+  const [authLoading, setAuthLoading] =
+    useState(true);
 
-  if (p === 'home') {
-    window.history.pushState(
-      { page: 'home' },
-      '',
-      '/'
-    )
-  } else {
-    window.history.pushState(
-      { page: p },
-      '',
-      getPathForPage(p)
-    )
-  }
+  const [zakatAmount, setZakatAmount] =
+    useState<number | null>(null);
 
-  window.scrollTo({
-    top: 0,
-    behavior: 'smooth',
-  })
-}
+  const [
+    selectedProgram,
+    setSelectedProgram,
+  ] = useState<string | null>(null);
 
-const handlePayZakat = (amount: number) => {
-  setZakatAmount(amount)
-  setCurrentContent(null)
-  setPage('donasi')
+  const [
+    currentContent,
+    setCurrentContent,
+  ] = useState<{
+    type: "berita" | "artikel";
+    id: number;
+  } | null>(null);
 
-  window.history.pushState(
-    { page: 'donasi' },
-    '',
-    '/donasi'
-  )
+  /*
+  |--------------------------------------------------------------------------
+  | Path
+  |--------------------------------------------------------------------------
+  */
 
-  window.scrollTo({
-    top: 0,
-    behavior: 'smooth',
-  })
-}
+  const getPathForPage = (
+    targetPage: NavPage
+  ) => {
+    if (targetPage === "home") {
+      return "/";
+    }
+
+    return `/${targetPage}`;
+  };
+
+  /*
+  |--------------------------------------------------------------------------
+  | Initial URL / Direct Access
+  |--------------------------------------------------------------------------
+  */
 
   useEffect(() => {
-  const restoreSession = async () => {
+    const pathname =
+      window.location.pathname;
 
-    const token =
-      localStorage.getItem("token")
+    const search =
+      window.location.search;
 
-    if (!token) {
-      setAuthLoading(false)
-      return
+    /*
+    |--------------------------------------------------------------------------
+    | Midtrans return / halaman donasi
+    |--------------------------------------------------------------------------
+    */
+
+    if (pathname === "/donasi") {
+      setPage("donasi");
+
+      window.history.replaceState(
+        {
+          page: "donasi",
+        },
+        "",
+        `/donasi${search}`
+      );
+
+      return;
     }
 
-    try {
+    /*
+    |--------------------------------------------------------------------------
+    | Beranda
+    |--------------------------------------------------------------------------
+    */
 
-      const user = await getProfile()
+    if (
+      pathname === "/" ||
+      pathname === ""
+    ) {
+      setPage("home");
 
-      localStorage.setItem(
-        "user",
-        JSON.stringify(user)
-      )
+      window.history.replaceState(
+        {
+          page: "home",
+        },
+        "",
+        "/"
+      );
 
-      const allowedRoles = [
-        "Super Admin",
-        "Admin Donasi",
-        "Admin Konten",
-      ]
+      return;
+    }
 
-      if (!allowedRoles.includes(user.role)) {
+    /*
+    |--------------------------------------------------------------------------
+    | Berita / Artikel detail
+    |--------------------------------------------------------------------------
+    */
 
-        localStorage.removeItem("token")
-        localStorage.removeItem("user")
+    const contentMatch =
+      pathname.match(
+        /^\/(berita|artikel)\/(\d+)$/
+      );
 
-        sessionStorage.removeItem(
-          "adminDashboard"
-        )
+    if (contentMatch) {
+      const type =
+        contentMatch[1] as
+          | "berita"
+          | "artikel";
 
-        setPage("login")
+      const id = Number(
+        contentMatch[2]
+      );
 
-        return
+      const content = {
+        type,
+        id,
+      };
+
+      setCurrentContent(content);
+      setPage("baca");
+
+      window.history.replaceState(
+        {
+          page: "baca",
+          content,
+        },
+        "",
+        pathname + search
+      );
+
+      return;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Halaman normal
+    |--------------------------------------------------------------------------
+    */
+
+    const pathPage =
+      pathname
+        .replace(/^\/+/, "")
+        .replace(/\/+$/, "") as NavPage;
+
+    const validPages: NavPage[] = [
+      "home",
+      "zakat",
+      "donasi",
+      "about",
+      "program",
+      "berita",
+      "artikel",
+      "publikasi",
+      "login",
+      "dashboard",
+      "baca",
+    ];
+
+    if (
+      validPages.includes(pathPage)
+    ) {
+      if (
+        pathPage === "dashboard" &&
+        !localStorage.getItem("token")
+      ) {
+        setPage("login");
+
+        window.history.replaceState(
+          {
+            page: "login",
+          },
+          "",
+          "/login"
+        );
+
+        return;
       }
 
-      /*
-      |--------------------------------------------------------------------------
-      | Hanya masuk dashboard otomatis jika
-      | sebelumnya memang sedang berada di dashboard.
-      |--------------------------------------------------------------------------
-      */
+      setPage(pathPage);
 
-      const shouldOpenDashboard =
-        sessionStorage.getItem(
-          "adminDashboard"
-        ) === "true"
+      window.history.replaceState(
+        {
+          page: pathPage,
+        },
+        "",
+        pathname + search
+      );
 
-      if (shouldOpenDashboard) {
-        setPage("dashboard")
+      return;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Fallback
+    |--------------------------------------------------------------------------
+    */
+
+    setPage("home");
+
+    window.history.replaceState(
+      {
+        page: "home",
+      },
+      "",
+      "/"
+    );
+  }, []);
+
+  /*
+  |--------------------------------------------------------------------------
+  | Navigation
+  |--------------------------------------------------------------------------
+  */
+
+  const handleNavigate = (
+    targetPage: NavPage
+  ) => {
+    if (targetPage === "dashboard") {
+      const token =
+        localStorage.getItem("token");
+
+      if (!token) {
+        setPage("login");
+
+        window.history.pushState(
+          {
+            page: "login",
+          },
+          "",
+          "/login"
+        );
+
+        return;
       }
 
-    } catch (error) {
-
-      console.error(
-        "Session tidak valid:",
-        error
-      )
-
-      localStorage.removeItem("token")
-      localStorage.removeItem("user")
-
+      sessionStorage.setItem(
+        "adminDashboard",
+        "true"
+      );
+    } else {
       sessionStorage.removeItem(
         "adminDashboard"
-      )
-
-      setPage("login")
-
-    } finally {
-
-      setAuthLoading(false)
-
+      );
     }
-  }
 
-  restoreSession()
-}, [])
-
-  const handleNavigateToDonasiWithProgram = (program: string) => {
-    setSelectedProgram(program)
-    setZakatAmount(null)
-    setPage('donasi')
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }
-
-const handleOpenContent = (
-  type: 'berita' | 'artikel',
-  id: number
-) => {
-  const content = { type, id }
-
-  setCurrentContent(content)
-  setPage('baca')
-
-  window.history.pushState(
-    {
-      page: 'baca',
-      content,
-    },
-    '',
-    `/${type}/${id}`
-  )
-
-  window.scrollTo({
-    top: 0,
-    behavior: 'smooth',
-  })
-}
-useEffect(() => {
-  const handlePopState = (event: PopStateEvent) => {
-    const state = event.state
-
-    if (state?.page) {
-      setPage(state.page)
-
-      if (state.content) {
-        setCurrentContent(state.content)
-      } else {
-        setCurrentContent(null)
-      }
-
-      if (state.page !== 'donasi') {
-        setZakatAmount(null)
-        setSelectedProgram(null)
-      }
-    } else {
-      // Jika tidak ada state, anggap sebagai Beranda
-      setPage('home')
-      setCurrentContent(null)
-      setZakatAmount(null)
-      setSelectedProgram(null)
+    if (targetPage !== "donasi") {
+      setZakatAmount(null);
+      setSelectedProgram(null);
     }
+
+    setCurrentContent(null);
+    setPage(targetPage);
+
+    window.history.pushState(
+      {
+        page: targetPage,
+      },
+      "",
+      getPathForPage(targetPage)
+    );
 
     window.scrollTo({
       top: 0,
-      behavior: 'smooth',
-    })
-  }
+      behavior: "smooth",
+    });
+  };
 
-  window.addEventListener('popstate', handlePopState)
+  /*
+  |--------------------------------------------------------------------------
+  | Bayar Zakat
+  |--------------------------------------------------------------------------
+  */
 
-  return () => {
-    window.removeEventListener('popstate', handlePopState)
-  }
-}, [])
-useEffect(() => {
-  window.history.replaceState(
-    { page: 'home' },
-    '',
-    '/'
-  )
-}, [])
+  const handlePayZakat = (
+    amount: number
+  ) => {
+    setZakatAmount(amount);
+    setSelectedProgram(null);
+    setCurrentContent(null);
+
+    setPage("donasi");
+
+    window.history.pushState(
+      {
+        page: "donasi",
+      },
+      "",
+      "/donasi"
+    );
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  };
+
+  /*
+  |--------------------------------------------------------------------------
+  | Restore Login Session
+  |--------------------------------------------------------------------------
+  */
+
+  useEffect(() => {
+    const restoreSession =
+      async () => {
+        const token =
+          localStorage.getItem(
+            "token"
+          );
+
+        if (!token) {
+          localStorage.removeItem(
+            "user"
+          );
+
+          sessionStorage.removeItem(
+            "adminDashboard"
+          );
+
+          setAuthLoading(false);
+
+          return;
+        }
+
+        try {
+          const user =
+            await authService.getCurrentUser();
+
+          const allowedRoles = [
+            "Super Admin",
+            "Admin Donasi",
+            "Admin Konten",
+          ];
+
+          if (
+            !user.role ||
+            !allowedRoles.includes(
+              user.role
+            )
+          ) {
+            localStorage.removeItem(
+              "token"
+            );
+
+            localStorage.removeItem(
+              "user"
+            );
+
+            sessionStorage.removeItem(
+              "adminDashboard"
+            );
+
+            setPage("login");
+
+            return;
+          }
+
+          localStorage.setItem(
+            "user",
+            JSON.stringify(user)
+          );
+
+          const shouldOpenDashboard =
+            sessionStorage.getItem(
+              "adminDashboard"
+            ) === "true";
+
+          if (
+            shouldOpenDashboard &&
+            window.location.pathname !==
+              "/donasi"
+          ) {
+            setPage("dashboard");
+          }
+        } catch (error) {
+          console.error(
+            "Session tidak valid:",
+            error
+          );
+
+          localStorage.removeItem(
+            "token"
+          );
+
+          localStorage.removeItem(
+            "user"
+          );
+
+          sessionStorage.removeItem(
+            "adminDashboard"
+          );
+
+          /*
+          |--------------------------------------------------------------------------
+          | Jangan ganggu return dari Midtrans
+          |--------------------------------------------------------------------------
+          */
+
+          if (
+            window.location.pathname !==
+            "/donasi"
+          ) {
+            setPage("login");
+          }
+        } finally {
+          setAuthLoading(false);
+        }
+      };
+
+    restoreSession();
+  }, []);
+
+  /*
+  |--------------------------------------------------------------------------
+  | Donation Program
+  |--------------------------------------------------------------------------
+  */
+
+  const handleNavigateToDonasiWithProgram =
+    (program: string) => {
+      setSelectedProgram(program);
+      setZakatAmount(null);
+      setCurrentContent(null);
+
+      setPage("donasi");
+
+      window.history.pushState(
+        {
+          page: "donasi",
+        },
+        "",
+        "/donasi"
+      );
+
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
+    };
+
+  /*
+  |--------------------------------------------------------------------------
+  | Open Berita / Artikel
+  |--------------------------------------------------------------------------
+  */
+
+  const handleOpenContent = (
+    type: "berita" | "artikel",
+    id: number
+  ) => {
+    const content = {
+      type,
+      id,
+    };
+
+    setCurrentContent(content);
+    setPage("baca");
+
+    window.history.pushState(
+      {
+        page: "baca",
+        content,
+      },
+      "",
+      `/${type}/${id}`
+    );
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  };
+
+  /*
+  |--------------------------------------------------------------------------
+  | Browser Back / Forward
+  |--------------------------------------------------------------------------
+  */
+
+  useEffect(() => {
+    const handlePopState = (
+      event: PopStateEvent
+    ) => {
+      const state =
+        event.state;
+
+      if (state?.page) {
+        const targetPage =
+          state.page as NavPage;
+
+        if (
+          targetPage ===
+            "dashboard" &&
+          !localStorage.getItem(
+            "token"
+          )
+        ) {
+          setPage("login");
+          return;
+        }
+
+        setPage(targetPage);
+
+        if (state.content) {
+          setCurrentContent(
+            state.content
+          );
+        } else {
+          setCurrentContent(
+            null
+          );
+        }
+
+        if (
+          targetPage !==
+          "donasi"
+        ) {
+          setZakatAmount(
+            null
+          );
+
+          setSelectedProgram(
+            null
+          );
+        }
+      } else {
+        const pathname =
+          window.location.pathname;
+
+        if (
+          pathname ===
+          "/donasi"
+        ) {
+          setPage(
+            "donasi"
+          );
+        } else {
+          setPage("home");
+        }
+
+        setCurrentContent(
+          null
+        );
+
+        setZakatAmount(
+          null
+        );
+
+        setSelectedProgram(
+          null
+        );
+      }
+
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
+    };
+
+    window.addEventListener(
+      "popstate",
+      handlePopState
+    );
+
+    return () => {
+      window.removeEventListener(
+        "popstate",
+        handlePopState
+      );
+    };
+  }, []);
+
+  /*
+  |--------------------------------------------------------------------------
+  | Footer
+  |--------------------------------------------------------------------------
+  */
 
   const noFooterPages: NavPage[] = [
-    'login',
-    'register',
-    'dashboard',
-  ]
+    "login",
+    "dashboard",
+  ];
 
-  const showFooter = !noFooterPages.includes(page)
+  const showFooter =
+    !noFooterPages.includes(
+      page
+    );
+
+  /*
+  |--------------------------------------------------------------------------
+  | Render
+  |--------------------------------------------------------------------------
+  */
 
   const renderPage = () => {
     switch (page) {
-      case 'zakat':
-        return <ZakatCalculator onPayZakat={handlePayZakat} />
-      case 'donasi':
-        return <DonationForm initialZakatAmount={zakatAmount ?? undefined} initialProgram={selectedProgram ?? undefined} />
-      case 'about':
-        return <AboutPage />
-      case 'program':
-        return <ProgramPage onNavigate={handleNavigate} onDonateProgram={handleNavigateToDonasiWithProgram} />
-      case 'berita':
-        return <BeritaPage onNavigate={handleNavigate} onOpenContent={handleOpenContent} />
-      case 'artikel':
-        return <ArtikelPage onNavigate={handleNavigate} onOpenContent={handleOpenContent} />
-      case 'publikasi':
-        return <PublikasiPage />
-      case 'login':
-        return <LoginPage onNavigate={handleNavigate} />
-      case 'register':
-        return <RegisterPage onNavigate={handleNavigate} />
-      case 'dashboard':
-        return <DashboardPage onNavigate={handleNavigate} />
-      case 'baca':
-        return <BacaPage content={currentContent} onNavigate={handleNavigate} />
+      case "zakat":
+        return (
+          <ZakatCalculator
+            onPayZakat={
+              handlePayZakat
+            }
+          />
+        );
+
+      case "donasi":
+        return (
+          <DonationForm
+            initialZakatAmount={
+              zakatAmount ??
+              undefined
+            }
+            initialProgram={
+              selectedProgram ??
+              undefined
+            }
+          />
+        );
+
+      case "about":
+        return <AboutPage />;
+
+      case "program":
+        return (
+          <ProgramPage
+            onNavigate={
+              handleNavigate
+            }
+            onDonateProgram={
+              handleNavigateToDonasiWithProgram
+            }
+          />
+        );
+
+      case "berita":
+        return (
+          <BeritaPage
+            onNavigate={
+              handleNavigate
+            }
+            onOpenContent={
+              handleOpenContent
+            }
+          />
+        );
+
+      case "artikel":
+        return (
+          <ArtikelPage
+            onNavigate={
+              handleNavigate
+            }
+            onOpenContent={
+              handleOpenContent
+            }
+          />
+        );
+
+      case "publikasi":
+        return (
+          <PublikasiPage />
+        );
+
+      case "login":
+        return (
+          <LoginPage
+            onNavigate={
+              handleNavigate
+            }
+          />
+        );
+
+      case "dashboard":
+        return (
+          <DashboardPage
+            onNavigate={
+              handleNavigate
+            }
+          />
+        );
+
+      case "baca":
+        return (
+          <BacaPage
+            content={
+              currentContent
+            }
+            onNavigate={
+              handleNavigate
+            }
+          />
+        );
+
       default:
-        return <HomePage onNavigate={handleNavigate} />
+        return (
+          <HomePage
+            onNavigate={
+              handleNavigate
+            }
+          />
+        );
     }
-  }
+  };
+
+  /*
+  |--------------------------------------------------------------------------
+  | Auth Loading
+  |--------------------------------------------------------------------------
+  */
 
   if (authLoading) {
     return (
@@ -279,29 +755,44 @@ useEffect(() => {
           </p>
         </div>
       </div>
-    )
+    );
   }
 
   return (
     <div
       className="min-h-screen"
       style={{
-        backgroundColor: '#FFF8F2',
-        fontFamily: "'Inter', sans-serif",
+        backgroundColor:
+          "#FFF8F2",
+
+        fontFamily:
+          "'Inter', sans-serif",
       }}
     >
-      {page !== 'dashboard' && (
+      {page !==
+        "dashboard" && (
         <Navbar
           currentPage={page}
-          onNavigate={handleNavigate}
+          onNavigate={
+            handleNavigate
+          }
         />
       )}
 
       {renderPage()}
 
-      {showFooter && <Footer onNavigate={handleNavigate} />}
+      {showFooter && (
+        <Footer
+          onNavigate={
+            handleNavigate
+          }
+        />
+      )}
 
-      {page !== 'dashboard' && <FloatingElements />}
+      {page !==
+        "dashboard" && (
+        <FloatingElements />
+      )}
     </div>
-  )
+  );
 }
