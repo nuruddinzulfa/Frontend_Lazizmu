@@ -15,7 +15,6 @@ import ProgramManagement from '../../components/admin/program/ProgramManagement'
 import NewsManagement from '../../components/admin/berita/NewsManagement'
 import ArticleManagement from '../../components/admin/artikel/ArticleManagement'
 import BannerManagement from '../../components/admin/banner/BannerManagement'
-import PartnerManagement from '../../components/admin/partner/PartnerManagement'
 import PublicationManagement from '../../components/admin/publikasi/PublicationManagement'
 import UserManagement from '../../components/admin/users/UserManagement'
 import SettingsManagement from '../../components/admin/pengaturan/SettingsManagement'
@@ -74,7 +73,6 @@ const roleMenus: Record<AdminRole, MenuKey[]> = {
     'berita',
     'artikel',
     'banner',
-    'partner',
     'publikasi',
     'tentang-kami',
     'users',
@@ -88,7 +86,6 @@ const roleMenus: Record<AdminRole, MenuKey[]> = {
     'berita',
     'artikel',
     'banner',
-    'partner',
     'publikasi',
     'tentang-kami',
   ],
@@ -340,8 +337,8 @@ export default function DashboardPage({
       |--------------------------------------------------------------------------
       */
 
-      case 'partner':
-        return <PartnerManagement />
+      // case 'partner':
+      //   return <PartnerManagement />
 
       /*
       |--------------------------------------------------------------------------

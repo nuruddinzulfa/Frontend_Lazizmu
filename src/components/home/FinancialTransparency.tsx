@@ -212,7 +212,7 @@ export default function FinancialTransparency() {
                 "'Plus Jakarta Sans', sans-serif",
             }}
           >
-            Keuangan yang Terbuka
+            Transparansi Laporan
           </h2>
 
           <p className="text-gray-500 max-w-xl mx-auto">

@@ -69,7 +69,7 @@ function formatDate(date: string | null): string {
  */
 function getReadTime(content: string): string {
   if (!content) {
-    return '1 menit'
+    return ''
   }
 
   const plainText = content

@@ -23,7 +23,6 @@ export interface FinancialReport {
   type: PublicationType
   year: number
   description: string | null
-  thumbnail: string | null
   file: string
   status: 'draft' | 'published'
   published_at: string | null
@@ -44,7 +43,6 @@ export interface FinancialReportPayload {
   type: PublicationType
   year: number
   description?: string
-  thumbnail?: File | null
   file?: File | null
   status: 'draft' | 'published'
 }
@@ -80,13 +78,10 @@ function getToken(): string {
     )
   }
 
-  const token =
-    localStorage.getItem('token')
+  const token = localStorage.getItem('token')
 
   if (!token) {
-    throw new Error(
-      'Anda belum login.'
-    )
+    throw new Error('Anda belum login.')
   }
 
   return token
@@ -103,23 +98,18 @@ async function getErrorMessage(
   defaultMessage: string
 ): Promise<string> {
   try {
-    const data =
-      await response.json()
+    const data = await response.json()
 
     if (
       data.errors &&
-      typeof data.errors ===
-        'object'
+      typeof data.errors === 'object'
     ) {
       const errors =
-        Object.values(
-          data.errors
-        ) as string[][]
+        Object.values(data.errors) as string[][]
 
-      const firstError =
-        errors
-          .flat()
-          .find(Boolean)
+      const firstError = errors
+        .flat()
+        .find(Boolean)
 
       if (firstError) {
         return firstError
@@ -145,8 +135,7 @@ async function getErrorMessage(
 function buildFormData(
   payload: FinancialReportPayload
 ): FormData {
-  const formData =
-    new FormData()
+  const formData = new FormData()
 
   formData.append(
     'title',
@@ -173,13 +162,6 @@ function buildFormData(
     payload.status
   )
 
-  if (payload.thumbnail) {
-    formData.append(
-      'thumbnail',
-      payload.thumbnail
-    )
-  }
-
   if (payload.file) {
     formData.append(
       'file',
@@ -201,21 +183,16 @@ export async function getAdminReports(): Promise<
 > {
   const token = getToken()
 
-  const response =
-    await fetch(
-      `${API_URL}/admin/financial-reports`,
-      {
-        method: 'GET',
-
-        headers: {
-          Accept:
-            'application/json',
-
-          Authorization:
-            `Bearer ${token}`,
-        },
-      }
-    )
+  const response = await fetch(
+    `${API_URL}/admin/financial-reports`,
+    {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  )
 
   if (!response.ok) {
     throw new Error(
@@ -226,9 +203,8 @@ export async function getAdminReports(): Promise<
     )
   }
 
-  const data:
-    ReportListResponse =
-      await response.json()
+  const data: ReportListResponse =
+    await response.json()
 
   return data.data
 }
@@ -244,21 +220,16 @@ export async function getAdminReportById(
 ): Promise<FinancialReport> {
   const token = getToken()
 
-  const response =
-    await fetch(
-      `${API_URL}/admin/financial-reports/${id}`,
-      {
-        method: 'GET',
-
-        headers: {
-          Accept:
-            'application/json',
-
-          Authorization:
-            `Bearer ${token}`,
-        },
-      }
-    )
+  const response = await fetch(
+    `${API_URL}/admin/financial-reports/${id}`,
+    {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  )
 
   if (!response.ok) {
     throw new Error(
@@ -269,9 +240,8 @@ export async function getAdminReportById(
     )
   }
 
-  const data:
-    ReportResponse =
-      await response.json()
+  const data: ReportResponse =
+    await response.json()
 
   return data.data
 }
@@ -283,31 +253,23 @@ export async function getAdminReportById(
 */
 
 export async function createReport(
-  payload:
-    FinancialReportPayload
+  payload: FinancialReportPayload
 ): Promise<FinancialReport> {
   const token = getToken()
 
-  const formData =
-    buildFormData(payload)
+  const formData = buildFormData(payload)
 
-  const response =
-    await fetch(
-      `${API_URL}/admin/financial-reports`,
-      {
-        method: 'POST',
-
-        headers: {
-          Accept:
-            'application/json',
-
-          Authorization:
-            `Bearer ${token}`,
-        },
-
-        body: formData,
-      }
-    )
+  const response = await fetch(
+    `${API_URL}/admin/financial-reports`,
+    {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    }
+  )
 
   if (!response.ok) {
     throw new Error(
@@ -318,9 +280,8 @@ export async function createReport(
     )
   }
 
-  const data:
-    ReportResponse =
-      await response.json()
+  const data: ReportResponse =
+    await response.json()
 
   return data.data
 }
@@ -333,31 +294,23 @@ export async function createReport(
 
 export async function updateReport(
   id: number,
-  payload:
-    FinancialReportPayload
+  payload: FinancialReportPayload
 ): Promise<FinancialReport> {
   const token = getToken()
 
-  const formData =
-    buildFormData(payload)
+  const formData = buildFormData(payload)
 
-  const response =
-    await fetch(
-      `${API_URL}/admin/financial-reports/${id}`,
-      {
-        method: 'POST',
-
-        headers: {
-          Accept:
-            'application/json',
-
-          Authorization:
-            `Bearer ${token}`,
-        },
-
-        body: formData,
-      }
-    )
+  const response = await fetch(
+    `${API_URL}/admin/financial-reports/${id}`,
+    {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    }
+  )
 
   if (!response.ok) {
     throw new Error(
@@ -368,9 +321,8 @@ export async function updateReport(
     )
   }
 
-  const data:
-    ReportResponse =
-      await response.json()
+  const data: ReportResponse =
+    await response.json()
 
   return data.data
 }
@@ -386,21 +338,16 @@ export async function deleteReport(
 ): Promise<void> {
   const token = getToken()
 
-  const response =
-    await fetch(
-      `${API_URL}/admin/financial-reports/${id}`,
-      {
-        method: 'DELETE',
-
-        headers: {
-          Accept:
-            'application/json',
-
-          Authorization:
-            `Bearer ${token}`,
-        },
-      }
-    )
+  const response = await fetch(
+    `${API_URL}/admin/financial-reports/${id}`,
+    {
+      method: 'DELETE',
+      headers: {
+        Accept: 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  )
 
   if (!response.ok) {
     throw new Error(
@@ -421,20 +368,16 @@ export async function deleteReport(
 export async function getPublicReports(): Promise<
   FinancialReport[]
 > {
-  const response =
-    await fetch(
-      `${API_URL}/financial-reports`,
-      {
-        method: 'GET',
-
-        headers: {
-          Accept:
-            'application/json',
-        },
-
-        cache: 'no-store',
-      }
-    )
+  const response = await fetch(
+    `${API_URL}/financial-reports`,
+    {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+      },
+      cache: 'no-store',
+    }
+  )
 
   if (!response.ok) {
     throw new Error(
@@ -445,9 +388,8 @@ export async function getPublicReports(): Promise<
     )
   }
 
-  const data:
-    ReportListResponse =
-      await response.json()
+  const data: ReportListResponse =
+    await response.json()
 
   return data.data
 }
@@ -461,20 +403,16 @@ export async function getPublicReports(): Promise<
 export async function getPublicReportById(
   id: number
 ): Promise<FinancialReport> {
-  const response =
-    await fetch(
-      `${API_URL}/financial-reports/${id}`,
-      {
-        method: 'GET',
-
-        headers: {
-          Accept:
-            'application/json',
-        },
-
-        cache: 'no-store',
-      }
-    )
+  const response = await fetch(
+    `${API_URL}/financial-reports/${id}`,
+    {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+      },
+      cache: 'no-store',
+    }
+  )
 
   if (!response.ok) {
     throw new Error(
@@ -485,9 +423,8 @@ export async function getPublicReportById(
     )
   }
 
-  const data:
-    ReportResponse =
-      await response.json()
+  const data: ReportResponse =
+    await response.json()
 
   return data.data
 }
@@ -506,32 +443,18 @@ function getStorageUrl(
   }
 
   if (
-    path.startsWith(
-      'http://'
-    ) ||
-    path.startsWith(
-      'https://'
-    )
+    path.startsWith('http://') ||
+    path.startsWith('https://')
   ) {
     return path
   }
 
-  const cleanPath =
-    path
-      .replace(
-        /^\/+/,
-        ''
-      )
-      .replace(
-        /^storage\//,
-        ''
-      )
+  const cleanPath = path
+    .replace(/^\/+/, '')
+    .replace(/^storage\//, '')
 
   const backendUrl =
-    API_URL.replace(
-      /\/api\/?$/,
-      ''
-    )
+    API_URL.replace(/\/api\/?$/, '')
 
   return `${backendUrl}/storage/${cleanPath}`
 }
@@ -546,18 +469,4 @@ export function getReportFileUrl(
   file: string | null
 ): string | null {
   return getStorageUrl(file)
-}
-
-/*
-|--------------------------------------------------------------------------
-| THUMBNAIL URL
-|--------------------------------------------------------------------------
-*/
-
-export function getReportThumbnailUrl(
-  thumbnail: string | null
-): string | null {
-  return getStorageUrl(
-    thumbnail
-  )
 }

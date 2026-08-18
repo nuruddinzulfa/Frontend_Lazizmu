@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useInView } from "../../hooks/useInView";
 import type { NavPage } from "../../App";
 import { api } from "../../services/api";
+import { getNewsThumbnailUrl } from "../../service/news.service";
 
 interface NewsSectionProps {
   onNavigate: (page: NavPage) => void;
@@ -107,12 +108,8 @@ function NewsCard({
         <div className="relative lg:w-1/2 h-56 lg:h-auto bg-orange-50 overflow-hidden flex-shrink-0">
           {article.thumbnail ? (
             <img
-              src={
-                article.thumbnail
-              }
-              alt={
-                article.title
-              }
+              src={getNewsThumbnailUrl(article.thumbnail) || ""}
+              alt={article.title}
               className="w-full h-full object-cover"
             />
           ) : (
@@ -157,7 +154,7 @@ function NewsCard({
               {article.views !==
                 undefined &&
                 article.views !==
-                  null && (
+                null && (
                   <span className="text-xs text-gray-400">
                     ·{" "}
                     {
@@ -222,12 +219,8 @@ function NewsCard({
       <div className="relative h-44 bg-orange-50 overflow-hidden">
         {article.thumbnail ? (
           <img
-            src={
-              article.thumbnail
-            }
-            alt={
-              article.title
-            }
+            src={getNewsThumbnailUrl(article.thumbnail) || ""}
+            alt={article.title}
             className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
           />
         ) : (
@@ -343,7 +336,7 @@ export default function NewsSection({
           if (!response.success) {
             throw new Error(
               response.message ||
-                "Gagal mengambil berita."
+              "Gagal mengambil berita."
             );
           }
 
@@ -359,7 +352,7 @@ export default function NewsSection({
               (item) =>
                 !item.status ||
                 item.status ===
-                  "published"
+                "published"
             );
 
           setItems(
@@ -417,11 +410,10 @@ export default function NewsSection({
           ref={
             ref as React.RefObject<HTMLDivElement>
           }
-          className={`flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-10 transition-all duration-700 ${
-            inView
-              ? "opacity-100 translate-y-0"
-              : "opacity-0 translate-y-6"
-          }`}
+          className={`flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-10 transition-all duration-700 ${inView
+            ? "opacity-100 translate-y-0"
+            : "opacity-0 translate-y-6"
+            }`}
         >
           <div>
             <span className="text-[#F58220] text-sm font-semibold uppercase tracking-wider">
@@ -452,12 +444,11 @@ export default function NewsSection({
                       category
                     )
                   }
-                  className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ${
-                    activeCategory ===
+                  className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ${activeCategory ===
                     category
-                      ? "bg-[#F58220] text-white"
-                      : "bg-[#FEF0E4] text-gray-600 hover:bg-[#F58220] hover:text-white"
-                  }`}
+                    ? "bg-[#F58220] text-white"
+                    : "bg-[#FEF0E4] text-gray-600 hover:bg-[#F58220] hover:text-white"
+                    }`}
                 >
                   {category}
                 </button>
@@ -488,7 +479,7 @@ export default function NewsSection({
         {!loading &&
           !error &&
           filtered.length ===
-            0 && (
+          0 && (
             <div className="max-w-xl mx-auto bg-[#FFF8F2] border border-[#F3DEC8] rounded-2xl p-8 text-center">
               <div className="text-4xl mb-3">
                 📰
@@ -508,13 +499,12 @@ export default function NewsSection({
         {!loading &&
           !error &&
           filtered.length >
-            0 && (
+          0 && (
             <div
-              className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 transition-all duration-700 delay-200 ${
-                inView
-                  ? "opacity-100 translate-y-0"
-                  : "opacity-0 translate-y-8"
-              }`}
+              className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 transition-all duration-700 delay-200 ${inView
+                ? "opacity-100 translate-y-0"
+                : "opacity-0 translate-y-8"
+                }`}
             >
               {filtered.map(
                 (
@@ -530,9 +520,9 @@ export default function NewsSection({
                     }
                     featured={
                       index ===
-                        0 &&
+                      0 &&
                       activeCategory ===
-                        "Semua"
+                      "Semua"
                     }
                     onNavigate={
                       onNavigate

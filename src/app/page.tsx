@@ -47,7 +47,7 @@ export default function HomePage({
 
       <FinancialTransparency />
 
-      <Partners />
+      
 
       <NewsSection
         onNavigate={onNavigate}

@@ -1,21 +1,33 @@
 import API_URL from "../lib/api";
 
+/*
+|--------------------------------------------------------------------------
+| TYPES
+|--------------------------------------------------------------------------
+*/
+
 export interface News {
   id: number;
   title: string;
   slug: string;
   excerpt: string | null;
   content: string;
+
   thumbnail: string | null;
+
   category:
     | "Kegiatan"
     | "Pengumuman"
     | "Laporan";
+
   status: "draft" | "published";
+
   published_at: string | null;
   views: number;
+
   created_by: number | null;
   updated_by: number | null;
+
   created_at: string;
   updated_at: string;
 }
@@ -24,11 +36,14 @@ export interface NewsPayload {
   title: string;
   excerpt?: string;
   content: string;
+
   category:
     | "Kegiatan"
     | "Pengumuman"
     | "Laporan";
+
   status: "draft" | "published";
+
   thumbnail?: File | null;
 }
 
@@ -44,17 +59,92 @@ interface NewsResponse {
   data: News;
 }
 
+/*
+|--------------------------------------------------------------------------
+| HELPERS
+|--------------------------------------------------------------------------
+*/
+
+/**
+ * Mengambil token login.
+ */
 function getToken(): string {
-  const token =
-    localStorage.getItem("token");
+  const token = localStorage.getItem("token");
 
   if (!token) {
-    throw new Error(
-      "Anda belum login."
-    );
+    throw new Error("Anda belum login.");
   }
 
   return token;
+}
+
+/**
+ * Mengubah path thumbnail Laravel
+ * menjadi URL yang bisa langsung digunakan browser.
+ *
+ * Contoh:
+ *
+ * news/thumbnails/image.png
+ *
+ * menjadi:
+ *
+ * http://127.0.0.1:8000/storage/news/thumbnails/image.png
+ */
+export function getNewsThumbnailUrl(
+  thumbnail: string | null
+): string | null {
+  if (!thumbnail) {
+    return null;
+  }
+
+  /**
+   * Jika backend sudah mengirim URL lengkap,
+   * jangan diproses lagi.
+   */
+  if (
+    thumbnail.startsWith("http://") ||
+    thumbnail.startsWith("https://")
+  ) {
+    return thumbnail;
+  }
+
+  /**
+   * API_URL:
+   *
+   * http://127.0.0.1:8000/api
+   *
+   * Backend URL:
+   *
+   * http://127.0.0.1:8000
+   */
+  const backendUrl = API_URL.replace(
+    /\/api\/?$/,
+    ""
+  );
+
+  /**
+   * Bersihkan slash di awal.
+   */
+  const cleanThumbnail = thumbnail
+    .replace(/^\/+/, "")
+    .replace(/^storage\//, "");
+
+  return `${backendUrl}/storage/${cleanThumbnail}`;
+}
+
+/**
+ * Normalisasi data berita dari backend.
+ *
+ * Thumbnail akan otomatis menjadi URL
+ * yang dapat digunakan oleh <img src="..." />.
+ */
+function normalizeNews(news: News): News {
+  return {
+    ...news,
+    thumbnail: getNewsThumbnailUrl(
+      news.thumbnail
+    ),
+  };
 }
 
 /*
@@ -64,12 +154,11 @@ function getToken(): string {
 */
 
 /**
- * Ambil seluruh berita published
- * untuk halaman masyarakat.
+ * Mengambil seluruh berita published.
+ *
+ * GET /api/news
  */
-export async function getNews(): Promise<
-  News[]
-> {
+export async function getNews(): Promise<News[]> {
   const response = await fetch(
     `${API_URL}/news`,
     {
@@ -90,22 +179,19 @@ export async function getNews(): Promise<
     );
   }
 
-  return data.data;
+  return data.data.map(normalizeNews);
 }
 
 /**
- * Ambil detail berita berdasarkan slug.
+ * Mengambil detail berita berdasarkan slug.
  *
- * Backend public menggunakan:
  * GET /api/news/{slug}
  */
 export async function getPublicNewsBySlug(
   slug: string
 ): Promise<News> {
   const response = await fetch(
-    `${API_URL}/news/${encodeURIComponent(
-      slug
-    )}`,
+    `${API_URL}/news/${encodeURIComponent(slug)}`,
     {
       method: "GET",
       headers: {
@@ -124,32 +210,21 @@ export async function getPublicNewsBySlug(
     );
   }
 
-  return data.data;
+  return normalizeNews(data.data);
 }
 
 /**
- * Compatibility untuk halaman detail lama.
- *
- * BacaPage sekarang masih mengirim ID,
- * sedangkan backend public detail berita
- * menggunakan slug.
- *
- * Alurnya:
- * 1. Ambil daftar berita published.
- * 2. Cari berita berdasarkan ID.
- * 3. Ambil slug berita tersebut.
- * 4. Request detail melalui /news/{slug}.
+ * Compatibility untuk halaman detail
+ * yang masih menggunakan ID.
  */
 export async function getPublicNewsById(
   id: number
 ): Promise<News> {
-  const newsList =
-    await getNews();
+  const newsList = await getNews();
 
-  const selectedNews =
-    newsList.find(
-      (news) => news.id === id
-    );
+  const selectedNews = newsList.find(
+    (news) => news.id === id
+  );
 
   if (!selectedNews) {
     throw new Error(
@@ -169,11 +244,9 @@ export async function getPublicNewsById(
 */
 
 /**
- * Ambil seluruh berita untuk dashboard admin.
+ * Mengambil seluruh berita untuk admin.
  *
- * Termasuk:
- * - published
- * - draft
+ * GET /api/admin/news
  */
 export async function getAdminNews(): Promise<
   News[]
@@ -186,8 +259,7 @@ export async function getAdminNews(): Promise<
       method: "GET",
       headers: {
         Accept: "application/json",
-        Authorization:
-          `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
       },
     }
   );
@@ -202,13 +274,13 @@ export async function getAdminNews(): Promise<
     );
   }
 
-  return data.data;
+  return data.data.map(normalizeNews);
 }
 
 /**
- * Detail berita admin.
+ * Mengambil detail berita admin.
  *
- * Endpoint admin masih menggunakan ID.
+ * GET /api/admin/news/{id}
  */
 export async function getAdminNewsById(
   id: number
@@ -221,8 +293,7 @@ export async function getAdminNewsById(
       method: "GET",
       headers: {
         Accept: "application/json",
-        Authorization:
-          `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
       },
     }
   );
@@ -237,7 +308,7 @@ export async function getAdminNewsById(
     );
   }
 
-  return data.data;
+  return normalizeNews(data.data);
 }
 
 /*
@@ -246,13 +317,17 @@ export async function getAdminNewsById(
 |--------------------------------------------------------------------------
 */
 
+/**
+ * Membuat berita baru.
+ *
+ * POST /api/admin/news
+ */
 export async function createNews(
   payload: NewsPayload
 ): Promise<News> {
   const token = getToken();
 
-  const formData =
-    new FormData();
+  const formData = new FormData();
 
   formData.append(
     "title",
@@ -292,8 +367,7 @@ export async function createNews(
       method: "POST",
       headers: {
         Accept: "application/json",
-        Authorization:
-          `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
       },
       body: formData,
     }
@@ -309,7 +383,7 @@ export async function createNews(
     );
   }
 
-  return data.data;
+  return normalizeNews(data.data);
 }
 
 /*
@@ -318,14 +392,18 @@ export async function createNews(
 |--------------------------------------------------------------------------
 */
 
+/**
+ * Memperbarui berita.
+ *
+ * POST /api/admin/news/{id}
+ */
 export async function updateNews(
   id: number,
   payload: NewsPayload
 ): Promise<News> {
   const token = getToken();
 
-  const formData =
-    new FormData();
+  const formData = new FormData();
 
   formData.append(
     "title",
@@ -365,8 +443,7 @@ export async function updateNews(
       method: "POST",
       headers: {
         Accept: "application/json",
-        Authorization:
-          `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
       },
       body: formData,
     }
@@ -382,7 +459,7 @@ export async function updateNews(
     );
   }
 
-  return data.data;
+  return normalizeNews(data.data);
 }
 
 /*
@@ -391,6 +468,11 @@ export async function updateNews(
 |--------------------------------------------------------------------------
 */
 
+/**
+ * Menghapus berita.
+ *
+ * DELETE /api/admin/news/{id}
+ */
 export async function deleteNews(
   id: number
 ): Promise<void> {
@@ -402,14 +484,15 @@ export async function deleteNews(
       method: "DELETE",
       headers: {
         Accept: "application/json",
-        Authorization:
-          `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
       },
     }
   );
 
-  const data =
-    await response.json();
+  const data: {
+    success: boolean;
+    message: string;
+  } = await response.json();
 
   if (!response.ok) {
     throw new Error(
