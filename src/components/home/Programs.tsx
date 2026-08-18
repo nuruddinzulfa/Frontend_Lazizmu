@@ -1,398 +1,276 @@
-import { useEffect, useState } from "react";
-import { useInView } from "../../hooks/useInView";
-import type { NavPage } from "../../App";
-import { api } from "../../services/api";
+'use client'
+
+import { useEffect, useState } from 'react'
+
+import {
+  getPublicCampaigns,
+  type Campaign,
+} from '@/service/campaign.service'
 
 interface ProgramsProps {
-  onNavigate: (page: NavPage) => void;
+  onOpenCampaign?: (id: number) => void
 }
 
-interface Program {
-  id: number;
-  title: string;
-  slug: string;
-  excerpt?: string | null;
-  thumbnail?: string | null;
-  pillar?: string | null;
-  published_at?: string | null;
-  views?: number | null;
-  sort_order?: number | null;
+const getThumbnailUrl = (
+  thumbnail: string | null | undefined
+) => {
+  if (!thumbnail) {
+    return null
+  }
+
+  if (
+    thumbnail.startsWith('http://') ||
+    thumbnail.startsWith('https://')
+  ) {
+    return thumbnail
+  }
+
+  return `http://127.0.0.1:8000/storage/${thumbnail}`
 }
 
-interface ProgramResponse {
-  success: boolean;
-  message?: string;
-  data: Program[];
-}
-
-/*
-|--------------------------------------------------------------------------
-| Warna Pillar
-|--------------------------------------------------------------------------
-*/
-
-function getPillarColor(pillar?: string | null) {
-  const value = pillar?.toLowerCase() ?? "";
-
-  if (value.includes("pendidikan")) {
-    return "bg-blue-100 text-blue-700";
-  }
-
-  if (value.includes("kesehatan")) {
-    return "bg-red-100 text-red-700";
-  }
-
-  if (value.includes("ekonomi")) {
-    return "bg-green-100 text-green-700";
-  }
-
-  if (value.includes("sosial")) {
-    return "bg-orange-100 text-orange-700";
-  }
-
-  if (value.includes("dakwah")) {
-    return "bg-purple-100 text-purple-700";
-  }
-
-  if (value.includes("lingkungan")) {
-    return "bg-emerald-100 text-emerald-700";
-  }
-
-  return "bg-gray-100 text-gray-700";
-}
-
-/*
-|--------------------------------------------------------------------------
-| Placeholder Icon
-|--------------------------------------------------------------------------
-*/
-
-function getProgramIcon(pillar?: string | null) {
-  const value = pillar?.toLowerCase() ?? "";
-
-  if (value.includes("pendidikan")) {
-    return "🎓";
-  }
-
-  if (value.includes("kesehatan")) {
-    return "🏥";
-  }
-
-  if (value.includes("ekonomi")) {
-    return "💼";
-  }
-
-  if (value.includes("sosial")) {
-    return "🤝";
-  }
-
-  if (value.includes("dakwah")) {
-    return "🕌";
-  }
-
-  if (value.includes("lingkungan")) {
-    return "🌱";
-  }
-
-  return "🤲";
+const formatRupiah = (
+  value: number | string | null | undefined
+) => {
+  return (
+    'Rp ' +
+    Number(value || 0).toLocaleString('id-ID')
+  )
 }
 
 export default function Programs({
-  onNavigate,
+  onOpenCampaign,
 }: ProgramsProps) {
-  const { inView, ref } = useInView();
-
-  const [programs, setPrograms] =
-    useState<Program[]>([]);
-
-  const [loading, setLoading] =
-    useState(true);
-
-  const [error, setError] =
-    useState("");
-
-  /*
-  |--------------------------------------------------------------------------
-  | Fetch Program
-  |--------------------------------------------------------------------------
-  */
+  const [campaigns, setCampaigns] = useState<Campaign[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
 
   useEffect(() => {
-    const fetchPrograms = async () => {
+    let mounted = true
+
+    const loadCampaigns = async () => {
       try {
-        setLoading(true);
-        setError("");
+        setLoading(true)
+        setError('')
 
-        const response =
-          await api.get<ProgramResponse>(
-            "/programs"
-          );
+        const data = await getPublicCampaigns()
 
-        if (!response.success) {
-          throw new Error(
-            response.message ||
-              "Gagal mengambil program."
-          );
+        if (!mounted) {
+          return
         }
 
-        const data = Array.isArray(
-          response.data
+        setCampaigns(
+          Array.isArray(data) ? data : []
         )
-          ? response.data
-          : [];
-
-        /*
-        |--------------------------------------------------------------------------
-        | Urutkan berdasarkan sort_order
-        |--------------------------------------------------------------------------
-        */
-
-        const sorted = [...data].sort(
-          (a, b) =>
-            Number(a.sort_order ?? 0) -
-            Number(b.sort_order ?? 0)
-        );
-
-        setPrograms(sorted.slice(0, 6));
-      } catch (error) {
+      } catch (err) {
         console.error(
-          "PROGRAM ERROR:",
-          error
-        );
+          '[Programs] Gagal mengambil campaign:',
+          err
+        )
+
+        if (!mounted) {
+          return
+        }
 
         setError(
-          error instanceof Error
-            ? error.message
-            : "Gagal mengambil program."
-        );
+          err instanceof Error
+            ? err.message
+            : 'Gagal mengambil program.'
+        )
       } finally {
-        setLoading(false);
+        if (mounted) {
+          setLoading(false)
+        }
       }
-    };
+    }
 
-    fetchPrograms();
-  }, []);
+    loadCampaigns()
+
+    return () => {
+      mounted = false
+    }
+  }, [])
+
+  /*
+   * Beranda hanya menampilkan maksimal
+   * 3 campaign.
+   */
+  const displayedCampaigns = campaigns.slice(0, 3)
+
+  /*
+   * Loading
+   */
+  if (loading) {
+    return (
+      <section className="bg-[#FFF8F2] py-16">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="py-10 text-center text-gray-500">
+            Memuat program...
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  /*
+   * Error
+   */
+  if (error) {
+    console.error('[Programs] Error:', error)
+
+    return null
+  }
+
+  /*
+   * Tidak ada campaign
+   */
+  if (displayedCampaigns.length === 0) {
+    return null
+  }
 
   return (
-    <section
-      id="programs"
-      className="py-20 bg-[#FFF8F2]"
-    >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="bg-[#FFF8F2] py-16">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
-        {/* Heading */}
-
-        <div
-          ref={
-            ref as React.RefObject<HTMLDivElement>
-          }
-          className={`text-center mb-14 transition-all duration-700 ${
-            inView
-              ? "opacity-100 translate-y-0"
-              : "opacity-0 translate-y-6"
-          }`}
-        >
-          <span className="text-[#F58220] text-sm font-semibold uppercase tracking-wider">
+        {/* HEADER */}
+        <div className="mb-10 text-center">
+          <p className="mb-2 text-sm font-semibold uppercase tracking-wide text-[#F58220]">
             Program
-          </span>
+          </p>
 
-          <h2
-            className="text-3xl sm:text-4xl font-bold text-gray-900 mt-2 mb-4"
-            style={{
-              fontFamily:
-                "'Plus Jakarta Sans', sans-serif",
-            }}
-          >
+          <h2 className="text-3xl font-bold text-gray-900 sm:text-4xl">
             Program Unggulan Kami
           </h2>
 
-          <p className="text-gray-500 max-w-xl mx-auto">
-            Program LAZISMU Pemalang
-            hadir untuk mendukung
-            pendidikan, kesehatan,
-            ekonomi, sosial, dakwah,
-            dan lingkungan masyarakat.
+          <p className="mx-auto mt-3 max-w-2xl text-sm leading-relaxed text-gray-500 sm:text-base">
+            Dukung berbagai program dan kampanye
+            kebaikan yang sedang berjalan di Lazismu.
           </p>
         </div>
 
-        {/* Loading */}
+        {/* CAMPAIGN CARDS */}
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {displayedCampaigns.map((campaign) => {
+            const target = Number(
+              campaign.target_amount || 0
+            )
 
-        {loading && (
-          <div className="flex flex-col items-center justify-center py-12">
-            <div className="w-9 h-9 border-4 border-[#F58220] border-t-transparent rounded-full animate-spin mb-3" />
+            const collected = Number(
+              campaign.collected_amount || 0
+            )
 
-            <p className="text-sm text-gray-400">
-              Mengambil program...
-            </p>
-          </div>
-        )}
+            const percentage =
+              target > 0
+                ? Math.min(
+                    Math.round(
+                      (collected / target) * 100
+                    ),
+                    100
+                  )
+                : 0
 
-        {/* Error */}
+            const thumbnail = getThumbnailUrl(
+              campaign.thumbnail
+            )
 
-        {!loading && error && (
-          <div className="max-w-xl mx-auto bg-red-50 border border-red-200 rounded-2xl p-5 text-center">
-            <p className="text-sm text-red-600">
-              {error}
-            </p>
-          </div>
-        )}
+            return (
+              <div
+                key={campaign.id}
+                className="overflow-hidden rounded-2xl border border-[#F3DEC8] bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md"
+              >
 
-        {/* Empty */}
-
-        {!loading &&
-          !error &&
-          programs.length === 0 && (
-            <div className="max-w-xl mx-auto bg-white border border-[#F3DEC8] rounded-2xl p-8 text-center">
-              <div className="text-4xl mb-3">
-                🤲
-              </div>
-
-              <p className="font-semibold text-gray-700 mb-1">
-                Belum ada program
-              </p>
-
-              <p className="text-sm text-gray-400">
-                Program akan
-                ditampilkan setelah
-                dipublikasikan oleh
-                admin.
-              </p>
-            </div>
-          )}
-
-        {/* Program Grid */}
-
-        {!loading &&
-          !error &&
-          programs.length > 0 && (
-            <div
-              className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 transition-all duration-700 delay-200 ${
-                inView
-                  ? "opacity-100 translate-y-0"
-                  : "opacity-0 translate-y-8"
-              }`}
-            >
-              {programs.map(
-                (program) => (
-                  <div
-                    key={program.id}
-                    onClick={() =>
-                      onNavigate(
-                        "program"
-                      )
-                    }
-                    className="card-hover group bg-white rounded-2xl overflow-hidden border border-[#F3DEC8] shadow-sm cursor-pointer"
-                  >
-
-                    {/* Image */}
-
-                    <div className="relative h-44 bg-orange-50 overflow-hidden">
-                      {program.thumbnail ? (
-                        <img
-                          src={
-                            program.thumbnail
-                          }
-                          alt={
-                            program.title
-                          }
-                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#FEF0E4] to-[#FFF8F2]">
-                          <div className="text-center">
-                            <div className="text-5xl mb-2">
-                              {getProgramIcon(
-                                program.pillar
-                              )}
-                            </div>
-
-                            <div className="text-xs font-semibold text-[#F58220]">
-                              LAZISMU
-                              Pemalang
-                            </div>
-                          </div>
-                        </div>
-                      )}
-
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
-
-                      {program.pillar && (
-                        <span
-                          className={`absolute top-3 left-3 text-xs font-semibold px-3 py-1.5 rounded-full ${getPillarColor(
-                            program.pillar
-                          )}`}
-                        >
-                          {program.pillar}
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Content */}
-
-                    <div className="p-5">
-                      <h3
-                        className="font-bold text-gray-800 mb-3"
-                        style={{
-                          fontFamily:
-                            "'Plus Jakarta Sans', sans-serif",
-                        }}
-                      >
-                        {program.title}
-                      </h3>
-
-                      <p className="text-gray-500 text-sm leading-relaxed mb-4 line-clamp-3">
-                        {program.excerpt ||
-                          "Informasi program LAZISMU Pemalang."}
-                      </p>
-
-                      <div
-                        className="flex items-center gap-1.5 text-[#F58220] text-sm font-semibold group-hover:gap-3 transition-all duration-200"
-                        style={{
-                          fontFamily:
-                            "'Plus Jakarta Sans', sans-serif",
-                        }}
-                      >
-                        Lihat Detail
-
-                        <svg
-                          className="w-4 h-4"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M17 8l4 4m0 0l-4 4m4-4H3"
-                          />
-                        </svg>
-                      </div>
-                    </div>
+                {/* THUMBNAIL */}
+                {thumbnail ? (
+                  <img
+                    src={thumbnail}
+                    alt={campaign.title}
+                    className="h-52 w-full object-cover"
+                  />
+                ) : (
+                  <div className="flex h-52 items-center justify-center bg-[#FFF0DE]">
+                    <span className="text-xl font-bold text-[#F58220]">
+                      LAZISMU
+                    </span>
                   </div>
-                )
-              )}
-            </div>
-          )}
+                )}
 
-        {/* All Programs */}
+                {/* CONTENT */}
+                <div className="p-5">
 
-        <div className="text-center mt-10">
-          <button
-            type="button"
-            onClick={() =>
-              onNavigate("program")
-            }
-            className="border-2 border-[#F58220] text-[#F58220] hover:bg-[#F58220] hover:text-white transition-all duration-200 px-8 py-3 rounded-xl font-semibold text-sm"
-            style={{
-              fontFamily:
-                "'Plus Jakarta Sans', sans-serif",
-            }}
-          >
-            Lihat Semua Program →
-          </button>
+                  {/* CATEGORY */}
+                  <span className="inline-flex rounded-full bg-[#FEF0E4] px-3 py-1 text-xs font-semibold text-[#F58220]">
+                    {campaign.category}
+                  </span>
+
+                  {/* TITLE */}
+                  <h3 className="mt-3 line-clamp-2 text-lg font-bold text-gray-900">
+                    {campaign.title}
+                  </h3>
+
+                  {/* DESCRIPTION */}
+                  <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-gray-500">
+                    {campaign.short_description}
+                  </p>
+
+                  {/* PROGRESS */}
+                  <div className="mt-5">
+
+                    <div className="mb-2 flex justify-between text-xs">
+                      <span className="text-gray-500">
+                        Terkumpul
+                      </span>
+
+                      <span className="font-semibold text-[#F58220]">
+                        {percentage}%
+                      </span>
+                    </div>
+
+                    <div className="h-2 overflow-hidden rounded-full bg-gray-100">
+                      <div
+                        className="h-full rounded-full bg-[#F58220]"
+                        style={{
+                          width: `${percentage}%`,
+                        }}
+                      />
+                    </div>
+
+                    <div className="mt-2 flex justify-between text-xs">
+                      <span className="text-gray-400">
+                        {formatRupiah(collected)}
+                      </span>
+
+                      <span className="text-gray-400">
+                        dari {formatRupiah(target)}
+                      </span>
+                    </div>
+
+                  </div>
+
+                  {/* DONASI */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (!onOpenCampaign) {
+                        console.error(
+                          '[Programs] onOpenCampaign belum diberikan dari parent.'
+                        )
+
+                        return
+                      }
+
+                      onOpenCampaign(campaign.id)
+                    }}
+                    className="mt-5 w-full rounded-xl bg-[#F58220] px-4 py-3 text-sm font-semibold text-white transition hover:bg-orange-600"
+                  >
+                    Donasi Sekarang
+                  </button>
+
+                </div>
+              </div>
+            )
+          })}
         </div>
+
       </div>
     </section>
-  );
+  )
 }
