@@ -5,7 +5,6 @@ import WhyLazismu from '../components/home/WhyLazismu'
 import AboutSection from '../components/home/AboutSection'
 import ImpactStats from '../components/home/ImpactStats'
 import Programs from '../components/home/Programs'
-import CrowdfundingSection from '../components/home/CrowdfundingSection'
 import FinancialTransparency from '../components/home/FinancialTransparency'
 import Partners from '../components/home/Partners'
 import NewsSection from '../components/home/NewsSection'
@@ -14,22 +13,46 @@ import type { NavPage } from '../App'
 
 interface HomePageProps {
   onNavigate: (page: NavPage) => void
+  onOpenPillar?: (category: string) => void
 }
 
-export default function HomePage({ onNavigate }: HomePageProps) {
+export default function HomePage({
+  onNavigate,
+  onOpenPillar,
+}: HomePageProps) {
   return (
     <>
       <Hero onNavigate={onNavigate} />
-      <FeaturedCampaigns onNavigate={onNavigate} />
-      <QuickDonation onNavigate={onNavigate} />
+
+      <FeaturedCampaigns
+        onNavigate={onNavigate}
+      />
+
+      <QuickDonation
+        onNavigate={onNavigate}
+      />
+
       <WhyLazismu />
-      <AboutSection onNavigate={onNavigate} />
+
+      <AboutSection
+        onNavigate={onNavigate}
+      />
+
       <ImpactStats />
-      <Programs onNavigate={onNavigate} />
-      <CrowdfundingSection onNavigate={onNavigate} />
+
+      <Programs
+        onNavigate={onNavigate}
+        onOpenPillar={onOpenPillar}
+      />
+
       <FinancialTransparency />
+
       <Partners />
-      <NewsSection onNavigate={onNavigate} />
+
+      <NewsSection
+        onNavigate={onNavigate}
+      />
+
       <FAQ />
     </>
   )
