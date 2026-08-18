@@ -1,4 +1,5 @@
 'use client'
+import RichTextEditor from '../../RichTextEditor'
 
 import {
   useCallback,
@@ -27,7 +28,6 @@ import {
 } from '../../../service/organization-member.service'
 
 type ActiveTab = 'profile' | 'members'
-
 const emptyProfile: OrganizationProfilePayload = {
   name: '',
   tagline: '',
@@ -867,116 +867,88 @@ export default function AboutManagement() {
                 </div>
 
                 {/* DESCRIPTION */}
-                <div className="md:col-span-2">
-                  <label className="mb-2 block text-xs font-semibold text-gray-600">
-                    Deskripsi
-                  </label>
+<div className="md:col-span-2">
+  <label
+    htmlFor="organization-description"
+    className="mb-2 block text-xs font-semibold text-gray-600"
+  >
+    Deskripsi
+  </label>
 
-                  <textarea
-                    rows={5}
-                    value={
-                      profileForm.description ||
-                      ''
-                    }
-                    disabled={savingProfile}
-                    onChange={(event) =>
-                      setProfileForm(
-                        (current) => ({
-                          ...current,
-                          description:
-                            event.target
-                              .value,
-                        })
-                      )
-                    }
-                    placeholder="Deskripsi organisasi"
-                    className="w-full resize-y rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-[#F58220]"
-                  />
-                </div>
+  <RichTextEditor
+    value={profileForm.description || ''}
+    onChange={(value) =>
+      setProfileForm((current) => ({
+        ...current,
+        description: value,
+      }))
+    }
+    placeholder="Tulis deskripsi organisasi..."
+  />
+</div>
 
                 {/* HISTORY */}
                 <div className="md:col-span-2">
-                  <label className="mb-2 block text-xs font-semibold text-gray-600">
-                    Sejarah
-                  </label>
+  <label
+    htmlFor="organization-history"
+    className="mb-2 block text-xs font-semibold text-gray-600"
+  >
+    Sejarah
+  </label>
 
-                  <textarea
-                    rows={6}
-                    value={
-                      profileForm.history ||
-                      ''
-                    }
-                    disabled={savingProfile}
-                    onChange={(event) =>
-                      setProfileForm(
-                        (current) => ({
-                          ...current,
-                          history:
-                            event.target
-                              .value,
-                        })
-                      )
-                    }
-                    placeholder="Sejarah organisasi"
-                    className="w-full resize-y rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-[#F58220]"
-                  />
-                </div>
+  <RichTextEditor
+    value={profileForm.history || ''}
+    onChange={(value) =>
+      setProfileForm((current) => ({
+        ...current,
+        history: value,
+      }))
+    }
+    placeholder="Tulis sejarah organisasi..."
+  />
+</div>
 
                 {/* VISION */}
                 <div>
-                  <label className="mb-2 block text-xs font-semibold text-gray-600">
-                    Visi
-                  </label>
+  <label
+    htmlFor="organization-vision"
+    className="mb-2 block text-xs font-semibold text-gray-600"
+  >
+    Visi
+  </label>
 
-                  <textarea
-                    rows={6}
-                    value={
-                      profileForm.vision ||
-                      ''
-                    }
-                    disabled={savingProfile}
-                    onChange={(event) =>
-                      setProfileForm(
-                        (current) => ({
-                          ...current,
-                          vision:
-                            event.target
-                              .value,
-                        })
-                      )
-                    }
-                    placeholder="Visi organisasi"
-                    className="w-full resize-y rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-[#F58220]"
-                  />
-                </div>
+  <RichTextEditor
+    value={profileForm.vision || ''}
+    onChange={(value) =>
+      setProfileForm((current) => ({
+        ...current,
+        vision: value,
+      }))
+    }
+    placeholder="Tulis visi organisasi..."
+  />
+</div>
 
                 {/* MISSION */}
                 <div>
-                  <label className="mb-2 block text-xs font-semibold text-gray-600">
-                    Misi
-                  </label>
+  <label
+    htmlFor="organization-mission"
+    className="mb-2 block text-xs font-semibold text-gray-600"
+  >
+    Misi
+  </label>
 
-                  <textarea
-                    rows={6}
-                    value={
-                      profileForm.mission ||
-                      ''
-                    }
-                    disabled={savingProfile}
-                    onChange={(event) =>
-                      setProfileForm(
-                        (current) => ({
-                          ...current,
-                          mission:
-                            event.target
-                              .value,
-                        })
-                      )
-                    }
-                    placeholder="Misi organisasi"
-                    className="w-full resize-y rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-[#F58220]"
-                  />
-                </div>
+  <RichTextEditor
+    value={profileForm.mission || ''}
+    onChange={(value) =>
+      setProfileForm((current) => ({
+        ...current,
+        mission: value,
+      }))
+    }
+    placeholder="Tulis misi organisasi..."
+  />
+</div>
 
                 {/* ADDRESS */}
                 <div className="md:col-span-2">

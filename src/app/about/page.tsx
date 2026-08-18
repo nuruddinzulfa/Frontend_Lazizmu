@@ -13,9 +13,35 @@ import {
 } from '../../service/organization-member.service'
 
 function getInitials(name: string) {
-  const parts = name.replace(/[^a-zA-Z\s]/g, '').trim().split(/\s+/)
-  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase()
+  const parts = name
+    .replace(/[^a-zA-Z\s]/g, '')
+    .trim()
+    .split(/\s+/)
+
+  if (parts.length === 1) {
+    return parts[0].slice(0, 2).toUpperCase()
+  }
+
   return (parts[0][0] + parts[1][0]).toUpperCase()
+}
+
+function RichTextContent({
+  content,
+  className = '',
+}: {
+  content: string | null | undefined
+  className?: string
+}) {
+  if (!content) return null
+
+  return (
+    <div
+      className={className}
+      dangerouslySetInnerHTML={{
+        __html: content,
+      }}
+    />
+  )
 }
 
 export default function AboutPage() {
@@ -142,7 +168,34 @@ setMembers(
 </p>
         </div>
       </div>
+{/* Deskripsi */}
+<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+  <div className="max-w-4xl mx-auto">
+    <div className="inline-flex items-center gap-2 bg-[#FEF0E4] text-[#F58220] px-4 py-1.5 rounded-full text-sm font-semibold mb-4">
+      Tentang Kami
+    </div>
 
+    <h2
+      className="text-3xl font-bold text-gray-900 mb-6"
+      style={{
+        fontFamily: "'Plus Jakarta Sans', sans-serif",
+      }}
+    >
+      Tentang {organizationName}
+    </h2>
+
+    {profile?.description ? (
+      <RichTextContent
+        content={profile.description}
+        className="text-gray-600 leading-relaxed"
+      />
+    ) : (
+      <p className="text-gray-500 leading-relaxed">
+        Deskripsi organisasi belum tersedia.
+      </p>
+    )}
+  </div>
+</div>
      {/* Sejarah */}
 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
   <div className="max-w-4xl mx-auto">
@@ -160,13 +213,18 @@ setMembers(
       Perjalanan {organizationName}
     </h2>
 
-    <div className="whitespace-pre-line text-gray-600 leading-relaxed">
-      {profile?.history || (
-        <p>
-          Informasi sejarah organisasi belum tersedia.
-        </p>
-      )}
-    </div>
+    <div className="text-gray-600 leading-relaxed">
+  {profile?.history ? (
+    <RichTextContent
+      content={profile.history}
+      className="text-gray-600"
+    />
+  ) : (
+    <p>
+      Informasi sejarah organisasi belum tersedia.
+    </p>
+  )}
+</div>
 
   </div>
 </div>
@@ -192,10 +250,16 @@ setMembers(
                 </svg>
               </div>
               <h3 className="text-2xl font-bold mb-3" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Visi</h3>
-              <p className="whitespace-pre-line text-white/90 leading-relaxed">
-  {profile?.vision ||
-    'Visi organisasi belum tersedia.'}
-</p>
+              <div className="text-white/90 leading-relaxed">
+  {profile?.vision ? (
+    <RichTextContent
+      content={profile.vision}
+      className="text-white/90"
+    />
+  ) : (
+    <p>Visi organisasi belum tersedia.</p>
+  )}
+</div>
             </div>
             <div className="bg-white border border-[#F3DEC8] rounded-2xl p-8 shadow-sm">
               <div className="w-12 h-12 bg-[#FEF0E4] rounded-xl flex items-center justify-center mb-4">
@@ -204,8 +268,13 @@ setMembers(
                 </svg>
               </div>
               <h3 className="text-2xl font-bold mb-3 text-gray-900" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Misi</h3>
-              <div className="whitespace-pre-line text-gray-600 leading-relaxed">
-  {profile?.mission || (
+              <div className="text-gray-600 leading-relaxed">
+  {profile?.mission ? (
+    <RichTextContent
+      content={profile.mission}
+      className="text-gray-600"
+    />
+  ) : (
     <p>
       Misi organisasi belum tersedia.
     </p>
