@@ -11,7 +11,6 @@ export type PublicationType =
   | 'Laporan Tahunan'
   | 'Laporan Program'
 
-
 /*
 |--------------------------------------------------------------------------
 | MODEL
@@ -76,13 +75,18 @@ interface ReportResponse {
 
 function getToken(): string {
   if (typeof window === 'undefined') {
-    throw new Error('Akses hanya dapat dilakukan dari browser.')
+    throw new Error(
+      'Akses hanya dapat dilakukan dari browser.'
+    )
   }
 
-  const token = localStorage.getItem('token')
+  const token =
+    localStorage.getItem('token')
 
   if (!token) {
-    throw new Error('Anda belum login.')
+    throw new Error(
+      'Anda belum login.'
+    )
   }
 
   return token
@@ -99,25 +103,23 @@ async function getErrorMessage(
   defaultMessage: string
 ): Promise<string> {
   try {
-    const data = await response.json()
-
-    /*
-    |--------------------------------------------------------------------------
-    | Laravel validation error
-    |--------------------------------------------------------------------------
-    */
+    const data =
+      await response.json()
 
     if (
       data.errors &&
-      typeof data.errors === 'object'
+      typeof data.errors ===
+        'object'
     ) {
-      const errors = Object.values(
-        data.errors
-      ) as string[][]
+      const errors =
+        Object.values(
+          data.errors
+        ) as string[][]
 
-      const firstError = errors
-        .flat()
-        .find(Boolean)
+      const firstError =
+        errors
+          .flat()
+          .find(Boolean)
 
       if (firstError) {
         return firstError
@@ -138,33 +140,18 @@ async function getErrorMessage(
 |--------------------------------------------------------------------------
 | HELPER - BUILD FORM DATA
 |--------------------------------------------------------------------------
-|
-| Digunakan oleh CREATE dan UPDATE.
-|
 */
 
 function buildFormData(
   payload: FinancialReportPayload
 ): FormData {
-  const formData = new FormData()
-
-  /*
-  |--------------------------------------------------------------------------
-  | Informasi publikasi
-  |--------------------------------------------------------------------------
-  */
+  const formData =
+    new FormData()
 
   formData.append(
     'title',
     payload.title
   )
-
-  /*
-  |--------------------------------------------------------------------------
-  | PENTING:
-  | Field type wajib dikirim ke Laravel.
-  |--------------------------------------------------------------------------
-  */
 
   formData.append(
     'type',
@@ -186,24 +173,12 @@ function buildFormData(
     payload.status
   )
 
-  /*
-  |--------------------------------------------------------------------------
-  | Thumbnail
-  |--------------------------------------------------------------------------
-  */
-
   if (payload.thumbnail) {
     formData.append(
       'thumbnail',
       payload.thumbnail
     )
   }
-
-  /*
-  |--------------------------------------------------------------------------
-  | File PDF
-  |--------------------------------------------------------------------------
-  */
 
   if (payload.file) {
     formData.append(
@@ -226,17 +201,21 @@ export async function getAdminReports(): Promise<
 > {
   const token = getToken()
 
-  const response = await fetch(
-    `${API_URL}/admin/financial-reports`,
-    {
-      method: 'GET',
+  const response =
+    await fetch(
+      `${API_URL}/admin/financial-reports`,
+      {
+        method: 'GET',
 
-      headers: {
-        Accept: 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  )
+        headers: {
+          Accept:
+            'application/json',
+
+          Authorization:
+            `Bearer ${token}`,
+        },
+      }
+    )
 
   if (!response.ok) {
     throw new Error(
@@ -247,8 +226,9 @@ export async function getAdminReports(): Promise<
     )
   }
 
-  const data: ReportListResponse =
-    await response.json()
+  const data:
+    ReportListResponse =
+      await response.json()
 
   return data.data
 }
@@ -264,17 +244,21 @@ export async function getAdminReportById(
 ): Promise<FinancialReport> {
   const token = getToken()
 
-  const response = await fetch(
-    `${API_URL}/admin/financial-reports/${id}`,
-    {
-      method: 'GET',
+  const response =
+    await fetch(
+      `${API_URL}/admin/financial-reports/${id}`,
+      {
+        method: 'GET',
 
-      headers: {
-        Accept: 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  )
+        headers: {
+          Accept:
+            'application/json',
+
+          Authorization:
+            `Bearer ${token}`,
+        },
+      }
+    )
 
   if (!response.ok) {
     throw new Error(
@@ -285,8 +269,9 @@ export async function getAdminReportById(
     )
   }
 
-  const data: ReportResponse =
-    await response.json()
+  const data:
+    ReportResponse =
+      await response.json()
 
   return data.data
 }
@@ -298,34 +283,31 @@ export async function getAdminReportById(
 */
 
 export async function createReport(
-  payload: FinancialReportPayload
+  payload:
+    FinancialReportPayload
 ): Promise<FinancialReport> {
   const token = getToken()
 
   const formData =
     buildFormData(payload)
 
-  const response = await fetch(
-    `${API_URL}/admin/financial-reports`,
-    {
-      method: 'POST',
+  const response =
+    await fetch(
+      `${API_URL}/admin/financial-reports`,
+      {
+        method: 'POST',
 
-      headers: {
-        Accept: 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
+        headers: {
+          Accept:
+            'application/json',
 
-      /*
-      |--------------------------------------------------------------------------
-      | JANGAN tambahkan Content-Type secara manual.
-      | Browser akan otomatis membuat multipart/form-data
-      | beserta boundary-nya.
-      |--------------------------------------------------------------------------
-      */
+          Authorization:
+            `Bearer ${token}`,
+        },
 
-      body: formData,
-    }
-  )
+        body: formData,
+      }
+    )
 
   if (!response.ok) {
     throw new Error(
@@ -336,8 +318,9 @@ export async function createReport(
     )
   }
 
-  const data: ReportResponse =
-    await response.json()
+  const data:
+    ReportResponse =
+      await response.json()
 
   return data.data
 }
@@ -346,38 +329,35 @@ export async function createReport(
 |--------------------------------------------------------------------------
 | ADMIN - UPDATE
 |--------------------------------------------------------------------------
-|
-| Karena upload menggunakan multipart/form-data,
-| kita menggunakan POST ke route update.
-|
-| Backend kita memiliki route:
-|
-| POST /api/admin/financial-reports/{id}
-|
 */
 
 export async function updateReport(
   id: number,
-  payload: FinancialReportPayload
+  payload:
+    FinancialReportPayload
 ): Promise<FinancialReport> {
   const token = getToken()
 
   const formData =
     buildFormData(payload)
 
-  const response = await fetch(
-    `${API_URL}/admin/financial-reports/${id}`,
-    {
-      method: 'POST',
+  const response =
+    await fetch(
+      `${API_URL}/admin/financial-reports/${id}`,
+      {
+        method: 'POST',
 
-      headers: {
-        Accept: 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
+        headers: {
+          Accept:
+            'application/json',
 
-      body: formData,
-    }
-  )
+          Authorization:
+            `Bearer ${token}`,
+        },
+
+        body: formData,
+      }
+    )
 
   if (!response.ok) {
     throw new Error(
@@ -388,8 +368,9 @@ export async function updateReport(
     )
   }
 
-  const data: ReportResponse =
-    await response.json()
+  const data:
+    ReportResponse =
+      await response.json()
 
   return data.data
 }
@@ -405,17 +386,21 @@ export async function deleteReport(
 ): Promise<void> {
   const token = getToken()
 
-  const response = await fetch(
-    `${API_URL}/admin/financial-reports/${id}`,
-    {
-      method: 'DELETE',
+  const response =
+    await fetch(
+      `${API_URL}/admin/financial-reports/${id}`,
+      {
+        method: 'DELETE',
 
-      headers: {
-        Accept: 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  )
+        headers: {
+          Accept:
+            'application/json',
+
+          Authorization:
+            `Bearer ${token}`,
+        },
+      }
+    )
 
   if (!response.ok) {
     throw new Error(
@@ -431,30 +416,25 @@ export async function deleteReport(
 |--------------------------------------------------------------------------
 | PUBLIC - GET ALL
 |--------------------------------------------------------------------------
-|
-| Endpoint:
-|
-| GET /api/financial-reports
-|
-| Tidak membutuhkan login.
-|
 */
 
 export async function getPublicReports(): Promise<
   FinancialReport[]
 > {
-  const response = await fetch(
-    `${API_URL}/financial-reports`,
-    {
-      method: 'GET',
+  const response =
+    await fetch(
+      `${API_URL}/financial-reports`,
+      {
+        method: 'GET',
 
-      headers: {
-        Accept: 'application/json',
-      },
+        headers: {
+          Accept:
+            'application/json',
+        },
 
-      cache: 'no-store',
-    }
-  )
+        cache: 'no-store',
+      }
+    )
 
   if (!response.ok) {
     throw new Error(
@@ -465,8 +445,9 @@ export async function getPublicReports(): Promise<
     )
   }
 
-  const data: ReportListResponse =
-    await response.json()
+  const data:
+    ReportListResponse =
+      await response.json()
 
   return data.data
 }
@@ -480,18 +461,20 @@ export async function getPublicReports(): Promise<
 export async function getPublicReportById(
   id: number
 ): Promise<FinancialReport> {
-  const response = await fetch(
-    `${API_URL}/financial-reports/${id}`,
-    {
-      method: 'GET',
+  const response =
+    await fetch(
+      `${API_URL}/financial-reports/${id}`,
+      {
+        method: 'GET',
 
-      headers: {
-        Accept: 'application/json',
-      },
+        headers: {
+          Accept:
+            'application/json',
+        },
 
-      cache: 'no-store',
-    }
-  )
+        cache: 'no-store',
+      }
+    )
 
   if (!response.ok) {
     throw new Error(
@@ -502,10 +485,55 @@ export async function getPublicReportById(
     )
   }
 
-  const data: ReportResponse =
-    await response.json()
+  const data:
+    ReportResponse =
+      await response.json()
 
   return data.data
+}
+
+/*
+|--------------------------------------------------------------------------
+| HELPER - STORAGE URL
+|--------------------------------------------------------------------------
+*/
+
+function getStorageUrl(
+  path: string | null
+): string | null {
+  if (!path) {
+    return null
+  }
+
+  if (
+    path.startsWith(
+      'http://'
+    ) ||
+    path.startsWith(
+      'https://'
+    )
+  ) {
+    return path
+  }
+
+  const cleanPath =
+    path
+      .replace(
+        /^\/+/,
+        ''
+      )
+      .replace(
+        /^storage\//,
+        ''
+      )
+
+  const backendUrl =
+    API_URL.replace(
+      /\/api\/?$/,
+      ''
+    )
+
+  return `${backendUrl}/storage/${cleanPath}`
 }
 
 /*
@@ -517,39 +545,7 @@ export async function getPublicReportById(
 export function getReportFileUrl(
   file: string | null
 ): string | null {
-  if (!file) {
-    return null
-  }
-
-  /*
-  |--------------------------------------------------------------------------
-  | Kalau backend sudah mengembalikan URL lengkap
-  |--------------------------------------------------------------------------
-  */
-
-  if (
-    file.startsWith('http://') ||
-    file.startsWith('https://')
-  ) {
-    return file
-  }
-
-  /*
-  |--------------------------------------------------------------------------
-  | API_URL biasanya:
-  |
-  | http://127.0.0.1:8000/api
-  |
-  | Kita ubah menjadi:
-  |
-  | http://127.0.0.1:8000
-  |--------------------------------------------------------------------------
-  */
-
-  const backendUrl =
-    API_URL.replace(/\/api\/?$/, '')
-
-  return `${backendUrl}/storage/${file}`
+  return getStorageUrl(file)
 }
 
 /*
@@ -561,25 +557,7 @@ export function getReportFileUrl(
 export function getReportThumbnailUrl(
   thumbnail: string | null
 ): string | null {
-  if (!thumbnail) {
-    return null
-  }
-
-  /*
-  |--------------------------------------------------------------------------
-  | Kalau sudah URL lengkap
-  |--------------------------------------------------------------------------
-  */
-
-  if (
-    thumbnail.startsWith('http://') ||
-    thumbnail.startsWith('https://')
-  ) {
-    return thumbnail
-  }
-
-  const backendUrl =
-    API_URL.replace(/\/api\/?$/, '')
-
-  return `${backendUrl}/storage/${thumbnail}`
+  return getStorageUrl(
+    thumbnail
+  )
 }

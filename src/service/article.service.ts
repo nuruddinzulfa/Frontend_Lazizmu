@@ -72,10 +72,13 @@ interface ArticleResponse {
 */
 
 function getToken(): string {
-  const token = localStorage.getItem("token");
+  const token =
+    localStorage.getItem("token");
 
   if (!token) {
-    throw new Error("Anda belum login.");
+    throw new Error(
+      "Anda belum login."
+    );
   }
 
   return token;
@@ -89,11 +92,10 @@ function getToken(): string {
 
 /**
  * Ambil semua artikel published.
- *
- * Digunakan oleh:
- * src/app/artikel/page.tsx
  */
-export async function getPublicArticles(): Promise<Article[]> {
+export async function getPublicArticles(): Promise<
+  Article[]
+> {
   const response = await fetch(
     `${API_URL}/articles`,
     {
@@ -118,15 +120,18 @@ export async function getPublicArticles(): Promise<Article[]> {
 }
 
 /**
- * Ambil detail artikel published.
+ * Ambil detail artikel berdasarkan slug.
  *
- * Digunakan untuk halaman baca artikel.
+ * Backend public:
+ * GET /api/articles/{slug}
  */
-export async function getPublicArticleById(
-  id: number
+export async function getPublicArticleBySlug(
+  slug: string
 ): Promise<Article> {
   const response = await fetch(
-    `${API_URL}/articles/${id}`,
+    `${API_URL}/articles/${encodeURIComponent(
+      slug
+    )}`,
     {
       method: "GET",
       headers: {
@@ -141,11 +146,41 @@ export async function getPublicArticleById(
   if (!response.ok) {
     throw new Error(
       data.message ||
-        "Gagal mengambil detail artikel."
+        "Artikel tidak ditemukan."
     );
   }
 
   return data.data;
+}
+
+/**
+ * Compatibility untuk BacaPage.
+ *
+ * BacaPage masih mengirim ID,
+ * sementara backend public detail
+ * artikel menggunakan slug.
+ */
+export async function getPublicArticleById(
+  id: number
+): Promise<Article> {
+  const articles =
+    await getPublicArticles();
+
+  const selectedArticle =
+    articles.find(
+      (article) =>
+        article.id === id
+    );
+
+  if (!selectedArticle) {
+    throw new Error(
+      "Artikel tidak ditemukan."
+    );
+  }
+
+  return getPublicArticleBySlug(
+    selectedArticle.slug
+  );
 }
 
 /*
@@ -154,14 +189,9 @@ export async function getPublicArticleById(
 |--------------------------------------------------------------------------
 */
 
-/**
- * Ambil semua artikel untuk dashboard admin.
- *
- * Termasuk:
- * - draft
- * - published
- */
-export async function getAdminArticles(): Promise<Article[]> {
+export async function getAdminArticles(): Promise<
+  Article[]
+> {
   const token = getToken();
 
   const response = await fetch(
@@ -170,7 +200,8 @@ export async function getAdminArticles(): Promise<Article[]> {
       method: "GET",
       headers: {
         Accept: "application/json",
-        Authorization: `Bearer ${token}`,
+        Authorization:
+          `Bearer ${token}`,
       },
     }
   );
@@ -188,13 +219,6 @@ export async function getAdminArticles(): Promise<Article[]> {
   return data.data;
 }
 
-/**
- * Ambil detail artikel untuk admin.
- *
- * Bisa mengambil:
- * - draft
- * - published
- */
 export async function getAdminArticleById(
   id: number
 ): Promise<Article> {
@@ -206,7 +230,8 @@ export async function getAdminArticleById(
       method: "GET",
       headers: {
         Accept: "application/json",
-        Authorization: `Bearer ${token}`,
+        Authorization:
+          `Bearer ${token}`,
       },
     }
   );
@@ -230,18 +255,13 @@ export async function getAdminArticleById(
 |--------------------------------------------------------------------------
 */
 
-/**
- * Membuat artikel baru.
- *
- * Menggunakan FormData karena
- * thumbnail berupa File.
- */
 export async function createArticle(
   payload: ArticlePayload
 ): Promise<Article> {
   const token = getToken();
 
-  const formData = new FormData();
+  const formData =
+    new FormData();
 
   formData.append(
     "title",
@@ -282,7 +302,8 @@ export async function createArticle(
 
       headers: {
         Accept: "application/json",
-        Authorization: `Bearer ${token}`,
+        Authorization:
+          `Bearer ${token}`,
       },
 
       body: formData,
@@ -308,21 +329,14 @@ export async function createArticle(
 |--------------------------------------------------------------------------
 */
 
-/**
- * Memperbarui artikel.
- *
- * Menggunakan POST karena
- * endpoint Laravel kita:
- *
- * POST /admin/articles/{id}
- */
 export async function updateArticle(
   id: number,
   payload: ArticlePayload
 ): Promise<Article> {
   const token = getToken();
 
-  const formData = new FormData();
+  const formData =
+    new FormData();
 
   formData.append(
     "title",
@@ -363,7 +377,8 @@ export async function updateArticle(
 
       headers: {
         Accept: "application/json",
-        Authorization: `Bearer ${token}`,
+        Authorization:
+          `Bearer ${token}`,
       },
 
       body: formData,
@@ -389,9 +404,6 @@ export async function updateArticle(
 |--------------------------------------------------------------------------
 */
 
-/**
- * Menghapus artikel.
- */
 export async function deleteArticle(
   id: number
 ): Promise<void> {
@@ -404,7 +416,8 @@ export async function deleteArticle(
 
       headers: {
         Accept: "application/json",
-        Authorization: `Bearer ${token}`,
+        Authorization:
+          `Bearer ${token}`,
       },
     }
   );

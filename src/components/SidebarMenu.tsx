@@ -59,11 +59,25 @@ const menuItems: MenuItem[] = [
       'M4 5a2 2 0 012-2h12a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V5zM8 7h8M8 11h8M8 15h5',
   },
   {
+    key: 'banner',
+    label: 'Banner / Hero',
+    section: 'Manajemen',
+    icon:
+      'M4 5a2 2 0 012-2h12a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V5zM7 15l3-3 2 2 3-4 5 6M8 8h.01',
+  },
+  {
     key: 'publikasi',
     label: 'Publikasi',
     section: 'Manajemen',
     icon:
       'M6 2h9l5 5v15H6a2 2 0 01-2-2V4a2 2 0 012-2zM14 2v6h6M8 12h8M8 16h8',
+  },
+  {
+    key: 'tentang-kami',
+    label: 'Tentang Kami',
+    section: 'Manajemen',
+    icon:
+      'M12 2a10 10 0 100 20 10 10 0 000-20zm0 15h.01M10.5 9a1.5 1.5 0 113 0c0 1-1.5 1.5-1.5 2.5',
   },
   {
     key: 'users',
@@ -86,13 +100,6 @@ const menuItems: MenuItem[] = [
     icon:
       'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.827 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 000 3.35a1.724 1.724 0 001.065 2.573c.94 1.543-.827 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.065c-1.543.94-3.31-.827-2.37-2.37a1.724 1.724 0 00-1.065-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.065-2.572c-.94-1.543.827-3.31-2.37-2.37a1.724 1.724 0 00-2.573-1.066z',
   },
-  {
-  key: 'tentang-kami',
-  label: 'Tentang Kami',
-  section: 'Manajemen',
-  icon:
-    'M12 2a10 10 0 100 20 10 10 0 000-20zm0 15h.01M10.5 9a1.5 1.5 0 113 0c0 1-1.5 1.5-1.5 2.5',
-},
 ]
 
 const sections: MenuItem['section'][] = [
@@ -106,35 +113,27 @@ export default function SidebarMenu({
   onMenuChange,
   allowedMenus,
 }: SidebarMenuProps) {
-
   return (
     <nav className="space-y-6">
-
       {sections.map((section) => {
-
-        // INI BAGIAN PENTING
         const items = menuItems.filter(
           (item) =>
             item.section === section &&
             allowedMenus.includes(item.key)
         )
 
-        // Jangan tampilkan section kalau tidak ada menu
         if (items.length === 0) {
           return null
         }
 
         return (
           <div key={section}>
-
             <div className="mb-2 px-3 text-[10px] font-bold uppercase tracking-[0.12em] text-gray-400">
               {section}
             </div>
 
             <div className="space-y-1">
-
               {items.map((item) => {
-
                 const isActive =
                   activeMenu === item.key
 
@@ -151,7 +150,6 @@ export default function SidebarMenu({
                         : 'text-gray-600 hover:bg-orange-50 hover:text-[#F58220]'
                     }`}
                   >
-
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       viewBox="0 0 24 24"
@@ -170,16 +168,13 @@ export default function SidebarMenu({
                     <span className="truncate">
                       {item.label}
                     </span>
-
                   </button>
                 )
               })}
-
             </div>
           </div>
         )
       })}
-
     </nav>
   )
 }

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { api } from "@/services/api";
+import API_URL from "@/lib/api";
 
 interface DonasiPageProps {
   initialZakatAmount?: number;
@@ -108,6 +109,30 @@ function normalizePhone(phone: string) {
   }
 
   return `62${clean}`;
+}
+
+function getCampaignImageUrl(
+  image: string | null | undefined
+): string | null {
+  if (!image) {
+    return null;
+  }
+
+  if (
+    image.startsWith("http://") ||
+    image.startsWith("https://")
+  ) {
+    return image;
+  }
+
+  const cleanImage = image
+    .replace(/^\/+/, "")
+    .replace(/^storage\//, "");
+
+  const backendUrl =
+    API_URL.replace(/\/api\/?$/, "");
+
+  return `${backendUrl}/storage/${cleanImage}`;
 }
 
 export default function DonationForm({
@@ -1309,10 +1334,10 @@ export default function DonationForm({
                           }`}
                         >
                           <div className="h-40 bg-orange-50 overflow-hidden">
-                            {campaign.image ? (
+                            {getCampaignImageUrl(campaign.image) ? (
                               <img
                                 src={
-                                  campaign.image
+                                  getCampaignImageUrl(campaign.image)!
                                 }
                                 alt={
                                   campaign.title
