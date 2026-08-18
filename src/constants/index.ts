@@ -32,11 +32,9 @@ export const NISAB_GOLD_PRICE = 1000000 // per gram (approximate)
 
 export const API_ENDPOINTS = {
   AUTH: {
-    LOGIN: '/auth/login',
-    REGISTER: '/auth/register',
-    LOGOUT: '/auth/logout',
-    ME: '/auth/me',
-    REFRESH: '/auth/refresh',
+    LOGIN: "/admin/login",
+    PROFILE: "/admin/profile",
+    LOGOUT: "/admin/logout",
   },
   CAMPAIGNS: '/campaigns',
   NEWS: '/news',

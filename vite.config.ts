@@ -30,11 +30,30 @@ export default defineConfig(({ mode }) => {
       },
     },
     server: {
-      host: '0.0.0.0',
-      port: parseInt(process.env.PORT || '8443'),
-      strictPort: true,
-      watch: { ignored: ['**/.figma/**'] },
-    },
+  host: '0.0.0.0',
+  port: parseInt(process.env.PORT || '8443'),
+  strictPort: true,
+
+  allowedHosts: [
+    'cubbyhole-reproduce-grappling.ngrok-free.dev',
+  ],
+
+  proxy: {
+  '/api': {
+    target: 'http://127.0.0.1:8000',
+    changeOrigin: true,
+  },
+
+  '/storage': {
+    target: 'http://127.0.0.1:8000',
+    changeOrigin: true,
+  },
+},
+
+  watch: {
+    ignored: ['**/.figma/**'],
+  },
+},
     preview: {
       host: '0.0.0.0',
       port: parseInt(process.env.PORT || '8443'),

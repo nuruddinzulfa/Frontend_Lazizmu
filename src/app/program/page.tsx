@@ -1,339 +1,520 @@
-import { useState } from 'react'
-import type { NavPage } from '../../App'
+import { useEffect, useMemo, useState } from "react";
+import type { NavPage } from "../../App";
+import { api } from "../../services/api";
 
 interface ProgramPageProps {
-  onNavigate?: (page: NavPage) => void
-  onDonateProgram?: (program: string) => void
+  onNavigate?: (page: NavPage) => void;
+  onDonateProgram?: (program: string) => void;
 }
 
-const programs = [
-  {
-    id: 1,
-    title: 'Beasiswa Pendidikan',
-    category: 'Pendidikan',
-    description: 'Program beasiswa untuk pelajar kurang mampu dari SD hingga perguruan tinggi agar dapat melanjutkan pendidikan.',
-    target: 100000000,
-    collected: 73500000,
-    image: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=400&h=250&fit=crop'
-  },
-  {
-    id: 2,
-    title: 'Bantuan Kesehatan',
-    category: 'Kesehatan',
-    description: 'Layanan kesehatan gratis dan bantuan biaya pengobatan bagi masyarakat yang tidak mampu.',
-    target: 75000000,
-    collected: 42000000,
-    image: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400&h=250&fit=crop'
-  },
-  {
-    id: 3,
-    title: 'Pemberdayaan Ekonomi',
-    category: 'Ekonomi',
-    description: 'Modal usaha dan pelatihan keterampilan untuk keluarga kurang mampu agar mandiri secara ekonomi.',
-    target: 150000000,
-    collected: 98000000,
-    image: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400&h=250&fit=crop'
-  },
-  {
-    id: 4,
-    title: 'Bantuan Pangan',
-    category: 'Kemanusiaan',
-    description: 'Distribusi paket sembako dan makanan bergizi untuk keluarga dhuafa dan lansia terlantar.',
-    target: 50000000,
-    collected: 50000000,
-    image: 'https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=400&h=250&fit=crop'
-  },
-  {
-    id: 5,
-    title: 'Pembangunan Masjid',
-    category: 'Sosial Dakwah',
-    description: 'Pembangunan dan renovasi masjid di daerah terpencil Kabupaten Pemalang sebagai pusat ibadah.',
-    target: 200000000,
-    collected: 134000000,
-    image: 'https://images.unsplash.com/photo-1564769625905-50e93615e769?w=400&h=250&fit=crop'
-  },
-  {
-    id: 6,
-    title: 'Pertanian Berkelanjutan',
-    category: 'Lingkungan',
-    description: 'Bantuan alat pertanian, bibit, dan pendampingan untuk petani kecil di wilayah Pemalang.',
-    target: 80000000,
-    collected: 31000000,
-    image: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400&h=250&fit=crop'
-  },
-  {
-    id: 7,
-    title: 'Tanggap Bencana',
-    category: 'Kemanusiaan',
-    description: 'Bantuan cepat tanggap untuk korban bencana alam berupa logistik, sandang, dan pangan.',
-    target: 60000000,
-    collected: 18000000,
-    image: 'https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?w=400&h=250&fit=crop'
-  },
-]
+/*
+|--------------------------------------------------------------------------
+| Program Backend
+|--------------------------------------------------------------------------
+*/
 
-const categoryColors: Record<string, string> = {
-  Pendidikan: 'bg-blue-100 text-blue-700',
-  Kesehatan: 'bg-green-100 text-green-700',
-  Ekonomi: 'bg-purple-100 text-purple-700',
-  'Sosial Dakwah': 'bg-orange-100 text-orange-700',
-  Kemanusiaan: 'bg-orange-100 text-orange-700',
-  Lingkungan: 'bg-green-100 text-green-700',
+interface Program {
+  id: number;
+  title: string;
+  slug: string;
+
+  excerpt?: string | null;
+  thumbnail?: string | null;
+
+  pillar?: string | null;
+
+  published_at?: string | null;
+
+  views?: number | null;
+  sort_order?: number | null;
 }
 
-/* =========================
-   DATA KAMPANYE
-========================= */
+interface ProgramResponse {
+  success: boolean;
+  message?: string;
+  data: Program[];
+}
 
-const campaign = [
-  {
-    id: 1,
-    title: 'Ramadhan Berbagi',
-    category: 'Kemanusiaan',
-    description: 'Berbagi paket pangan dan kebutuhan pokok untuk keluarga dhuafa selama bulan Ramadhan.',
-    target: 100000000,
-    collected: 73500000,
-    image: 'https://images.unsplash.com/photo-1593113646773-028c64a8f1b8?w=400&h=250&fit=crop'
-  },
-  {
-    id: 2,
-    title: 'Sedekah Air Bersih',
-    category: 'Lingkungan',
-    description: 'Penyediaan akses air bersih untuk masyarakat di wilayah yang mengalami kesulitan air.',
-    target: 75000000,
-    collected: 42000000,
-    image: 'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=400&h=250&fit=crop'
-  },
-  {
-    id: 3,
-    title: 'Bantu Yatim Berprestasi',
-    category: 'Pendidikan',
-    description: 'Dukungan pendidikan, perlengkapan sekolah, dan beasiswa bagi anak yatim berprestasi.',
-    target: 150000000,
-    collected: 98000000,
-    image: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?w=400&h=250&fit=crop'
-  },
-  {
-    id: 4,
-    title: 'Peduli Pengobatan Dhuafa',
-    category: 'Kesehatan',
-    description: 'Membantu biaya pengobatan dan kebutuhan kesehatan bagi masyarakat dhuafa yang membutuhkan.',
-    target: 50000000,
-    collected: 50000000,
-    image: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=400&h=250&fit=crop'
-  },
-  {
-    id: 5,
-    title: 'Wakaf Renovasi Masjid',
-    category: 'Sosial Dakwah',
-    description: 'Penggalangan dana untuk renovasi fasilitas masjid agar lebih nyaman digunakan masyarakat.',
-    target: 200000000,
-    collected: 134000000,
-    image: 'https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?w=400&h=250&fit=crop'
-  },
-  {
-    id: 6,
-    title: 'Modal Usaha UMKM',
-    category: 'Ekonomi',
-    description: 'Pemberian modal dan pendampingan usaha bagi pelaku UMKM dari keluarga kurang mampu.',
-    target: 80000000,
-    collected: 31000000,
-    image: 'https://images.unsplash.com/photo-1556761175-b413da4baf72?w=400&h=250&fit=crop'
-  },
-  {
-    id: 7,
-    title: 'Bantu Korban Bencana',
-    category: 'Kemanusiaan',
-    description: 'Penggalangan bantuan darurat berupa logistik, makanan, dan kebutuhan pokok bagi korban bencana.',
-    target: 60000000,
-    collected: 18000000,
-    image: 'https://images.unsplash.com/photo-1547683905-f686c993aae5?w=400&h=250&fit=crop'
-  },
-]
+/*
+|--------------------------------------------------------------------------
+| Campaign Backend
+|--------------------------------------------------------------------------
+*/
 
-const pillars = [
-  {
-    icon: '📚',
-    name: 'Pendidikan',
-    desc: 'Pendidikan adalah kunci utama untuk membuka pintu masa depan yang cerah. Lazismu, dengan komitmennya dalam membangun masyarakat yang lebih baik, terus berupaya memberikan akses pendidikan berkualitas bagi seluruh lapisan masyarakat, terutama mereka yang kurang beruntung.'
-  },
-  {
-    icon: '🏥',
-    name: 'Kesehatan',
-    desc: 'Dalam hiruk pikuk kehidupan modern, kesehatan menjadi aset yang tak ternilai. Namun, tidak semua orang memiliki akses yang sama terhadap layanan kesehatan berkualitas. Di sinilah Lazismu hadir, dengan komitmennya untuk mewujudkan masyarakat Indonesia yang sehat dan sejahtera.'
-  },
-  {
-    icon: '💼',
-    name: 'Ekonomi',
-    desc: 'Lazismu, sebagai lembaga zakat yang peduli pada kesejahteraan masyarakat, tidak hanya fokus pada aspek sosial dan pendidikan, namun juga pada pengembangan ekonomi masyarakat. Melalui Pilar Ekonomi, Lazismu berkomitmen untuk memberdayakan masyarakat, khususnya mereka yang berada di garis kemiskinan, agar dapat meningkatkan taraf hidup mereka.'
-  },
-  {
-    icon: '🤲',
-    name: 'Sosial Dakwah',
-    desc: 'Lazismu, sebagai lembaga filantropi yang berakar pada nilai-nilai Islam, tidak hanya fokus pada aspek ekonomi dan pendidikan, namun juga pada pengembangan sosial dan dakwah. Melalui Pilar Sosial Dakwah, Lazismu berkomitmen untuk membangun masyarakat yang lebih baik dengan cara menebar kebaikan dan merangkul sesama.'
-  },
-  {
-    icon: '🫂',
-    name: 'Kemanusiaan',
-    desc: 'Lazismu, sebagai lembaga filantropi yang berakar pada nilai-nilai Islam, senantiasa hadir di tengah masyarakat untuk memberikan bantuan dan dukungan. Pilar Kemanusiaan Lazismu menjadi manifestasi nyata dari komitmen kami untuk meringankan beban sesama dan membangun masyarakat yang lebih baik.'
-  },
-  {
-    icon: '🌱',
-    name: 'Lingkungan',
-    desc: 'Lazismu, sebagai lembaga filantropi yang peduli terhadap kesejahteraan umat manusia, tidak hanya fokus pada aspek sosial dan ekonomi, namun juga pada pelestarian lingkungan. Pilar Lingkungan Lazismu menjadi manifestasi nyata dari komitmen kami untuk menjaga kelestarian alam dan memberikan kontribusi positif bagi generasi mendatang.'
-  },
-]
+interface Campaign {
+  id: number;
+  title: string;
+  slug: string;
+
+  description?: string | null;
+  image?: string | null;
+
+  category?: string | null;
+
+  target_amount?: number | string | null;
+  collected_amount?: number | string | null;
+
+  donor_count?: number | null;
+
+  status?: string;
+  featured?: boolean | number;
+}
+
+interface CampaignResponse {
+  success: boolean;
+  message?: string;
+
+  data:
+    | Campaign[]
+    | {
+        data: Campaign[];
+      };
+}
+
+/*
+|--------------------------------------------------------------------------
+| Filters
+|--------------------------------------------------------------------------
+*/
+
+const filters = [
+  "Semua",
+  "Pendidikan",
+  "Kesehatan",
+  "Ekonomi",
+  "Sosial Dakwah",
+  "Kemanusiaan",
+  "Lingkungan",
+];
+
+/*
+|--------------------------------------------------------------------------
+| Category Helper
+|--------------------------------------------------------------------------
+*/
+
+function getProgramCategory(program: Program) {
+  const title = program.title.toLowerCase();
+
+  if (title.includes("kemanusiaan")) {
+    return "Kemanusiaan";
+  }
+
+  if (
+    title.includes("sosial") &&
+    title.includes("dakwah")
+  ) {
+    return "Sosial Dakwah";
+  }
+
+  return program.pillar || program.title;
+}
+
+function getCategoryColor(category?: string | null) {
+  const value =
+    category?.toLowerCase() ?? "";
+
+  if (value.includes("pendidikan")) {
+    return "bg-blue-100 text-blue-700";
+  }
+
+  if (value.includes("kesehatan")) {
+    return "bg-red-100 text-red-700";
+  }
+
+  if (value.includes("ekonomi")) {
+    return "bg-green-100 text-green-700";
+  }
+
+  if (
+    value.includes("sosial") ||
+    value.includes("dakwah")
+  ) {
+    return "bg-purple-100 text-purple-700";
+  }
+
+  if (value.includes("kemanusiaan")) {
+    return "bg-orange-100 text-orange-700";
+  }
+
+  if (value.includes("lingkungan")) {
+    return "bg-emerald-100 text-emerald-700";
+  }
+
+  return "bg-gray-100 text-gray-700";
+}
+
+/*
+|--------------------------------------------------------------------------
+| Icon
+|--------------------------------------------------------------------------
+*/
+
+function getProgramIcon(category?: string | null) {
+  const value =
+    category?.toLowerCase() ?? "";
+
+  if (value.includes("pendidikan")) {
+    return "📚";
+  }
+
+  if (value.includes("kesehatan")) {
+    return "🏥";
+  }
+
+  if (value.includes("ekonomi")) {
+    return "💼";
+  }
+
+  if (
+    value.includes("sosial") ||
+    value.includes("dakwah")
+  ) {
+    return "🕌";
+  }
+
+  if (value.includes("kemanusiaan")) {
+    return "🤝";
+  }
+
+  if (value.includes("lingkungan")) {
+    return "🌱";
+  }
+
+  return "🤲";
+}
+
+/*
+|--------------------------------------------------------------------------
+| Rupiah
+|--------------------------------------------------------------------------
+*/
+
+function formatRupiah(
+  value: number | string | null | undefined
+) {
+  const number = Number(value ?? 0);
+
+  return new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    maximumFractionDigits: 0,
+  }).format(
+    Number.isFinite(number)
+      ? number
+      : 0
+  );
+}
+
+/*
+|--------------------------------------------------------------------------
+| Progress
+|--------------------------------------------------------------------------
+*/
+
+function calculateProgress(
+  collected: number,
+  target: number
+) {
+  if (target <= 0) {
+    return 0;
+  }
+
+  return Math.min(
+    100,
+    Math.round(
+      (collected / target) * 100
+    )
+  );
+}
+
+/*
+|--------------------------------------------------------------------------
+| Program Page
+|--------------------------------------------------------------------------
+*/
 
 export default function ProgramPage({
-  onDonateProgram
+  onDonateProgram,
 }: ProgramPageProps) {
-  const [activeFilter, setActiveFilter] = useState('Semua')
+  const [
+    activeFilter,
+    setActiveFilter,
+  ] = useState("Semua");
 
-  const filters = [
-    'Semua',
-    'Pendidikan',
-    'Kesehatan',
-    'Ekonomi',
-    'Sosial Dakwah',
-    'Kemanusiaan',
-    'Lingkungan'
-  ]
+  /*
+  |--------------------------------------------------------------------------
+  | Data
+  |--------------------------------------------------------------------------
+  */
 
-  const filtered =
-    activeFilter === 'Semua'
-      ? programs
-      : programs.filter(p => p.category === activeFilter)
+  const [programs, setPrograms] =
+    useState<Program[]>([]);
 
-  const filteredCampaign =
-    activeFilter === 'Semua'
-      ? campaign
-      : campaign.filter(c => c.category === activeFilter)
+  const [campaigns, setCampaigns] =
+    useState<Campaign[]>([]);
 
-  const fmt = (n: number) =>
-    'Rp ' + n.toLocaleString('id-ID')
+  const [loading, setLoading] =
+    useState(true);
 
-  const pct = (c: number, t: number) =>
-    Math.min(Math.round((c / t) * 100), 100)
+  const [error, setError] =
+    useState("");
 
-  /* =========================
-     CARD KAMPANYE
-  ========================= */
+  /*
+  |--------------------------------------------------------------------------
+  | Fetch
+  |--------------------------------------------------------------------------
+  */
 
-  const renderCampaignCard = (
-    item: typeof campaign[number]
-  ) => (
-    <div
-      key={item.id}
-      className="bg-white border border-[#F3DEC8] rounded-2xl shadow-sm hover:shadow-md transition-all overflow-hidden flex flex-col"
-    >
-      <div className="relative">
-        <img
-          src={item.image}
-          alt={item.title}
-          className="w-full h-48 object-cover"
-        />
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        setError("");
 
-        <span
-          className={`absolute top-3 left-3 text-xs font-semibold px-2 py-1 rounded-full ${
-            categoryColors[item.category]
-          }`}
-        >
-          {item.category}
-        </span>
-      </div>
+        const [
+          programResponse,
+          campaignResponse,
+        ] = await Promise.all([
+          api.get<ProgramResponse>(
+            "/programs"
+          ),
 
-      <div className="p-4 flex flex-col flex-1">
-        <h3
-          className="font-bold text-gray-900 mb-2 text-sm"
-          style={{
-            fontFamily: "'Plus Jakarta Sans', sans-serif"
-          }}
-        >
-          {item.title}
-        </h3>
+          api.get<CampaignResponse>(
+            "/campaigns"
+          ),
+        ]);
 
-        <p className="text-xs text-gray-500 mb-4 leading-relaxed flex-1">
-          {item.description}
-        </p>
+        /*
+        |--------------------------------------------------------------------------
+        | Program
+        |--------------------------------------------------------------------------
+        */
 
-        <div className="space-y-2 mb-4">
-          <div className="flex justify-between text-xs text-gray-500">
-            <span>Terkumpul</span>
+        if (!programResponse.success) {
+          throw new Error(
+            programResponse.message ||
+              "Gagal mengambil data program."
+          );
+        }
 
-            <span className="font-semibold text-[#F58220]">
-              {pct(item.collected, item.target)}%
-            </span>
-          </div>
+        const programData =
+          Array.isArray(
+            programResponse.data
+          )
+            ? programResponse.data
+            : [];
 
-          <div className="w-full bg-gray-100 rounded-full h-2">
-            <div
-              className="bg-[#F58220] h-2 rounded-full"
-              style={{
-                width: `${pct(
-                  item.collected,
-                  item.target
-                )}%`
-              }}
-            />
-          </div>
+        const sortedPrograms =
+          [...programData].sort(
+            (a, b) =>
+              Number(
+                a.sort_order ?? 0
+              ) -
+              Number(
+                b.sort_order ?? 0
+              )
+          );
 
-          <div className="flex justify-between text-xs">
-            <span className="text-gray-500">
-              {fmt(item.collected)}
-            </span>
+        setPrograms(
+          sortedPrograms
+        );
 
-            <span className="text-gray-400">
-              dari {fmt(item.target)}
-            </span>
-          </div>
+        /*
+        |--------------------------------------------------------------------------
+        | Campaign
+        |--------------------------------------------------------------------------
+        */
+
+        if (!campaignResponse.success) {
+          throw new Error(
+            campaignResponse.message ||
+              "Gagal mengambil kampanye."
+          );
+        }
+
+        let campaignData: Campaign[] =
+          [];
+
+        if (
+          Array.isArray(
+            campaignResponse.data
+          )
+        ) {
+          campaignData =
+            campaignResponse.data;
+        } else if (
+          campaignResponse.data &&
+          Array.isArray(
+            campaignResponse.data.data
+          )
+        ) {
+          campaignData =
+            campaignResponse.data.data;
+        }
+
+        const publishedCampaigns =
+          campaignData.filter(
+            (campaign) =>
+              !campaign.status ||
+              campaign.status ===
+                "published"
+          );
+
+        setCampaigns(
+          publishedCampaigns
+        );
+      } catch (error) {
+        console.error(
+          "PROGRAM PAGE ERROR:",
+          error
+        );
+
+        setError(
+          error instanceof Error
+            ? error.message
+            : "Terjadi kesalahan saat mengambil data."
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  /*
+  |--------------------------------------------------------------------------
+  | Filter Program
+  |--------------------------------------------------------------------------
+  */
+
+  const filteredPrograms =
+    useMemo(() => {
+      if (
+        activeFilter === "Semua"
+      ) {
+        return programs;
+      }
+
+      return programs.filter(
+        (program) =>
+          getProgramCategory(
+            program
+          ) === activeFilter
+      );
+    }, [
+      programs,
+      activeFilter,
+    ]);
+
+  /*
+  |--------------------------------------------------------------------------
+  | Filter Campaign
+  |--------------------------------------------------------------------------
+  */
+
+  const filteredCampaigns =
+    useMemo(() => {
+      if (
+        activeFilter === "Semua"
+      ) {
+        return campaigns;
+      }
+
+      return campaigns.filter(
+        (campaign) =>
+          campaign.category ===
+          activeFilter
+      );
+    }, [
+      campaigns,
+      activeFilter,
+    ]);
+
+  /*
+  |--------------------------------------------------------------------------
+  | Loading
+  |--------------------------------------------------------------------------
+  */
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#FFF8F2] pt-28 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-10 h-10 border-4 border-[#F58220] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+
+          <p className="text-sm text-gray-500">
+            Mengambil data program
+            dan kampanye...
+          </p>
         </div>
-
-        <button
-          className="btn-primary w-full py-2 text-sm font-semibold rounded-xl"
-          onClick={() =>
-            onDonateProgram?.(item.title)
-          }
-        >
-          Donasi Sekarang
-        </button>
       </div>
-    </div>
-  )
+    );
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | Main
+  |--------------------------------------------------------------------------
+  */
 
   return (
     <div className="min-h-screen bg-[#FFF8F2]">
 
-      {/* =========================
+      {/* ================================================================
           HEADER
-      ========================= */}
+      ================================================================= */}
 
       <div className="bg-gradient-to-br from-[#F58220] to-[#D96D0A] text-white py-16 pt-32">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
           <div className="text-sm mb-3 opacity-80">
             <span>Beranda</span>
-            <span className="mx-2">/</span>
-            <span>Program</span>
+
+            <span className="mx-2">
+              /
+            </span>
+
+            <span>
+              Program & Kampanye
+            </span>
           </div>
 
           <h1
             className="text-3xl sm:text-4xl lg:text-5xl font-bold"
             style={{
-              fontFamily: "'Plus Jakarta Sans', sans-serif"
+              fontFamily:
+                "'Plus Jakarta Sans', sans-serif",
             }}
           >
-            Program Kami
+            Program & Kampanye
           </h1>
 
           <p className="mt-4 text-lg opacity-90 max-w-2xl">
-            Berbagai program nyata yang menyentuh kehidupan masyarakat Kabupaten Pemalang.
+            Berbagai program dan
+            kampanye LAZISMU Pemalang
+            untuk memberikan manfaat
+            nyata kepada masyarakat.
           </p>
         </div>
       </div>
 
-      {/* =========================
+      {/* ================================================================
+          ERROR
+      ================================================================= */}
+
+      {error && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+          <div className="bg-red-50 border border-red-200 text-red-600 rounded-2xl p-5 text-sm">
+            {error}
+          </div>
+        </div>
+      )}
+
+      {/* ================================================================
           6 PILAR
-      ========================= */}
+      ================================================================= */}
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
 
@@ -346,81 +527,119 @@ export default function ProgramPage({
           <h2
             className="text-3xl font-bold text-gray-900"
             style={{
-              fontFamily: "'Plus Jakarta Sans', sans-serif"
+              fontFamily:
+                "'Plus Jakarta Sans', sans-serif",
             }}
           >
             6 Pilar Program Unggulan
           </h2>
 
           <p className="mt-3 text-gray-500 max-w-xl mx-auto text-sm leading-relaxed">
-            Setiap pilar mewakili komitmen LAZISMU Pemalang dalam memberdayakan masyarakat secara menyeluruh dan berkelanjutan.
+            Setiap pilar mewakili
+            komitmen LAZISMU Pemalang
+            dalam pemberdayaan
+            masyarakat secara
+            menyeluruh dan
+            berkelanjutan.
           </p>
-
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-5">
+        {programs.length === 0 ? (
+          <div className="bg-white border border-[#F3DEC8] rounded-2xl p-8 text-center">
+            <p className="text-gray-500 text-sm">
+              Belum ada program yang
+              dipublikasikan.
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
 
-          {pillars.map((pilar) => (
+            {programs
+              .slice(0, 6)
+              .map((program) => {
+                const category =
+                  getProgramCategory(
+                    program
+                  );
 
-            <div
-              key={pilar.name}
-              className="bg-white border border-[#F3DEC8] rounded-2xl p-5 shadow-sm hover:shadow-md hover:border-[#F58220] transition-all group"
-            >
+                return (
+                  <div
+                    key={program.id}
+                    className="bg-white border border-[#F3DEC8] rounded-2xl p-5 shadow-sm hover:shadow-md hover:border-[#F58220] transition-all group"
+                  >
+                    <div className="inline-flex items-center justify-center w-12 h-12 bg-[#FEF0E4] rounded-xl mb-4 text-2xl group-hover:bg-[#F58220]/20 transition-colors">
+                      <span>
+                        {getProgramIcon(
+                          category
+                        )}
+                      </span>
+                    </div>
 
-              <div className="inline-flex items-center justify-center w-12 h-12 bg-[#FEF0E4] rounded-xl mb-4 text-2xl group-hover:bg-[#F58220] transition-colors">
-                <span>{pilar.icon}</span>
-              </div>
+                    <div
+                      className={`inline-block text-[10px] font-semibold px-2.5 py-1 rounded-full mb-3 ${getCategoryColor(
+                        category
+                      )}`}
+                    >
+                      {category}
+                    </div>
 
-              <h3
-                className="font-bold text-gray-900 mb-1 text-sm"
-                style={{
-                  fontFamily: "'Plus Jakarta Sans', sans-serif"
-                }}
-              >
-                {pilar.name}
-              </h3>
+                    <h3
+                      className="font-bold text-gray-900 mb-2 text-sm"
+                      style={{
+                        fontFamily:
+                          "'Plus Jakarta Sans', sans-serif",
+                      }}
+                    >
+                      {program.title}
+                    </h3>
 
-              <p className="text-xs text-gray-500 leading-relaxed">
-                {pilar.desc}
-              </p>
-
-            </div>
-
-          ))}
-
-        </div>
+                    <p className="text-xs text-gray-500 leading-relaxed">
+                      {program.excerpt ||
+                        "Informasi program LAZISMU Pemalang."}
+                    </p>
+                  </div>
+                );
+              })}
+          </div>
+        )}
       </div>
 
-      {/* =========================
+      {/* ================================================================
           FILTER
-      ========================= */}
+      ================================================================= */}
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-4">
 
         <div className="flex flex-wrap gap-3">
 
-          {filters.map(f => (
-
-            <button
-              key={f}
-              onClick={() => setActiveFilter(f)}
-              className={`px-5 py-2 rounded-full text-sm font-semibold transition-all ${
-                activeFilter === f
-                  ? 'bg-[#F58220] text-white shadow-md'
-                  : 'bg-white border border-[#F3DEC8] text-gray-600 hover:border-[#F58220] hover:text-[#F58220]'
-              }`}
-            >
-              {f}
-            </button>
-
-          ))}
+          {filters.map(
+            (filter) => (
+              <button
+                key={filter}
+                type="button"
+                onClick={() =>
+                  setActiveFilter(
+                    filter
+                  )
+                }
+                className={`px-5 py-2 rounded-full text-sm font-semibold transition-all ${
+                  activeFilter ===
+                  filter
+                    ? "bg-[#F58220] text-white shadow-md"
+                    : "bg-white border border-[#F3DEC8] text-gray-600 hover:border-[#F58220] hover:text-[#F58220]"
+                }`}
+              >
+                {filter}
+              </button>
+            )
+          )}
 
         </div>
       </div>
 
-      {/* =========================
+      {/* ================================================================
           PROGRAM
-      ========================= */}
+      ================================================================= */}
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
 
@@ -433,124 +652,129 @@ export default function ProgramPage({
           <h2
             className="text-3xl font-bold text-gray-900"
             style={{
-              fontFamily: "'Plus Jakarta Sans', sans-serif"
+              fontFamily:
+                "'Plus Jakarta Sans', sans-serif",
             }}
           >
             Program Unggulan
           </h2>
 
+          <p className="text-sm text-gray-500 mt-2 max-w-2xl">
+            Program pemberdayaan
+            LAZISMU Pemalang yang
+            dijalankan sesuai pilar
+            pelayanan masyarakat.
+          </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {filteredPrograms.length ===
+        0 ? (
+          <div className="bg-white border border-[#F3DEC8] rounded-2xl p-8 text-center">
+            <p className="text-gray-500 text-sm">
+              Belum ada program untuk
+              kategori ini.
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
 
-          {filtered.map(program => (
+            {filteredPrograms.map(
+              (program) => {
+                const category =
+                  getProgramCategory(
+                    program
+                  );
 
-            <div
-              key={program.id}
-              className="bg-white border border-[#F3DEC8] rounded-2xl shadow-sm hover:shadow-md transition-all overflow-hidden flex flex-col"
-            >
+                return (
+                  <div
+                    key={program.id}
+                    className="bg-white border border-[#F3DEC8] rounded-2xl shadow-sm hover:shadow-md transition-all overflow-hidden flex flex-col group"
+                  >
 
-              <div className="relative">
+                    {/* Image */}
 
-                <img
-                  src={program.image}
-                  alt={program.title}
-                  className="w-full h-48 object-cover"
-                />
+                    <div className="relative h-48 bg-[#FEF0E4] overflow-hidden">
 
-                <span
-                  className={`absolute top-3 left-3 text-xs font-semibold px-2 py-1 rounded-full ${
-                    categoryColors[program.category]
-                  }`}
-                >
-                  {program.category}
-                </span>
+                      {program.thumbnail ? (
+                        <img
+                          src={
+                            program.thumbnail
+                          }
+                          alt={
+                            program.title
+                          }
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-[#FEF0E4] to-[#FFF8F2]">
 
-              </div>
+                          <div className="text-5xl mb-3">
+                            {getProgramIcon(
+                              category
+                            )}
+                          </div>
 
-              <div className="p-4 flex flex-col flex-1">
+                          <span className="text-xs font-semibold text-[#F58220]">
+                            LAZISMU
+                            Pemalang
+                          </span>
 
-                <h3
-                  className="font-bold text-gray-900 mb-2 text-sm"
-                  style={{
-                    fontFamily: "'Plus Jakarta Sans', sans-serif"
-                  }}
-                >
-                  {program.title}
-                </h3>
+                        </div>
+                      )}
 
-                <p className="text-xs text-gray-500 mb-4 leading-relaxed flex-1">
-                  {program.description}
-                </p>
+                      {program.thumbnail && (
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+                      )}
 
-                <div className="space-y-2 mb-4">
+                      <span
+                        className={`absolute top-3 left-3 text-xs font-semibold px-3 py-1.5 rounded-full ${getCategoryColor(
+                          category
+                        )}`}
+                      >
+                        {category}
+                      </span>
+                    </div>
 
-                  <div className="flex justify-between text-xs text-gray-500">
+                    {/* Content */}
 
-                    <span>Terkumpul</span>
+                    <div className="p-5 flex flex-col flex-1">
 
-                    <span className="font-semibold text-[#F58220]">
-                      {pct(
-                        program.collected,
-                        program.target
-                      )}%
-                    </span>
+                      <h3
+                        className="font-bold text-gray-900 mb-3"
+                        style={{
+                          fontFamily:
+                            "'Plus Jakarta Sans', sans-serif",
+                        }}
+                      >
+                        {program.title}
+                      </h3>
 
+                      <p className="text-sm text-gray-500 leading-relaxed flex-1">
+                        {program.excerpt ||
+                          "Informasi program LAZISMU Pemalang."}
+                      </p>
+
+                      {program.published_at && (
+                        <div className="mt-5 pt-4 border-t border-[#F3DEC8] text-xs text-gray-400">
+                          Program dipublikasikan
+                          oleh LAZISMU Pemalang
+                        </div>
+                      )}
+                    </div>
                   </div>
+                );
+              }
+            )}
 
-                  <div className="w-full bg-gray-100 rounded-full h-2">
-
-                    <div
-                      className="bg-[#F58220] h-2 rounded-full"
-                      style={{
-                        width: `${pct(
-                          program.collected,
-                          program.target
-                        )}%`
-                      }}
-                    />
-
-                  </div>
-
-                  <div className="flex justify-between text-xs">
-
-                    <span className="text-gray-500">
-                      {fmt(program.collected)}
-                    </span>
-
-                    <span className="text-gray-400">
-                      dari {fmt(program.target)}
-                    </span>
-
-                  </div>
-
-                </div>
-
-                <button
-                  className="btn-primary w-full py-2 text-sm font-semibold rounded-xl"
-                  onClick={() =>
-                    onDonateProgram?.(
-                      program.title
-                    )
-                  }
-                >
-                  Donasi Sekarang
-                </button>
-
-              </div>
-
-            </div>
-
-          ))}
-
-        </div>
+          </div>
+        )}
       </div>
 
-      {/* =========================
-          KAMPANYE
-      ========================= */}
+      {/* ================================================================
+          CAMPAIGN
+      ================================================================= */}
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
 
         <div className="text-center mb-10">
 
@@ -561,26 +785,210 @@ export default function ProgramPage({
           <h2
             className="text-3xl font-bold text-gray-900"
             style={{
-              fontFamily: "'Plus Jakarta Sans', sans-serif"
+              fontFamily:
+                "'Plus Jakarta Sans', sans-serif",
             }}
           >
             Kampanye Kebaikan
           </h2>
 
           <p className="mt-3 text-gray-500 max-w-xl mx-auto text-sm leading-relaxed">
-            Dukung kampanye pilihan kami dan bersama-sama wujudkan kebaikan yang berdampak bagi masyarakat.
+            Dukung kampanye aktif
+            LAZISMU Pemalang dan
+            bersama-sama wujudkan
+            manfaat bagi masyarakat.
           </p>
-
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {filteredCampaigns.length ===
+        0 ? (
+          <div className="bg-white border border-[#F3DEC8] rounded-2xl p-8 text-center">
+            <div className="text-4xl mb-3">
+              🤲
+            </div>
 
-          {filteredCampaign.map(renderCampaignCard)}
+            <p className="text-gray-500 text-sm">
+              Belum ada kampanye aktif
+              untuk kategori ini.
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
 
-        </div>
+            {filteredCampaigns.map(
+              (campaign) => {
+                const collected =
+                  Number(
+                    campaign.collected_amount ??
+                      0
+                  );
 
+                const target =
+                  Number(
+                    campaign.target_amount ??
+                      0
+                  );
+
+                const progress =
+                  calculateProgress(
+                    collected,
+                    target
+                  );
+
+                const category =
+                  campaign.category ||
+                  "Kampanye";
+
+                return (
+                  <div
+                    key={campaign.id}
+                    className="bg-white border border-[#F3DEC8] rounded-2xl shadow-sm hover:shadow-md transition-all overflow-hidden flex flex-col"
+                  >
+
+                    {/* Image */}
+
+                    <div className="relative h-48 bg-[#FEF0E4] overflow-hidden">
+
+                      {campaign.image ? (
+                        <img
+                          src={
+                            campaign.image
+                          }
+                          alt={
+                            campaign.title
+                          }
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#FEF0E4] to-[#FFF8F2]">
+
+                          <div className="text-center">
+                            <div className="text-5xl mb-2">
+                              🤲
+                            </div>
+
+                            <div className="text-xs font-semibold text-[#F58220]">
+                              LAZISMU
+                              Pemalang
+                            </div>
+                          </div>
+
+                        </div>
+                      )}
+
+                      {campaign.image && (
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+                      )}
+
+                      <span
+                        className={`absolute top-3 left-3 text-xs font-semibold px-2.5 py-1 rounded-full ${getCategoryColor(
+                          category
+                        )}`}
+                      >
+                        {category}
+                      </span>
+                    </div>
+
+                    {/* Content */}
+
+                    <div className="p-4 flex flex-col flex-1">
+
+                      <h3
+                        className="font-bold text-gray-900 mb-2 text-sm"
+                        style={{
+                          fontFamily:
+                            "'Plus Jakarta Sans', sans-serif",
+                        }}
+                      >
+                        {campaign.title}
+                      </h3>
+
+                      <p className="text-xs text-gray-500 mb-4 leading-relaxed flex-1 line-clamp-3">
+                        {campaign.description ||
+                          "Kampanye kebaikan LAZISMU Pemalang."}
+                      </p>
+
+                      {/* Progress */}
+
+                      <div className="space-y-2 mb-4">
+
+                        <div className="flex justify-between text-xs text-gray-500">
+                          <span>
+                            Terkumpul
+                          </span>
+
+                          <span className="font-semibold text-[#F58220]">
+                            {progress}%
+                          </span>
+                        </div>
+
+                        <div className="w-full bg-gray-100 rounded-full h-2">
+
+                          <div
+                            className="bg-[#F58220] h-2 rounded-full transition-all"
+                            style={{
+                              width: `${progress}%`,
+                            }}
+                          />
+
+                        </div>
+
+                        <div className="flex justify-between gap-2 text-xs">
+
+                          <span className="text-gray-500">
+                            {formatRupiah(
+                              collected
+                            )}
+                          </span>
+
+                          {target > 0 && (
+                            <span className="text-gray-400 text-right">
+                              dari{" "}
+                              {formatRupiah(
+                                target
+                              )}
+                            </span>
+                          )}
+
+                        </div>
+                      </div>
+
+                      {/* Donor */}
+
+                      {campaign.donor_count !==
+                        undefined &&
+                        campaign.donor_count !==
+                          null && (
+                          <div className="text-xs text-gray-400 mb-4">
+                            {
+                              campaign.donor_count
+                            }{" "}
+                            donatur
+                          </div>
+                        )}
+
+                      {/* Donate */}
+
+                      <button
+                        type="button"
+                        className="btn-primary w-full py-2.5 text-sm font-semibold rounded-xl mt-auto"
+                        onClick={() =>
+                          onDonateProgram?.(
+                            campaign.title
+                          )
+                        }
+                      >
+                        Donasi Sekarang
+                      </button>
+                    </div>
+                  </div>
+                );
+              }
+            )}
+
+          </div>
+        )}
       </div>
-
     </div>
-  )
+  );
 }
