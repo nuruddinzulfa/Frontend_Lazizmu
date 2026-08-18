@@ -287,16 +287,6 @@ export async function createAdminUser(
 |
 | POST /api/admin/users/{id}
 |
-| Digunakan untuk:
-|
-| - nama
-| - email
-| - nomor telepon
-| - password
-| - role
-| - status
-| - foto
-|
 */
 
 export async function updateAdminUser(
@@ -330,15 +320,6 @@ export async function updateAdminUser(
     payload.status
   )
 
-  /*
-  |--------------------------------------------------------------------------
-  | PASSWORD
-  |--------------------------------------------------------------------------
-  |
-  | Password hanya dikirim jika diisi.
-  |
-  */
-
   if (payload.password) {
     formData.append(
       'password',
@@ -350,12 +331,6 @@ export async function updateAdminUser(
       payload.password_confirmation || ''
     )
   }
-
-  /*
-  |--------------------------------------------------------------------------
-  | PHOTO
-  |--------------------------------------------------------------------------
-  */
 
   if (payload.photo) {
     formData.append(
@@ -398,14 +373,6 @@ export async function updateAdminUser(
 |--------------------------------------------------------------------------
 | UPDATE ADMIN USER STATUS
 |--------------------------------------------------------------------------
-|
-| POST /api/admin/users/{id}
-|
-| Mengubah:
-|
-| active   -> inactive
-| inactive -> active
-|
 */
 
 export async function updateAdminUserStatus(
@@ -413,12 +380,6 @@ export async function updateAdminUserStatus(
   status: AdminUserStatus
 ): Promise<AdminUser> {
   const formData = new FormData()
-
-  /*
-  |--------------------------------------------------------------------------
-  | USER DATA
-  |--------------------------------------------------------------------------
-  */
 
   formData.append(
     'name',
@@ -444,12 +405,6 @@ export async function updateAdminUserStatus(
     'status',
     status
   )
-
-  /*
-  |--------------------------------------------------------------------------
-  | REQUEST
-  |--------------------------------------------------------------------------
-  */
 
   const response = await fetch(
     `${API_URL}/admin/users/${user.id}`,
@@ -485,11 +440,6 @@ export async function updateAdminUserStatus(
 |--------------------------------------------------------------------------
 | DELETE ADMIN USER
 |--------------------------------------------------------------------------
-|
-| DELETE /api/admin/users/{id}
-|
-| Menghapus user/admin.
-|
 */
 
 export async function deleteAdminUser(
@@ -522,4 +472,35 @@ export async function deleteAdminUser(
         'Gagal menghapus pengguna.'
     )
   }
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| USER PHOTO URL
+|--------------------------------------------------------------------------
+*/
+
+export function getAdminUserPhotoUrl(
+  photo: string | null
+): string | null {
+  if (!photo) {
+    return null
+  }
+
+  if (
+    photo.startsWith('http://') ||
+    photo.startsWith('https://')
+  ) {
+    return photo
+  }
+
+  const backendUrl =
+    API_URL.replace(/\/api\/?$/, '')
+
+  const cleanPhoto = photo
+    .replace(/^\/+/, '')
+    .replace(/^storage\//, '')
+
+  return `${backendUrl}/storage/${cleanPhoto}`
 }

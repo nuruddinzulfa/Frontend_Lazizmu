@@ -399,5 +399,9 @@ export function getOrganizationMemberPhotoUrl(
   const backendUrl =
     API_URL.replace(/\/api\/?$/, '')
 
-  return `${backendUrl}/storage/${photo}`
+  const cleanPhoto = photo
+    .replace(/^\/+/, '')
+    .replace(/^storage\//, '')
+
+  return `${backendUrl}/storage/${cleanPhoto}`
 }

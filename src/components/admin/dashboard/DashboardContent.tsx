@@ -1,93 +1,611 @@
-import React from 'react'
+'use client'
+
+import API_URL from '@/lib/api'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+
+type PaymentStatus = string
+
+interface CampaignRef {
+  id: number
+  title: string
+}
 
 interface Donation {
   id: number
-  date: string
-  program: string
-  amount: number
+  donor_name: string
+  amount: string | number
+  payment_status: PaymentStatus
+  created_at: string
+  updated_at?: string
+  campaign?: CampaignRef | null
+}
+
+interface Campaign {
+  id: number
+  title: string
+  status?: string
+  featured?: boolean
+  created_at?: string
+  updated_at?: string
+}
+
+interface Program {
+  id: number
+  title: string
+  status?: string
+  created_at?: string
+  updated_at?: string
+}
+
+interface News {
+  id: number
+  title: string
+  status?: string
+  created_at?: string
+  updated_at?: string
+}
+
+interface Article {
+  id: number
+  title: string
+  status?: string
+  created_at?: string
+  updated_at?: string
+}
+
+interface AdminUser {
+  id: number
+  name: string
+  email: string
   status: string
+  role?: string | null
+  created_at: string
+  updated_at?: string
 }
 
-interface DashboardContentProps {
-  donations: Donation[]
-  fmt: (amount: number) => string
+interface ApiListResponse<T> {
+  data?: T[] | { data?: T[] }
+  message?: string
 }
 
-export default function DashboardContent({
-  donations,
-  fmt,
-}: DashboardContentProps) {
+type DashboardActivity = {
+  key: string
+  label: string
+  description: string
+  timestamp: string
+  dotClass: string
+}
+
+const SUCCESS_PAYMENT_STATUSES = new Set([
+  'settlement',
+  'capture',
+  'success',
+])
+
+function getToken(): string {
+  const token = localStorage.getItem('token')
+
+  if (!token) {
+    throw new Error('Anda belum login.')
+  }
+
+  return token
+}
+
+function normalizeList<T>(payload: unknown): T[] {
+  if (Array.isArray(payload)) {
+    return payload as T[]
+  }
+
+  if (
+    payload &&
+    typeof payload === 'object' &&
+    'data' in payload
+  ) {
+    const data = (payload as ApiListResponse<T>).data
+
+    if (Array.isArray(data)) {
+      return data
+    }
+
+    if (
+      data &&
+      typeof data === 'object' &&
+      'data' in data &&
+      Array.isArray(data.data)
+    ) {
+      return data.data
+    }
+  }
+
+  return []
+}
+
+async function adminGet<T>(path: string): Promise<T[]> {
+  const token = getToken()
+
+  const response = await fetch(
+    `${API_URL}${path}`,
+    {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  )
+
+  let payload: unknown = null
+
+  try {
+    payload = await response.json()
+  } catch {
+    payload = null
+  }
+
+  if (!response.ok) {
+    let message = 'Gagal mengambil data dashboard.'
+
+    if (
+      payload &&
+      typeof payload === 'object' &&
+      'message' in payload &&
+      typeof (payload as { message?: unknown }).message === 'string'
+    ) {
+      message = (payload as { message: string }).message
+    }
+
+    throw new Error(message)
+  }
+
+  return normalizeList<T>(payload)
+}
+
+function toAmount(value: string | number | null | undefined) {
+  const numberValue = Number(value ?? 0)
+
+  return Number.isFinite(numberValue)
+    ? numberValue
+    : 0
+}
+
+function formatRupiah(value: number) {
+  return new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+    maximumFractionDigits: 0,
+  }).format(value)
+}
+
+function formatDate(value: string | null | undefined) {
+  if (!value) {
+    return '-'
+  }
+
+  const date = new Date(value)
+
+  if (Number.isNaN(date.getTime())) {
+    return '-'
+  }
+
+  return new Intl.DateTimeFormat('id-ID', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(date)
+}
+
+function formatRelativeTime(value: string | null | undefined) {
+  if (!value) {
+    return '-'
+  }
+
+  const date = new Date(value)
+
+  if (Number.isNaN(date.getTime())) {
+    return '-'
+  }
+
+  const diffMs = Date.now() - date.getTime()
+  const diffSeconds = Math.max(
+    0,
+    Math.floor(diffMs / 1000)
+  )
+
+  if (diffSeconds < 60) {
+    return 'Baru saja'
+  }
+
+  const minutes = Math.floor(diffSeconds / 60)
+
+  if (minutes < 60) {
+    return `${minutes} menit lalu`
+  }
+
+  const hours = Math.floor(minutes / 60)
+
+  if (hours < 24) {
+    return `${hours} jam lalu`
+  }
+
+  const days = Math.floor(hours / 24)
+
+  if (days < 30) {
+    return `${days} hari lalu`
+  }
+
+  return formatDate(value)
+}
+
+function isPublished(status?: string | null) {
+  return (
+    status === 'published' ||
+    status === 'active'
+  )
+}
+
+function paymentStatusLabel(status: string) {
+  switch (status) {
+    case 'settlement':
+    case 'capture':
+    case 'success':
+      return 'Berhasil'
+    case 'pending':
+      return 'Pending'
+    case 'failed':
+      return 'Gagal'
+    case 'expire':
+      return 'Kedaluwarsa'
+    case 'cancel':
+      return 'Dibatalkan'
+    case 'deny':
+      return 'Ditolak'
+    default:
+      return status || '-'
+  }
+}
+
+function paymentStatusClass(status: string) {
+  if (SUCCESS_PAYMENT_STATUSES.has(status)) {
+    return 'bg-green-100 text-green-700'
+  }
+
+  if (status === 'pending') {
+    return 'bg-yellow-100 text-yellow-700'
+  }
+
+  return 'bg-red-100 text-red-700'
+}
+
+export default function DashboardContent() {
+  const [donations, setDonations] = useState<Donation[]>([])
+  const [campaigns, setCampaigns] = useState<Campaign[]>([])
+  const [programs, setPrograms] = useState<Program[]>([])
+  const [news, setNews] = useState<News[]>([])
+  const [articles, setArticles] = useState<Article[]>([])
+  const [users, setUsers] = useState<AdminUser[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  const loadDashboard = useCallback(async () => {
+    try {
+      setLoading(true)
+      setError(null)
+
+      const [
+        donationData,
+        campaignData,
+        programData,
+        newsData,
+        articleData,
+        userData,
+      ] = await Promise.all([
+        adminGet<Donation>('/admin/donations'),
+        adminGet<Campaign>('/admin/campaigns'),
+        adminGet<Program>('/admin/programs'),
+        adminGet<News>('/admin/news'),
+        adminGet<Article>('/admin/articles'),
+        adminGet<AdminUser>('/admin/users'),
+      ])
+
+      setDonations(donationData)
+      setCampaigns(campaignData)
+      setPrograms(programData)
+      setNews(newsData)
+      setArticles(articleData)
+      setUsers(userData)
+    } catch (err) {
+      console.error(err)
+
+      setError(
+        err instanceof Error
+          ? err.message
+          : 'Gagal mengambil data dashboard.'
+      )
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    loadDashboard()
+  }, [loadDashboard])
+
+  const successfulDonations = useMemo(
+    () =>
+      donations.filter((donation) =>
+        SUCCESS_PAYMENT_STATUSES.has(
+          donation.payment_status
+        )
+      ),
+    [donations]
+  )
+
+  const totalDonationAmount = useMemo(
+    () =>
+      successfulDonations.reduce(
+        (total, donation) =>
+          total + toAmount(donation.amount),
+        0
+      ),
+    [successfulDonations]
+  )
+
+  const pendingTransactions = useMemo(
+    () =>
+      donations.filter(
+        (donation) =>
+          donation.payment_status === 'pending'
+      ).length,
+    [donations]
+  )
+
+  const activeCampaigns = useMemo(
+    () =>
+      campaigns.filter((campaign) =>
+        isPublished(campaign.status)
+      ).length,
+    [campaigns]
+  )
+
+  const activeUsers = useMemo(
+    () =>
+      users.filter(
+        (user) => user.status === 'active'
+      ).length,
+    [users]
+  )
+
+  const publishedPrograms = useMemo(
+    () =>
+      programs.filter((program) =>
+        isPublished(program.status)
+      ).length,
+    [programs]
+  )
+
+  const publishedNews = useMemo(
+    () =>
+      news.filter((item) =>
+        isPublished(item.status)
+      ).length,
+    [news]
+  )
+
+  const publishedArticles = useMemo(
+    () =>
+      articles.filter((item) =>
+        isPublished(item.status)
+      ).length,
+    [articles]
+  )
+
+  const recentDonations = useMemo(
+    () =>
+      [...donations]
+        .sort(
+          (a, b) =>
+            new Date(b.created_at).getTime() -
+            new Date(a.created_at).getTime()
+        )
+        .slice(0, 8),
+    [donations]
+  )
+
+  const activities = useMemo<DashboardActivity[]>(() => {
+    const data: DashboardActivity[] = []
+
+    const latestDonation = [...donations].sort(
+      (a, b) =>
+        new Date(b.created_at).getTime() -
+        new Date(a.created_at).getTime()
+    )[0]
+
+    if (latestDonation) {
+      data.push({
+        key: `donation-${latestDonation.id}`,
+        label: 'Donasi terbaru',
+        description:
+          latestDonation.campaign?.title ||
+          'Donasi masuk ke sistem',
+        timestamp: latestDonation.created_at,
+        dotClass: 'bg-[#F58220]',
+      })
+    }
+
+    const latestProgram = [...programs].sort(
+      (a, b) =>
+        new Date(
+          b.updated_at || b.created_at || 0
+        ).getTime() -
+        new Date(
+          a.updated_at || a.created_at || 0
+        ).getTime()
+    )[0]
+
+    if (
+      latestProgram &&
+      (latestProgram.updated_at ||
+        latestProgram.created_at)
+    ) {
+      data.push({
+        key: `program-${latestProgram.id}`,
+        label: 'Program terbaru',
+        description: latestProgram.title,
+        timestamp:
+          latestProgram.updated_at ||
+          latestProgram.created_at ||
+          '',
+        dotClass: 'bg-blue-500',
+      })
+    }
+
+    const latestUser = [...users].sort(
+      (a, b) =>
+        new Date(b.created_at).getTime() -
+        new Date(a.created_at).getTime()
+    )[0]
+
+    if (latestUser) {
+      data.push({
+        key: `user-${latestUser.id}`,
+        label: 'Pengguna terbaru',
+        description: latestUser.name,
+        timestamp: latestUser.created_at,
+        dotClass: 'bg-green-500',
+      })
+    }
+
+    const latestArticle = [...articles].sort(
+      (a, b) =>
+        new Date(
+          b.updated_at || b.created_at || 0
+        ).getTime() -
+        new Date(
+          a.updated_at || a.created_at || 0
+        ).getTime()
+    )[0]
+
+    if (
+      latestArticle &&
+      (latestArticle.updated_at ||
+        latestArticle.created_at)
+    ) {
+      data.push({
+        key: `article-${latestArticle.id}`,
+        label: 'Artikel terbaru',
+        description: latestArticle.title,
+        timestamp:
+          latestArticle.updated_at ||
+          latestArticle.created_at ||
+          '',
+        dotClass: 'bg-purple-500',
+      })
+    }
+
+    return data
+      .filter((item) => item.timestamp)
+      .sort(
+        (a, b) =>
+          new Date(b.timestamp).getTime() -
+          new Date(a.timestamp).getTime()
+      )
+      .slice(0, 4)
+  }, [donations, programs, users, articles])
+
   const adminStats = [
     {
-      label: 'Total Donasi',
-      value: 'Rp 2.500.000',
-      description: 'Seluruh donasi masuk',
+      label: 'Total Donasi Berhasil',
+      value: formatRupiah(totalDonationAmount),
+      description:
+        `${successfulDonations.length} transaksi berhasil`,
       color: 'text-[#F58220]',
       bg: 'bg-[#FEF0E4]',
     },
     {
       label: 'Total Transaksi',
-      value: '8',
-      description: 'Transaksi tercatat',
+      value: String(donations.length),
+      description: 'Seluruh transaksi tercatat',
       color: 'text-blue-600',
       bg: 'bg-blue-50',
     },
     {
       label: 'Campaign Aktif',
-      value: '5',
-      description: 'Campaign sedang berjalan',
+      value: String(activeCampaigns),
+      description:
+        'Campaign berstatus aktif/terbit',
       color: 'text-green-600',
       bg: 'bg-green-50',
     },
     {
       label: 'Total Pengguna',
-      value: '128',
-      description: 'Pengguna terdaftar',
+      value: String(users.length),
+      description:
+        `${activeUsers} pengguna aktif`,
       color: 'text-purple-600',
       bg: 'bg-purple-50',
     },
   ]
 
+  if (loading) {
+    return (
+      <div className="flex min-h-[420px] items-center justify-center">
+        <div className="text-center">
+          <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-orange-200 border-t-[#F58220]" />
+
+          <p className="text-sm text-gray-500">
+            Memuat dashboard...
+          </p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-6">
-
-      {/* Welcome */}
       <div className="rounded-2xl bg-gradient-to-r from-[#F58220] to-[#E87516] p-6 text-white shadow-sm">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-
           <div>
             <h1
               className="text-xl font-bold"
               style={{
-                fontFamily: "'Plus Jakarta Sans', sans-serif",
+                fontFamily:
+                  "'Plus Jakarta Sans', sans-serif",
               }}
             >
               Assalamu&apos;alaikum, Super Admin
             </h1>
 
             <p className="mt-1 text-sm text-white/90">
-              Selamat datang di Panel Administrasi LAZISMU Kabupaten
-              Pemalang.
+              Selamat datang di Panel Administrasi LAZISMU Kabupaten Pemalang.
             </p>
           </div>
 
-          <div className="rounded-xl bg-white/15 px-4 py-2 text-xs font-medium">
-            Administrator Sistem
-          </div>
-
+          <button
+            type="button"
+            onClick={loadDashboard}
+            className="rounded-xl bg-white/15 px-4 py-2 text-xs font-semibold transition hover:bg-white/20"
+          >
+            Muat Ulang Data
+          </button>
         </div>
       </div>
 
-      {/* Statistics */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      {error && (
+        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {error}
+        </div>
+      )}
 
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {adminStats.map((stat) => (
           <div
             key={stat.label}
             className="rounded-2xl border border-[#F3DEC8] bg-white p-5 shadow-sm"
           >
             <div className="flex items-start justify-between gap-3">
-
               <div>
                 <p className="text-xs font-medium text-gray-500">
                   {stat.label}
@@ -96,7 +614,8 @@ export default function DashboardContent({
                 <p
                   className={`mt-2 text-xl font-bold ${stat.color}`}
                   style={{
-                    fontFamily: "'Plus Jakarta Sans', sans-serif",
+                    fontFamily:
+                      "'Plus Jakarta Sans', sans-serif",
                   }}
                 >
                   {stat.value}
@@ -122,52 +641,44 @@ export default function DashboardContent({
                   }`}
                 />
               </div>
-
             </div>
           </div>
         ))}
-
       </div>
 
-      {/* Donasi Terbaru */}
       <div className="overflow-hidden rounded-2xl border border-[#F3DEC8] bg-white shadow-sm">
+        <div className="border-b border-gray-100 px-5 py-4">
+          <h2
+            className="font-bold text-gray-900"
+            style={{
+              fontFamily:
+                "'Plus Jakarta Sans', sans-serif",
+            }}
+          >
+            Donasi Terbaru
+          </h2>
 
-        <div className="flex items-center justify-between border-b border-gray-100 px-5 py-4">
-
-          <div>
-            <h2
-              className="font-bold text-gray-900"
-              style={{
-                fontFamily: "'Plus Jakarta Sans', sans-serif",
-              }}
-            >
-              Donasi Terbaru
-            </h2>
-
-            <p className="mt-1 text-xs text-gray-400">
-              Transaksi donasi yang terbaru masuk ke sistem
-            </p>
-          </div>
-
+          <p className="mt-1 text-xs text-gray-400">
+            Data transaksi terbaru langsung dari sistem
+          </p>
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-
+          <table className="w-full min-w-[760px] text-sm">
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
                   Tanggal
                 </th>
-
                 <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                  Program
+                  Donatur
                 </th>
-
+                <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                  Campaign
+                </th>
                 <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
                   Jumlah
                 </th>
-
                 <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
                   Status
                 </th>
@@ -175,54 +686,60 @@ export default function DashboardContent({
             </thead>
 
             <tbody className="divide-y divide-gray-50">
-
-              {donations.map((donation) => (
+              {recentDonations.map((donation) => (
                 <tr
                   key={donation.id}
                   className="transition-colors hover:bg-gray-50"
                 >
                   <td className="px-5 py-3.5 text-xs text-gray-500">
-                    {donation.date}
+                    {formatDate(donation.created_at)}
                   </td>
-
                   <td className="px-5 py-3.5 font-medium text-gray-900">
-                    {donation.program}
+                    {donation.donor_name || 'Anonim'}
                   </td>
-
+                  <td className="px-5 py-3.5 text-gray-700">
+                    {donation.campaign?.title || '-'}
+                  </td>
                   <td className="px-5 py-3.5 font-semibold text-[#F58220]">
-                    {fmt(donation.amount)}
+                    {formatRupiah(toAmount(donation.amount))}
                   </td>
-
                   <td className="px-5 py-3.5">
                     <span
-                      className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
-                        donation.status === 'Berhasil'
-                          ? 'bg-green-100 text-green-700'
-                          : 'bg-yellow-100 text-yellow-700'
-                      }`}
+                      className={`rounded-full px-2.5 py-1 text-xs font-semibold ${paymentStatusClass(
+                        donation.payment_status
+                      )}`}
                     >
-                      {donation.status}
+                      {paymentStatusLabel(
+                        donation.payment_status
+                      )}
                     </span>
                   </td>
                 </tr>
               ))}
 
+              {recentDonations.length === 0 && (
+                <tr>
+                  <td
+                    colSpan={5}
+                    className="px-5 py-10 text-center text-sm text-gray-400"
+                  >
+                    Belum ada transaksi donasi.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
       </div>
 
-      {/* Ringkasan Sistem & Aktivitas */}
       <div className="grid gap-4 lg:grid-cols-2">
-
-        {/* Ringkasan Sistem */}
         <div className="rounded-2xl border border-[#F3DEC8] bg-white p-5 shadow-sm">
-
           <div className="mb-5">
             <h2
               className="font-bold text-gray-900"
               style={{
-                fontFamily: "'Plus Jakarta Sans', sans-serif",
+                fontFamily:
+                  "'Plus Jakarta Sans', sans-serif",
               }}
             >
               Ringkasan Sistem
@@ -234,176 +751,116 @@ export default function DashboardContent({
           </div>
 
           <div className="space-y-4">
-
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-500">
-                Total Program
-              </span>
-
-              <span className="font-semibold text-gray-900">
-                12
-              </span>
-            </div>
-
-            <div className="h-px bg-gray-100" />
-
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-500">
-                Campaign Aktif
-              </span>
-
-              <span className="font-semibold text-gray-900">
-                5
-              </span>
-            </div>
-
-            <div className="h-px bg-gray-100" />
-
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-500">
-                Berita Terbit
-              </span>
-
-              <span className="font-semibold text-gray-900">
-                24
-              </span>
-            </div>
-
-            <div className="h-px bg-gray-100" />
-
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-500">
-                Artikel Terbit
-              </span>
-
-              <span className="font-semibold text-gray-900">
-                18
-              </span>
-            </div>
-
-            <div className="h-px bg-gray-100" />
-
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-500">
-                Total Pengguna
-              </span>
-
-              <span className="font-semibold text-gray-900">
-                128
-              </span>
-            </div>
-
+            <SummaryRow
+              label="Total Program"
+              value={programs.length}
+              detail={`${publishedPrograms} terbit`}
+            />
+            <Divider />
+            <SummaryRow
+              label="Campaign Aktif"
+              value={activeCampaigns}
+              detail={`${campaigns.length} total`}
+            />
+            <Divider />
+            <SummaryRow
+              label="Berita Terbit"
+              value={publishedNews}
+              detail={`${news.length} total`}
+            />
+            <Divider />
+            <SummaryRow
+              label="Artikel Terbit"
+              value={publishedArticles}
+              detail={`${articles.length} total`}
+            />
+            <Divider />
+            <SummaryRow
+              label="Total Pengguna"
+              value={users.length}
+              detail={`${activeUsers} aktif`}
+            />
           </div>
         </div>
 
-        {/* Aktivitas Terbaru */}
         <div className="rounded-2xl border border-[#F3DEC8] bg-white p-5 shadow-sm">
-
           <div className="mb-5">
             <h2
               className="font-bold text-gray-900"
               style={{
-                fontFamily: "'Plus Jakarta Sans', sans-serif",
+                fontFamily:
+                  "'Plus Jakarta Sans', sans-serif",
               }}
             >
-              Aktivitas Terbaru
+              Aktivitas Data Terbaru
             </h2>
 
             <p className="mt-1 text-xs text-gray-400">
-              Aktivitas yang terjadi di dalam sistem
+              Dibentuk dari data terbaru yang tersedia di sistem
             </p>
           </div>
 
           <div className="space-y-4">
+            {activities.map((activity) => (
+              <div
+                key={activity.key}
+                className="flex items-start gap-3"
+              >
+                <div
+                  className={`mt-1 h-2.5 w-2.5 shrink-0 rounded-full ${activity.dotClass}`}
+                />
 
-            <div className="flex items-start gap-3">
-              <div className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-[#F58220]" />
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-gray-700">
+                    {activity.label}
+                  </p>
 
-              <div>
-                <p className="text-sm text-gray-700">
-                  Donasi baru masuk
-                </p>
+                  <p className="mt-0.5 truncate text-xs text-gray-500">
+                    {activity.description}
+                  </p>
 
-                <p className="mt-1 text-xs text-gray-400">
-                  Baru saja
-                </p>
+                  <p className="mt-1 text-xs text-gray-400">
+                    {formatRelativeTime(activity.timestamp)}
+                  </p>
+                </div>
               </div>
-            </div>
+            ))}
 
-            <div className="flex items-start gap-3">
-              <div className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-blue-500" />
-
-              <div>
-                <p className="text-sm text-gray-700">
-                  Program diperbarui
-                </p>
-
-                <p className="mt-1 text-xs text-gray-400">
-                  1 jam lalu
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-3">
-              <div className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-green-500" />
-
-              <div>
-                <p className="text-sm text-gray-700">
-                  Pengguna baru terdaftar
-                </p>
-
-                <p className="mt-1 text-xs text-gray-400">
-                  2 jam lalu
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-3">
-              <div className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-purple-500" />
-
-              <div>
-                <p className="text-sm text-gray-700">
-                  Artikel baru diterbitkan
-                </p>
-
-                <p className="mt-1 text-xs text-gray-400">
-                  3 jam lalu
-                </p>
-              </div>
-            </div>
-
+            {activities.length === 0 && (
+              <p className="text-sm text-gray-400">
+                Belum ada aktivitas data yang dapat ditampilkan.
+              </p>
+            )}
           </div>
         </div>
-
       </div>
 
-      {/* Perlu Perhatian */}
       <div className="rounded-2xl border border-[#F3DEC8] bg-white p-5 shadow-sm">
-
         <div className="mb-5">
           <h2
             className="font-bold text-gray-900"
             style={{
-              fontFamily: "'Plus Jakarta Sans', sans-serif",
+              fontFamily:
+                "'Plus Jakarta Sans', sans-serif",
             }}
           >
             Perlu Perhatian
           </h2>
 
           <p className="mt-1 text-xs text-gray-400">
-            Hal-hal yang mungkin membutuhkan tindakan Super Admin
+            Ringkasan kondisi berdasarkan data aktual
           </p>
         </div>
 
         <div className="grid gap-3 md:grid-cols-3">
-
           <div className="rounded-xl border border-yellow-100 bg-yellow-50 p-4">
             <div className="text-sm font-semibold text-yellow-800">
               Transaksi Pending
             </div>
 
             <div className="mt-1 text-xs text-yellow-700">
-              1 transaksi membutuhkan pemeriksaan
+              {pendingTransactions}{' '}
+              transaksi masih menunggu pembayaran
             </div>
           </div>
 
@@ -413,7 +870,8 @@ export default function DashboardContent({
             </div>
 
             <div className="mt-1 text-xs text-blue-700">
-              5 campaign sedang berjalan
+              {activeCampaigns}{' '}
+              campaign sedang aktif/terbit
             </div>
           </div>
 
@@ -423,13 +881,47 @@ export default function DashboardContent({
             </div>
 
             <div className="mt-1 text-xs text-purple-700">
-              128 pengguna terdaftar dalam sistem
+              {users.length}{' '}
+              pengguna terdaftar,{' '}
+              {activeUsers} aktif
             </div>
           </div>
-
         </div>
       </div>
-
     </div>
   )
+}
+
+function SummaryRow({
+  label,
+  value,
+  detail,
+}: {
+  label: string
+  value: number
+  detail?: string
+}) {
+  return (
+    <div className="flex items-center justify-between gap-4">
+      <span className="text-sm text-gray-500">
+        {label}
+      </span>
+
+      <div className="text-right">
+        <span className="font-semibold text-gray-900">
+          {value}
+        </span>
+
+        {detail && (
+          <p className="mt-0.5 text-[11px] text-gray-400">
+            {detail}
+          </p>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function Divider() {
+  return <div className="h-px bg-gray-100" />
 }
