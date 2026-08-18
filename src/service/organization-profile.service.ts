@@ -434,5 +434,9 @@ export function getOrganizationLogoUrl(
   const backendUrl =
     API_URL.replace(/\/api\/?$/, '')
 
-  return `${backendUrl}/storage/${logo}`
+  const cleanLogo = logo
+    .replace(/^\/+/, '')
+    .replace(/^storage\//, '')
+
+  return `${backendUrl}/storage/${cleanLogo}`
 }

@@ -9,6 +9,7 @@ import {
   updateAdminUser,
   updateAdminUserStatus,
   deleteAdminUser,
+  getAdminUserPhotoUrl,
   type AdminUser,
   type AdminUserRole,
   type AdminUserStatus,
@@ -1069,7 +1070,7 @@ export default function UserManagement() {
                 <div className="flex items-center gap-4">
                   {selectedUser.photo ? (
                     <img
-                      src={selectedUser.photo}
+                      src={getAdminUserPhotoUrl(selectedUser.photo) || ''}
                       alt={selectedUser.name}
                       className="h-16 w-16 rounded-full object-cover"
                     />
@@ -1455,7 +1456,7 @@ export default function UserManagement() {
                 {editCurrentPhoto ? (
                   <div className="flex items-center gap-4 rounded-xl border border-gray-100 bg-gray-50 p-4">
                     <img
-                      src={editCurrentPhoto}
+                      src={getAdminUserPhotoUrl(editCurrentPhoto) || ''}
                       alt="Foto profil saat ini"
                       className="h-16 w-16 rounded-full object-cover"
                     />

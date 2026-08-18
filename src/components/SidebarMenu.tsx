@@ -66,6 +66,13 @@ const menuItems: MenuItem[] = [
       'M4 5a2 2 0 012-2h12a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V5zM7 15l3-3 2 2 3-4 5 6M8 8h.01',
   },
   {
+    key: 'partner',
+    label: 'Mitra / Partner',
+    section: 'Manajemen',
+    icon:
+      'M8 7V5a4 4 0 118 0v2M5 7h14a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9a2 2 0 012-2zM3 12h18M9 12v2h6v-2',
+  },
+  {
     key: 'publikasi',
     label: 'Publikasi',
     section: 'Manajemen',
@@ -85,13 +92,6 @@ const menuItems: MenuItem[] = [
     section: 'Sistem',
     icon:
       'M17 20h5v-2a4 4 0 00-4-4h-1M9 20H2v-2a4 4 0 014-4h3m5-8a4 4 0 11-8 0 4 4 0 018 0zm6 2a3 3 0 11-6 0',
-  },
-  {
-    key: 'laporan',
-    label: 'Laporan',
-    section: 'Sistem',
-    icon:
-      'M3 3v18h18M7 16v-5M12 16V7M17 16v-8',
   },
   {
     key: 'pengaturan',

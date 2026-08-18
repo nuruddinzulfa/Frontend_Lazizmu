@@ -7,15 +7,17 @@ import AdminSidebar from '../../components/AdminSidebar'
 import AdminHeader from '../../components/AdminHeader'
 
 import DashboardContent from '../../components/admin/dashboard/DashboardContent'
+import ContentDashboard from '../../components/admin-konten/dashboard/ContentDashboard'
+import DonationDashboard from '../../components/admin-donasi/dashboard/DonationDashboard'
 import DonationManagement from '../../components/admin/donasi/DonationManagement'
 import CampaignManagement from '../../components/admin/campaign/CampaignManagement'
 import ProgramManagement from '../../components/admin/program/ProgramManagement'
 import NewsManagement from '../../components/admin/berita/NewsManagement'
 import ArticleManagement from '../../components/admin/artikel/ArticleManagement'
 import BannerManagement from '../../components/admin/banner/BannerManagement'
+import PartnerManagement from '../../components/admin/partner/PartnerManagement'
 import PublicationManagement from '../../components/admin/publikasi/PublicationManagement'
 import UserManagement from '../../components/admin/users/UserManagement'
-import ReportManagement from '../../components/admin/laporan/ReportManagement'
 import SettingsManagement from '../../components/admin/pengaturan/SettingsManagement'
 import AboutManagement from '../../components/admin/about/AboutManagement'
 
@@ -36,10 +38,10 @@ type MenuKey =
   | 'berita'
   | 'artikel'
   | 'banner'
+  | 'partner'
   | 'publikasi'
   |'tentang-kami'
   | 'users'
-  | 'laporan'
   | 'pengaturan'
 
 interface StoredUser {
@@ -50,58 +52,6 @@ interface StoredUser {
   photo?: string | null
   status: string
   role: AdminRole
-}
-
-/*
-|--------------------------------------------------------------------------
-| Data sementara Dashboard
-|--------------------------------------------------------------------------
-|
-| Nanti kalau API donation sudah selesai,
-| data ini bisa dipindahkan ke donation.service.ts.
-|
-*/
-
-const donations = [
-  {
-    id: 1,
-    date: '15 Jan 2025',
-    program: 'Beasiswa Pendidikan',
-    amount: 500000,
-    status: 'Berhasil',
-  },
-  {
-    id: 2,
-    date: '10 Jan 2025',
-    program: 'Bantuan Pangan',
-    amount: 200000,
-    status: 'Berhasil',
-  },
-  {
-    id: 3,
-    date: '5 Jan 2025',
-    program: 'Zakat Maal',
-    amount: 1200000,
-    status: 'Berhasil',
-  },
-  {
-    id: 4,
-    date: '28 Des 2024',
-    program: 'Pembangunan Masjid',
-    amount: 300000,
-    status: 'Berhasil',
-  },
-  {
-    id: 5,
-    date: '20 Des 2024',
-    program: 'Tanggap Bencana',
-    amount: 300000,
-    status: 'Pending',
-  },
-]
-
-const fmt = (n: number) => {
-  return 'Rp ' + n.toLocaleString('id-ID')
 }
 
 /*
@@ -124,10 +74,10 @@ const roleMenus: Record<AdminRole, MenuKey[]> = {
     'berita',
     'artikel',
     'banner',
+    'partner',
     'publikasi',
     'tentang-kami',
     'users',
-    'laporan',
     'pengaturan',
   ],
 
@@ -138,6 +88,7 @@ const roleMenus: Record<AdminRole, MenuKey[]> = {
     'berita',
     'artikel',
     'banner',
+    'partner',
     'publikasi',
     'tentang-kami',
   ],
@@ -310,12 +261,15 @@ export default function DashboardPage({
       */
 
       case 'dashboard':
-        return (
-          <DashboardContent
-            donations={donations}
-            fmt={fmt}
-          />
-        )
+  if (user?.role === 'Admin Konten') {
+    return <ContentDashboard />
+  }
+
+  if (user?.role === 'Admin Donasi') {
+    return <DonationDashboard />
+  }
+
+  return <DashboardContent />
 
       /*
       |--------------------------------------------------------------------------
@@ -382,6 +336,15 @@ export default function DashboardPage({
 
       /*
       |--------------------------------------------------------------------------
+      | Mitra / Partner
+      |--------------------------------------------------------------------------
+      */
+
+      case 'partner':
+        return <PartnerManagement />
+
+      /*
+      |--------------------------------------------------------------------------
       | Publikasi
       |--------------------------------------------------------------------------
       */
@@ -400,15 +363,6 @@ export default function DashboardPage({
 
       /*
       |--------------------------------------------------------------------------
-      | Laporan
-      |--------------------------------------------------------------------------
-      */
-
-      case 'laporan':
-        return <ReportManagement />
-
-      /*
-      |--------------------------------------------------------------------------
       | Pengaturan
       |--------------------------------------------------------------------------
       */
@@ -423,12 +377,15 @@ export default function DashboardPage({
       */
 
       default:
-        return (
-          <DashboardContent
-            donations={donations}
-            fmt={fmt}
-          />
-        )
+  if (user?.role === 'Admin Konten') {
+    return <ContentDashboard />
+  }
+
+  if (user?.role === 'Admin Donasi') {
+    return <DonationDashboard />
+  }
+
+  return <DashboardContent />
     }
   }
 
