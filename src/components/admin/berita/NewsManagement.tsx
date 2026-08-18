@@ -1,10 +1,11 @@
 'use client'
+
 import API_URL from "@/lib/api"
 import { useEffect, useMemo, useState } from 'react'
 import RichTextEditor from '../../RichTextEditor'
+
 import {
   getAdminNews,
-  getAdminNewsById,
   createNews,
   updateNews,
   deleteNews,
@@ -48,10 +49,13 @@ function formatDate(date: string | null) {
   })
 }
 
-function getThumbnailUrl(thumbnail: string | null) {
-  if (!thumbnail) return null
+function getThumbnailUrl(
+  thumbnail: string | null
+) {
+  if (!thumbnail) {
+    return null
+  }
 
-  // Kalau backend sudah mengirim URL lengkap
   if (
     thumbnail.startsWith('http://') ||
     thumbnail.startsWith('https://')
@@ -59,10 +63,15 @@ function getThumbnailUrl(thumbnail: string | null) {
     return thumbnail
   }
 
-  // API_URL biasanya: http://127.0.0.1:8000/api
-  const backendUrl = API_URL.replace(/\/api\/?$/, '')
+  const cleanThumbnail =
+    thumbnail
+      .replace(/^\/+/, '')
+      .replace(/^storage\//, '')
 
-  return `${backendUrl}/storage/${thumbnail}`
+  const backendUrl =
+    API_URL.replace(/\/api\/?$/, '')
+
+  return `${backendUrl}/storage/${cleanThumbnail}`
 }
 
 export default function NewsManagement() {

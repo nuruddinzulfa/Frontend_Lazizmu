@@ -1,5 +1,6 @@
 'use client'
 
+import API_URL from '../../../lib/api'
 import { useEffect, useMemo, useState } from 'react'
 import RichTextEditor from '../../RichTextEditor'
 import {
@@ -48,6 +49,26 @@ const categoryOptions: ArticleCategory[] = [
   'Fiqih',
   'Inspirasi',
 ]
+
+
+function getThumbnailUrl(thumbnail: string | null) {
+  if (!thumbnail) return null
+
+  if (
+    thumbnail.startsWith('http://') ||
+    thumbnail.startsWith('https://')
+  ) {
+    return thumbnail
+  }
+
+  const cleanThumbnail = thumbnail
+    .replace(/^\/+/, '')
+    .replace(/^storage\//, '')
+
+  const backendUrl = API_URL.replace(/\/api\/?$/, '')
+
+  return `${backendUrl}/storage/${cleanThumbnail}`
+}
 
 export default function ArticleManagement() {
   const [articles, setArticles] = useState<Article[]>([])
@@ -966,6 +987,34 @@ export default function ArticleManagement() {
                   JPG, JPEG, PNG, atau WEBP. Maksimal
                   2MB.
                 </p>
+
+                {formMode === 'edit' &&
+                  editingId !== null &&
+                  !form.thumbnail &&
+                  getThumbnailUrl(
+                    articles.find((article) => article.id === editingId)
+                      ?.thumbnail ?? null
+                  ) && (
+                    <div className="mt-3">
+                      <p className="mb-2 text-xs font-medium text-gray-500">
+                        Thumbnail saat ini
+                      </p>
+
+                      <img
+                        src={
+                          getThumbnailUrl(
+                            articles.find(
+                              (article) => article.id === editingId
+                            )?.thumbnail ?? null
+                          )!
+                        }
+                        alt="Thumbnail artikel saat ini"
+                        className="h-40 w-full max-w-sm rounded-xl border border-gray-100 object-cover"
+                      />
+                    </div>
+                  )}
+
+
               </div>
 
             </div>
@@ -1032,9 +1081,9 @@ export default function ArticleManagement() {
 
             <div className="space-y-5 p-6">
 
-              {detailArticle.thumbnail && (
+              {getThumbnailUrl(detailArticle.thumbnail) && (
                 <img
-                  src={detailArticle.thumbnail}
+                  src={getThumbnailUrl(detailArticle.thumbnail)!}
                   alt={detailArticle.title}
                   className="h-64 w-full rounded-xl object-cover"
                 />
@@ -1111,9 +1160,12 @@ export default function ArticleManagement() {
                   Isi Artikel
                 </h4>
 
-                <div className="whitespace-pre-wrap rounded-xl border border-gray-100 p-4 text-sm leading-7 text-gray-600">
-                  {detailArticle.content}
-                </div>
+                <div
+                  className="prose prose-sm max-w-none rounded-xl border border-gray-100 p-4 text-gray-600 prose-headings:text-gray-900 prose-a:text-[#F58220] prose-strong:text-gray-900"
+                  dangerouslySetInnerHTML={{
+                    __html: detailArticle.content,
+                  }}
+                />
 
               </div>
 

@@ -12,6 +12,7 @@ import CampaignManagement from '../../components/admin/campaign/CampaignManageme
 import ProgramManagement from '../../components/admin/program/ProgramManagement'
 import NewsManagement from '../../components/admin/berita/NewsManagement'
 import ArticleManagement from '../../components/admin/artikel/ArticleManagement'
+import BannerManagement from '../../components/admin/banner/BannerManagement'
 import PublicationManagement from '../../components/admin/publikasi/PublicationManagement'
 import UserManagement from '../../components/admin/users/UserManagement'
 import ReportManagement from '../../components/admin/laporan/ReportManagement'
@@ -34,6 +35,7 @@ type MenuKey =
   | 'program'
   | 'berita'
   | 'artikel'
+  | 'banner'
   | 'publikasi'
   |'tentang-kami'
   | 'users'
@@ -121,6 +123,7 @@ const roleMenus: Record<AdminRole, MenuKey[]> = {
     'program',
     'berita',
     'artikel',
+    'banner',
     'publikasi',
     'tentang-kami',
     'users',
@@ -134,6 +137,7 @@ const roleMenus: Record<AdminRole, MenuKey[]> = {
     'program',
     'berita',
     'artikel',
+    'banner',
     'publikasi',
     'tentang-kami',
   ],
@@ -366,6 +370,15 @@ export default function DashboardPage({
 
       case 'artikel':
         return <ArticleManagement />
+
+      /*
+      |--------------------------------------------------------------------------
+      | Banner / Hero
+      |--------------------------------------------------------------------------
+      */
+
+      case 'banner':
+        return <BannerManagement />
 
       /*
       |--------------------------------------------------------------------------

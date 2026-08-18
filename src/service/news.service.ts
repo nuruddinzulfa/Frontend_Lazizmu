@@ -7,7 +7,10 @@ export interface News {
   excerpt: string | null;
   content: string;
   thumbnail: string | null;
-  category: "Kegiatan" | "Pengumuman" | "Laporan";
+  category:
+    | "Kegiatan"
+    | "Pengumuman"
+    | "Laporan";
   status: "draft" | "published";
   published_at: string | null;
   views: number;
@@ -21,7 +24,10 @@ export interface NewsPayload {
   title: string;
   excerpt?: string;
   content: string;
-  category: "Kegiatan" | "Pengumuman" | "Laporan";
+  category:
+    | "Kegiatan"
+    | "Pengumuman"
+    | "Laporan";
   status: "draft" | "published";
   thumbnail?: File | null;
 }
@@ -39,10 +45,13 @@ interface NewsResponse {
 }
 
 function getToken(): string {
-  const token = localStorage.getItem("token");
+  const token =
+    localStorage.getItem("token");
 
   if (!token) {
-    throw new Error("Anda belum login.");
+    throw new Error(
+      "Anda belum login."
+    );
   }
 
   return token;
@@ -55,9 +64,12 @@ function getToken(): string {
 */
 
 /**
- * Ambil berita published untuk website masyarakat.
+ * Ambil seluruh berita published
+ * untuk halaman masyarakat.
  */
-export async function getNews(): Promise<News[]> {
+export async function getNews(): Promise<
+  News[]
+> {
   const response = await fetch(
     `${API_URL}/news`,
     {
@@ -82,13 +94,18 @@ export async function getNews(): Promise<News[]> {
 }
 
 /**
- * Detail berita published untuk masyarakat.
+ * Ambil detail berita berdasarkan slug.
+ *
+ * Backend public menggunakan:
+ * GET /api/news/{slug}
  */
-export async function getPublicNewsById(
-  id: number
+export async function getPublicNewsBySlug(
+  slug: string
 ): Promise<News> {
   const response = await fetch(
-    `${API_URL}/news/${id}`,
+    `${API_URL}/news/${encodeURIComponent(
+      slug
+    )}`,
     {
       method: "GET",
       headers: {
@@ -103,13 +120,47 @@ export async function getPublicNewsById(
   if (!response.ok) {
     throw new Error(
       data.message ||
-        "Gagal mengambil detail berita."
+        "Berita tidak ditemukan."
     );
   }
 
   return data.data;
 }
 
+/**
+ * Compatibility untuk halaman detail lama.
+ *
+ * BacaPage sekarang masih mengirim ID,
+ * sedangkan backend public detail berita
+ * menggunakan slug.
+ *
+ * Alurnya:
+ * 1. Ambil daftar berita published.
+ * 2. Cari berita berdasarkan ID.
+ * 3. Ambil slug berita tersebut.
+ * 4. Request detail melalui /news/{slug}.
+ */
+export async function getPublicNewsById(
+  id: number
+): Promise<News> {
+  const newsList =
+    await getNews();
+
+  const selectedNews =
+    newsList.find(
+      (news) => news.id === id
+    );
+
+  if (!selectedNews) {
+    throw new Error(
+      "Berita tidak ditemukan."
+    );
+  }
+
+  return getPublicNewsBySlug(
+    selectedNews.slug
+  );
+}
 
 /*
 |--------------------------------------------------------------------------
@@ -118,13 +169,15 @@ export async function getPublicNewsById(
 */
 
 /**
- * Ambil semua berita untuk dashboard admin.
+ * Ambil seluruh berita untuk dashboard admin.
  *
  * Termasuk:
  * - published
  * - draft
  */
-export async function getAdminNews(): Promise<News[]> {
+export async function getAdminNews(): Promise<
+  News[]
+> {
   const token = getToken();
 
   const response = await fetch(
@@ -133,7 +186,8 @@ export async function getAdminNews(): Promise<News[]> {
       method: "GET",
       headers: {
         Accept: "application/json",
-        Authorization: `Bearer ${token}`,
+        Authorization:
+          `Bearer ${token}`,
       },
     }
   );
@@ -152,9 +206,9 @@ export async function getAdminNews(): Promise<News[]> {
 }
 
 /**
- * Detail berita untuk admin.
+ * Detail berita admin.
  *
- * Bisa mengambil draft maupun published.
+ * Endpoint admin masih menggunakan ID.
  */
 export async function getAdminNewsById(
   id: number
@@ -167,7 +221,8 @@ export async function getAdminNewsById(
       method: "GET",
       headers: {
         Accept: "application/json",
-        Authorization: `Bearer ${token}`,
+        Authorization:
+          `Bearer ${token}`,
       },
     }
   );
@@ -185,7 +240,6 @@ export async function getAdminNewsById(
   return data.data;
 }
 
-
 /*
 |--------------------------------------------------------------------------
 | CREATE
@@ -195,10 +249,10 @@ export async function getAdminNewsById(
 export async function createNews(
   payload: NewsPayload
 ): Promise<News> {
-
   const token = getToken();
 
-  const formData = new FormData();
+  const formData =
+    new FormData();
 
   formData.append(
     "title",
@@ -236,12 +290,11 @@ export async function createNews(
     `${API_URL}/admin/news`,
     {
       method: "POST",
-
       headers: {
         Accept: "application/json",
-        Authorization: `Bearer ${token}`,
+        Authorization:
+          `Bearer ${token}`,
       },
-
       body: formData,
     }
   );
@@ -259,7 +312,6 @@ export async function createNews(
   return data.data;
 }
 
-
 /*
 |--------------------------------------------------------------------------
 | UPDATE
@@ -270,10 +322,10 @@ export async function updateNews(
   id: number,
   payload: NewsPayload
 ): Promise<News> {
-
   const token = getToken();
 
-  const formData = new FormData();
+  const formData =
+    new FormData();
 
   formData.append(
     "title",
@@ -311,12 +363,11 @@ export async function updateNews(
     `${API_URL}/admin/news/${id}`,
     {
       method: "POST",
-
       headers: {
         Accept: "application/json",
-        Authorization: `Bearer ${token}`,
+        Authorization:
+          `Bearer ${token}`,
       },
-
       body: formData,
     }
   );
@@ -334,7 +385,6 @@ export async function updateNews(
   return data.data;
 }
 
-
 /*
 |--------------------------------------------------------------------------
 | DELETE
@@ -344,22 +394,22 @@ export async function updateNews(
 export async function deleteNews(
   id: number
 ): Promise<void> {
-
   const token = getToken();
 
   const response = await fetch(
     `${API_URL}/admin/news/${id}`,
     {
       method: "DELETE",
-
       headers: {
         Accept: "application/json",
-        Authorization: `Bearer ${token}`,
+        Authorization:
+          `Bearer ${token}`,
       },
     }
   );
 
-  const data = await response.json();
+  const data =
+    await response.json();
 
   if (!response.ok) {
     throw new Error(

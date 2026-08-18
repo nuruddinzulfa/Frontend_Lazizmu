@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { api } from "@/services/api";
+import API_URL from "@/lib/api";
 
 interface DonasiPageProps {
   initialZakatAmount?: number;
@@ -64,6 +65,12 @@ interface StoredDonation {
   campaignTitle?: string;
 }
 
+/*
+|--------------------------------------------------------------------------
+| FORMAT RUPIAH
+|--------------------------------------------------------------------------
+*/
+
 function formatRupiah(
   value: number | string | null | undefined
 ) {
@@ -76,6 +83,12 @@ function formatRupiah(
   }).format(Number.isFinite(number) ? number : 0);
 }
 
+/*
+|--------------------------------------------------------------------------
+| FORMAT INPUT NOMINAL
+|--------------------------------------------------------------------------
+*/
+
 function formatNumberInput(value: string) {
   const clean = value.replace(/\D/g, "");
 
@@ -86,6 +99,12 @@ function formatNumberInput(value: string) {
   return Number(clean).toLocaleString("id-ID");
 }
 
+/*
+|--------------------------------------------------------------------------
+| PARSE NOMINAL
+|--------------------------------------------------------------------------
+*/
+
 function parseNumber(value: string) {
   const number = Number(
     value
@@ -95,6 +114,12 @@ function parseNumber(value: string) {
 
   return Number.isFinite(number) ? number : 0;
 }
+
+/*
+|--------------------------------------------------------------------------
+| NORMALIZE PHONE
+|--------------------------------------------------------------------------
+*/
 
 function normalizePhone(phone: string) {
   let clean = phone.replace(/\D/g, "");
@@ -110,13 +135,49 @@ function normalizePhone(phone: string) {
   return `62${clean}`;
 }
 
+/*
+|--------------------------------------------------------------------------
+| CAMPAIGN IMAGE URL
+|--------------------------------------------------------------------------
+*/
+
+function getCampaignImageUrl(
+  image: string | null | undefined
+): string | null {
+  if (!image) {
+    return null;
+  }
+
+  if (
+    image.startsWith("http://") ||
+    image.startsWith("https://")
+  ) {
+    return image;
+  }
+
+  const cleanImage = image
+    .replace(/^\/+/, "")
+    .replace(/^storage\//, "");
+
+  const backendUrl =
+    API_URL.replace(/\/api\/?$/, "");
+
+  return `${backendUrl}/storage/${cleanImage}`;
+}
+
+/*
+|--------------------------------------------------------------------------
+| DONATION FORM
+|--------------------------------------------------------------------------
+*/
+
 export default function DonationForm({
   initialZakatAmount,
   initialProgram,
 }: DonasiPageProps) {
   /*
   |--------------------------------------------------------------------------
-  | Midtrans Redirect
+  | MIDTRANS REDIRECT
   |--------------------------------------------------------------------------
   */
 
@@ -154,7 +215,7 @@ export default function DonationForm({
 
   /*
   |--------------------------------------------------------------------------
-  | Last Donation
+  | LAST DONATION
   |--------------------------------------------------------------------------
   */
 
@@ -180,7 +241,7 @@ export default function DonationForm({
 
   /*
   |--------------------------------------------------------------------------
-  | Campaign
+  | CAMPAIGN
   |--------------------------------------------------------------------------
   */
 
@@ -206,7 +267,7 @@ export default function DonationForm({
 
   /*
   |--------------------------------------------------------------------------
-  | Donor
+  | DONOR
   |--------------------------------------------------------------------------
   */
 
@@ -226,7 +287,7 @@ export default function DonationForm({
 
   /*
   |--------------------------------------------------------------------------
-  | Amount
+  | AMOUNT
   |--------------------------------------------------------------------------
   */
 
@@ -247,7 +308,7 @@ export default function DonationForm({
 
   /*
   |--------------------------------------------------------------------------
-  | Process
+  | PROCESS
   |--------------------------------------------------------------------------
   */
 
@@ -303,14 +364,14 @@ export default function DonationForm({
 
   /*
   |--------------------------------------------------------------------------
-  | Fetch Campaign
+  | FETCH CAMPAIGN
   |--------------------------------------------------------------------------
   */
 
   useEffect(() => {
     /*
     |--------------------------------------------------------------------------
-    | Kalau sedang kembali dari Midtrans,
+    | Jika sedang kembali dari Midtrans,
     | tidak perlu fetch campaign.
     |--------------------------------------------------------------------------
     */
@@ -478,7 +539,7 @@ export default function DonationForm({
 
   /*
   |--------------------------------------------------------------------------
-  | Custom Amount
+  | CUSTOM AMOUNT
   |--------------------------------------------------------------------------
   */
 
@@ -496,7 +557,7 @@ export default function DonationForm({
 
   /*
   |--------------------------------------------------------------------------
-  | Anonymous
+  | ANONYMOUS
   |--------------------------------------------------------------------------
   */
 
@@ -514,7 +575,7 @@ export default function DonationForm({
 
   /*
   |--------------------------------------------------------------------------
-  | Validation
+  | VALIDATION
   |--------------------------------------------------------------------------
   */
 
@@ -580,7 +641,7 @@ export default function DonationForm({
 
   /*
   |--------------------------------------------------------------------------
-  | Submit Donation
+  | SUBMIT DONATION
   |--------------------------------------------------------------------------
   */
 
@@ -670,7 +731,7 @@ export default function DonationForm({
 
         /*
         |--------------------------------------------------------------------------
-        | Redirect Midtrans
+        | REDIRECT MIDTRANS
         |--------------------------------------------------------------------------
         */
 
@@ -717,7 +778,7 @@ export default function DonationForm({
 
   /*
   |--------------------------------------------------------------------------
-  | Kembali ke Website
+  | KEMBALI KE WEBSITE
   |--------------------------------------------------------------------------
   */
 
@@ -739,7 +800,7 @@ export default function DonationForm({
 
   /*
   |--------------------------------------------------------------------------
-  | Donasi Lagi
+  | DONASI LAGI
   |--------------------------------------------------------------------------
   */
 
@@ -776,7 +837,6 @@ export default function DonationForm({
 
     return (
       <div className="min-h-screen bg-[#FFF8F2] pt-20 px-4 flex items-center justify-center relative overflow-hidden">
-        {/* Decorative */}
 
         <div className="absolute top-28 left-[10%] w-36 h-36 rounded-full bg-[#F58220]/5 blur-2xl" />
 
@@ -784,14 +844,16 @@ export default function DonationForm({
 
         <div className="relative z-10 w-full max-w-xl bg-white rounded-3xl border border-[#F3DEC8] shadow-xl overflow-hidden">
 
-          {/* Header */}
-
           <div className="bg-gradient-to-br from-[#F58220] to-[#D96D0A] px-8 py-10 text-center relative overflow-hidden">
+
             <div className="absolute inset-0 islamic-geo-bg opacity-20" />
 
             <div className="relative z-10">
+
               <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-5 shadow-lg">
+
                 <div className="w-14 h-14 rounded-full bg-green-100 flex items-center justify-center">
+
                   <svg
                     className="w-8 h-8 text-green-600"
                     fill="none"
@@ -801,12 +863,11 @@ export default function DonationForm({
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
-                      strokeWidth={
-                        2.8
-                      }
+                      strokeWidth={2.8}
                       d="M5 13l4 4L19 7"
                     />
                   </svg>
+
                 </div>
               </div>
 
@@ -824,12 +885,12 @@ export default function DonationForm({
                 Jazakumullahu
                 Khairan
               </h1>
+
             </div>
           </div>
 
-          {/* Content */}
-
           <div className="p-7 sm:p-9 text-center">
+
             <p className="text-gray-600 leading-relaxed mb-6">
               Terima kasih telah
               menunaikan kebaikan
@@ -851,17 +912,15 @@ export default function DonationForm({
               membawa keberkahan.
             </p>
 
-            {/* Transaction */}
-
             <div className="bg-[#FFF8F2] border border-[#F3DEC8] rounded-2xl p-5 mb-6 text-left space-y-4">
+
               <div className="flex justify-between gap-5 text-sm">
                 <span className="text-gray-400">
                   Status
                 </span>
 
                 <span className="font-bold text-green-600">
-                  Pembayaran
-                  Berhasil
+                  Pembayaran Berhasil
                 </span>
               </div>
 
@@ -898,20 +957,20 @@ export default function DonationForm({
 
               <div>
                 <div className="text-xs text-gray-400 mb-1">
-                  Nomor
-                  Transaksi
+                  Nomor Transaksi
                 </div>
 
                 <div className="font-mono text-xs sm:text-sm font-semibold text-gray-700 break-all">
                   {successOrderId}
                 </div>
               </div>
+
             </div>
 
-            {/* WA information */}
-
             <div className="bg-green-50 border border-green-100 rounded-2xl p-5 mb-7 text-left">
+
               <div className="flex items-start gap-3">
+
                 <div className="w-9 h-9 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
                   <span className="text-lg">
                     ✓
@@ -920,26 +979,20 @@ export default function DonationForm({
 
                 <div>
                   <div className="font-semibold text-green-800 text-sm mb-1">
-                    Konfirmasi
-                    Donasi
+                    Konfirmasi Donasi
                   </div>
 
                   <p className="text-xs sm:text-sm text-green-700 leading-relaxed">
-                    Konfirmasi
-                    pembayaran
-                    akan dikirim
-                    melalui
-                    WhatsApp
-                    sesuai nomor
-                    yang Anda
-                    masukkan saat
-                    berdonasi.
+                    Konfirmasi pembayaran
+                    akan dikirim melalui
+                    WhatsApp sesuai nomor
+                    yang Anda masukkan
+                    saat berdonasi.
                   </p>
                 </div>
+
               </div>
             </div>
-
-            {/* Main Button */}
 
             <button
               type="button"
@@ -952,8 +1005,7 @@ export default function DonationForm({
                   "'Plus Jakarta Sans', sans-serif",
               }}
             >
-              Kembali ke Website
-              →
+              Kembali ke Website →
             </button>
 
             <button
@@ -971,6 +1023,7 @@ export default function DonationForm({
               Amanah, Profesional,
               Transparan
             </p>
+
           </div>
         </div>
       </div>
@@ -986,6 +1039,7 @@ export default function DonationForm({
   if (isPaymentPending) {
     return (
       <div className="min-h-screen bg-[#FFF8F2] pt-20 flex items-center justify-center px-4">
+
         <div className="max-w-lg w-full bg-white rounded-3xl border border-[#F3DEC8] shadow-lg p-8 sm:p-10 text-center">
 
           <div className="w-20 h-20 rounded-full bg-yellow-100 flex items-center justify-center mx-auto mb-6">
@@ -995,8 +1049,7 @@ export default function DonationForm({
           </div>
 
           <h1 className="text-2xl font-bold text-gray-900 mb-3">
-            Menunggu
-            Pembayaran
+            Menunggu Pembayaran
           </h1>
 
           <p className="text-gray-500 text-sm leading-relaxed mb-7">
@@ -1011,15 +1064,15 @@ export default function DonationForm({
 
           {returnedOrderId && (
             <div className="bg-[#FFF8F2] rounded-xl border border-[#F3DEC8] p-4 mb-6">
+
               <div className="text-xs text-gray-400 mb-1">
                 Nomor Transaksi
               </div>
 
               <div className="font-mono text-sm font-semibold break-all">
-                {
-                  returnedOrderId
-                }
+                {returnedOrderId}
               </div>
+
             </div>
           )}
 
@@ -1032,6 +1085,7 @@ export default function DonationForm({
           >
             Kembali ke Website
           </button>
+
         </div>
       </div>
     );
@@ -1046,6 +1100,7 @@ export default function DonationForm({
   if (isPaymentFailed) {
     return (
       <div className="min-h-screen bg-[#FFF8F2] pt-20 flex items-center justify-center px-4">
+
         <div className="max-w-lg w-full bg-white rounded-3xl border border-[#F3DEC8] shadow-lg p-8 sm:p-10 text-center">
 
           <div className="w-20 h-20 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-6">
@@ -1055,8 +1110,7 @@ export default function DonationForm({
           </div>
 
           <h1 className="text-2xl font-bold text-gray-900 mb-3">
-            Pembayaran Belum
-            Berhasil
+            Pembayaran Belum Berhasil
           </h1>
 
           <p className="text-gray-500 text-sm leading-relaxed mb-7">
@@ -1070,8 +1124,7 @@ export default function DonationForm({
 
           {statusCode && (
             <p className="text-xs text-gray-400 mb-5">
-              Status code:{" "}
-              {statusCode}
+              Status code: {statusCode}
             </p>
           )}
 
@@ -1094,6 +1147,7 @@ export default function DonationForm({
           >
             Kembali ke Website
           </button>
+
         </div>
       </div>
     );
@@ -1101,43 +1155,49 @@ export default function DonationForm({
 
   /*
   |--------------------------------------------------------------------------
-  | Loading Campaign
+  | LOADING CAMPAIGN
   |--------------------------------------------------------------------------
   */
 
   if (campaignLoading) {
     return (
       <div className="min-h-screen bg-[#FFF8F2] pt-20 flex items-center justify-center">
+
         <div className="text-center">
+
           <div className="w-9 h-9 border-4 border-[#F58220] border-t-transparent rounded-full animate-spin mx-auto mb-3" />
 
           <p className="text-sm text-gray-500">
             Mengambil program
             donasi...
           </p>
+
         </div>
+
       </div>
     );
   }
 
   /*
   |--------------------------------------------------------------------------
-  | Main Donation Form
+  | MAIN DONATION FORM
   |--------------------------------------------------------------------------
   */
 
   return (
     <div className="min-h-screen bg-[#FFF8F2] pt-20">
 
-      {/* Header */}
+      {/* HEADER */}
 
       <div className="bg-gradient-to-br from-[#F58220] to-[#D96D0A] relative overflow-hidden">
+
         <div className="absolute inset-0 islamic-geo-bg opacity-20" />
 
         <div className="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 text-center">
+
           <div className="inline-flex items-center gap-2 bg-white/20 border border-white/30 rounded-full px-4 py-2 mb-5 text-white text-xs font-semibold">
-            ❤️ Formulir Donasi
-            — LAZISMU Pemalang
+            ❤️ Formulir Donasi —
+            LAZISMU Pemalang
           </div>
 
           <h1
@@ -1147,8 +1207,7 @@ export default function DonationForm({
                 "'Plus Jakarta Sans', sans-serif",
             }}
           >
-            Tunaikan Kebaikan
-            Anda
+            Tunaikan Kebaikan Anda
           </h1>
 
           <p className="text-white/75 text-sm">
@@ -1157,49 +1216,49 @@ export default function DonationForm({
             lanjutkan pembayaran
             melalui Midtrans.
           </p>
+
         </div>
       </div>
 
-      {/* Step Indicator */}
+      {/* STEP INDICATOR */}
 
       <div className="bg-white border-b border-[#F3DEC8] sticky top-16 z-30">
+
         <div className="max-w-3xl mx-auto px-4 py-4">
+
           <div className="flex justify-center items-center gap-3">
+
             {[1, 2, 3].map(
               (number) => (
                 <div
                   key={number}
                   className="flex items-center gap-3"
                 >
+
                   <div
                     className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
-                      step ===
-                      number
+                      step === number
                         ? "bg-[#F58220] text-white"
-                        : step >
-                          number
+                        : step > number
                         ? "bg-green-500 text-white"
                         : "bg-gray-100 text-gray-400"
                     }`}
                   >
-                    {step >
-                    number
+                    {step > number
                       ? "✓"
                       : number}
                   </div>
 
                   <span
                     className={`hidden sm:block text-xs font-semibold ${
-                      step ===
-                      number
+                      step === number
                         ? "text-[#F58220]"
                         : "text-gray-400"
                     }`}
                   >
                     {number === 1
                       ? "Pilih Program"
-                      : number ===
-                        2
+                      : number === 2
                       ? "Data & Nominal"
                       : "Konfirmasi"}
                   </span>
@@ -1207,34 +1266,39 @@ export default function DonationForm({
                   {number < 3 && (
                     <div
                       className={`w-10 h-px ${
-                        step >
-                        number
+                        step > number
                           ? "bg-green-400"
                           : "bg-gray-200"
                       }`}
                     />
                   )}
+
                 </div>
               )
             )}
+
           </div>
+
         </div>
       </div>
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
         <form
           onSubmit={
             handleSubmit
           }
         >
 
-          {/* STEP 1 */}
+          {/* ========================================================
+              STEP 1
+          ======================================================== */}
 
           {step === 1 && (
             <div>
+
               <h2 className="text-xl font-bold text-gray-800 mb-2">
-                Pilih Tujuan
-                Donasi
+                Pilih Tujuan Donasi
               </h2>
 
               <p className="text-gray-400 text-sm mb-6">
@@ -1246,28 +1310,23 @@ export default function DonationForm({
 
               {campaignError && (
                 <div className="bg-red-50 border border-red-200 text-red-600 p-4 rounded-xl mb-6 text-sm">
-                  {
-                    campaignError
-                  }
+                  {campaignError}
                 </div>
               )}
 
-              {campaigns.length ===
-              0 ? (
+              {campaigns.length === 0 ? (
                 <div className="bg-white border border-[#F3DEC8] rounded-2xl p-8 text-center">
                   <p className="text-gray-500">
-                    Belum ada
-                    program donasi
-                    yang
+                    Belum ada program
+                    donasi yang
                     dipublikasikan.
                   </p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+
                   {campaigns.map(
-                    (
-                      campaign
-                    ) => {
+                    (campaign) => {
                       const collected =
                         Number(
                           campaign.collected_amount ??
@@ -1290,6 +1349,11 @@ export default function DonationForm({
                             )
                           : 0;
 
+                      const imageUrl =
+                        getCampaignImageUrl(
+                          campaign.image
+                        );
+
                       return (
                         <button
                           key={
@@ -1308,12 +1372,12 @@ export default function DonationForm({
                               : "border-[#F3DEC8] hover:border-[#F58220]"
                           }`}
                         >
+
                           <div className="h-40 bg-orange-50 overflow-hidden">
-                            {campaign.image ? (
+
+                            {imageUrl ? (
                               <img
-                                src={
-                                  campaign.image
-                                }
+                                src={imageUrl}
                                 alt={
                                   campaign.title
                                 }
@@ -1324,9 +1388,11 @@ export default function DonationForm({
                                 🤲
                               </div>
                             )}
+
                           </div>
 
                           <div className="p-4">
+
                             <h3 className="font-bold text-gray-800 text-sm mb-3 line-clamp-2">
                               {
                                 campaign.title
@@ -1334,15 +1400,18 @@ export default function DonationForm({
                             </h3>
 
                             <div className="w-full bg-gray-100 h-2 rounded-full overflow-hidden mb-2">
+
                               <div
                                 className="h-full bg-[#F58220]"
                                 style={{
                                   width: `${percentage}%`,
                                 }}
                               />
+
                             </div>
 
                             <div className="flex justify-between text-xs">
+
                               <div>
                                 <div className="text-gray-400">
                                   Terkumpul
@@ -1355,9 +1424,9 @@ export default function DonationForm({
                                 </strong>
                               </div>
 
-                              {target >
-                                0 && (
+                              {target > 0 && (
                                 <div className="text-right">
+
                                   <div className="text-gray-400">
                                     Target
                                   </div>
@@ -1367,22 +1436,24 @@ export default function DonationForm({
                                       target
                                     )}
                                   </strong>
+
                                 </div>
                               )}
+
                             </div>
+
                           </div>
                         </button>
                       );
                     }
                   )}
+
                 </div>
               )}
 
               <button
                 type="button"
-                disabled={
-                  !campaignId
-                }
+                disabled={!campaignId}
                 onClick={() =>
                   setStep(2)
                 }
@@ -1392,19 +1463,23 @@ export default function DonationForm({
                     : "bg-gray-100 text-gray-400 cursor-not-allowed"
                 }`}
               >
-                Lanjut — Isi
-                Data & Nominal
-                →
+                Lanjut — Isi Data &
+                Nominal →
               </button>
+
             </div>
           )}
 
-          {/* STEP 2 */}
+          {/* ========================================================
+              STEP 2
+          ======================================================== */}
 
           {step === 2 && (
             <div>
+
               {selectedCampaign && (
                 <div className="bg-[#FEF0E4] border border-[#F58220]/30 rounded-xl p-4 mb-6">
+
                   <div className="text-xs text-gray-500 mb-1">
                     Program dipilih
                   </div>
@@ -1414,12 +1489,12 @@ export default function DonationForm({
                       selectedCampaign.title
                     }
                   </div>
+
                 </div>
               )}
 
               {initialZakatAmount &&
-                initialZakatAmount >
-                  0 && (
+                initialZakatAmount > 0 && (
                   <div className="bg-green-50 border border-green-200 text-green-700 rounded-xl p-4 mb-6 text-sm">
                     Nominal zakat{" "}
                     <strong>
@@ -1439,9 +1514,10 @@ export default function DonationForm({
 
               <div className="space-y-6">
 
-                {/* Name */}
+                {/* NAME */}
 
                 <div>
+
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Nama Donatur
                   </label>
@@ -1460,9 +1536,7 @@ export default function DonationForm({
                       event
                     ) =>
                       setName(
-                        event
-                          .target
-                          .value
+                        event.target.value
                       )
                     }
                     placeholder="Masukkan nama"
@@ -1470,6 +1544,7 @@ export default function DonationForm({
                   />
 
                   <label className="flex items-center gap-2 mt-3 text-sm text-gray-600 cursor-pointer">
+
                     <input
                       type="checkbox"
                       checked={
@@ -1480,20 +1555,23 @@ export default function DonationForm({
                       }
                     />
 
-                    Sembunyikan
-                    nama sebagai
-                    Hamba Allah
+                    Sembunyikan nama
+                    sebagai Hamba Allah
+
                   </label>
+
                 </div>
 
-                {/* Phone */}
+                {/* PHONE */}
 
                 <div>
+
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Nomor WhatsApp
                   </label>
 
                   <div className="relative">
+
                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
                       +62
                     </span>
@@ -1514,12 +1592,15 @@ export default function DonationForm({
                       placeholder="8xxxxxxxxxx"
                       className="w-full bg-white border border-[#F3DEC8] rounded-xl pl-14 pr-4 py-3 text-sm focus:outline-none focus:border-[#F58220]"
                     />
+
                   </div>
+
                 </div>
 
-                {/* Email */}
+                {/* EMAIL */}
 
                 <div>
+
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Email
                   </label>
@@ -1531,33 +1612,30 @@ export default function DonationForm({
                       event
                     ) =>
                       setEmail(
-                        event
-                          .target
-                          .value
+                        event.target.value
                       )
                     }
                     placeholder="nama@email.com"
                     className="w-full bg-white border border-[#F3DEC8] rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#F58220]"
                   />
+
                 </div>
 
-                {/* Amount */}
+                {/* AMOUNT */}
 
                 <div>
+
                   <label className="block text-sm font-semibold text-gray-700 mb-3">
                     Nominal Donasi
                   </label>
 
                   <div className="grid grid-cols-3 gap-2 mb-3">
+
                     {presets.map(
-                      (
-                        preset
-                      ) => (
+                      (preset) => (
                         <button
                           type="button"
-                          key={
-                            preset
-                          }
+                          key={preset}
                           onClick={() => {
                             setSelectedAmount(
                               preset
@@ -1580,9 +1658,11 @@ export default function DonationForm({
                         </button>
                       )
                     )}
+
                   </div>
 
                   <div className="relative">
+
                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
                       Rp
                     </span>
@@ -1626,11 +1706,12 @@ export default function DonationForm({
                       placeholder="Nominal lainnya"
                       className="w-full bg-white border border-[#F3DEC8] rounded-xl pl-12 pr-4 py-3 text-sm focus:outline-none focus:border-[#F58220]"
                     />
+
                   </div>
 
-                  {amount >
-                    0 && (
+                  {amount > 0 && (
                     <div className="mt-3 bg-[#FEF0E4] rounded-xl px-4 py-3 flex justify-between">
+
                       <span className="text-sm text-gray-600">
                         Total
                       </span>
@@ -1640,9 +1721,12 @@ export default function DonationForm({
                           amount
                         )}
                       </strong>
+
                     </div>
                   )}
+
                 </div>
+
               </div>
 
               {submitError && (
@@ -1652,6 +1736,7 @@ export default function DonationForm({
               )}
 
               <div className="flex gap-3 mt-8">
+
                 <button
                   type="button"
                   onClick={() =>
@@ -1668,9 +1753,7 @@ export default function DonationForm({
                     if (
                       validateStepTwo()
                     ) {
-                      setStep(
-                        3
-                      );
+                      setStep(3);
                     }
                   }}
                   className="flex-1 btn-primary py-3 font-bold"
@@ -1678,20 +1761,25 @@ export default function DonationForm({
                   Lanjut —
                   Konfirmasi →
                 </button>
+
               </div>
+
             </div>
           )}
 
-          {/* STEP 3 */}
+          {/* ========================================================
+              STEP 3
+          ======================================================== */}
 
           {step === 3 && (
             <div>
+
               <h2 className="text-xl font-bold text-gray-800 mb-6">
-                Konfirmasi
-                Donasi
+                Konfirmasi Donasi
               </h2>
 
               <div className="bg-white border border-[#F3DEC8] rounded-2xl p-6 space-y-4">
+
                 <Summary
                   label="Program"
                   value={
@@ -1722,6 +1810,7 @@ export default function DonationForm({
                 <div className="border-t border-[#F3DEC8]" />
 
                 <div className="flex justify-between items-center">
+
                   <span className="font-semibold text-gray-600">
                     Total Donasi
                   </span>
@@ -1731,15 +1820,16 @@ export default function DonationForm({
                       amount
                     )}
                   </span>
+
                 </div>
+
               </div>
 
               <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 text-sm text-blue-700 mt-5">
                 Setelah menekan
                 tombol bayar,
-                Anda akan
-                diarahkan ke
-                halaman pembayaran
+                Anda akan diarahkan
+                ke halaman pembayaran
                 Midtrans untuk
                 memilih QRIS,
                 Virtual Account,
@@ -1755,6 +1845,7 @@ export default function DonationForm({
               )}
 
               <div className="flex gap-3 mt-8">
+
                 <button
                   type="button"
                   disabled={
@@ -1781,14 +1872,25 @@ export default function DonationForm({
                         amount
                       )}`}
                 </button>
+
               </div>
+
             </div>
           )}
+
         </form>
+
       </div>
+
     </div>
   );
 }
+
+/*
+|--------------------------------------------------------------------------
+| SUMMARY
+|--------------------------------------------------------------------------
+*/
 
 function Summary({
   label,
@@ -1799,6 +1901,7 @@ function Summary({
 }) {
   return (
     <div className="flex justify-between gap-5 text-sm">
+
       <span className="text-gray-400">
         {label}
       </span>
@@ -1806,6 +1909,7 @@ function Summary({
       <span className="font-semibold text-gray-800 text-right">
         {value}
       </span>
+
     </div>
   );
 }

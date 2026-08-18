@@ -11,7 +11,6 @@ interface AdminSidebarProps {
   activeMenu: string
   onMenuChange: (menu: string) => void
   onLogout: () => void
- 
 }
 
 type AdminRole =
@@ -27,9 +26,11 @@ const roleMenus: Record<AdminRole, string[]> = {
     'program',
     'berita',
     'artikel',
+    'banner',
     'publikasi',
     'tentang-kami',
     'users',
+    'laporan',
     'pengaturan',
   ],
 
@@ -39,6 +40,7 @@ const roleMenus: Record<AdminRole, string[]> = {
     'program',
     'berita',
     'artikel',
+    'banner',
     'publikasi',
     'tentang-kami',
   ],
@@ -54,7 +56,6 @@ export default function AdminSidebar({
   onMenuChange,
   onLogout,
 }: AdminSidebarProps) {
-
   /*
   |--------------------------------------------------------------------------
   | Ambil user dari localStorage
@@ -107,11 +108,7 @@ export default function AdminSidebar({
         bg-white
       "
     >
-
-      {/* ================================================================
-          LOGO
-      ================================================================= */}
-
+      {/* LOGO */}
       <div className="flex h-[62px] items-center justify-center border-b border-[#F3DEC8] px-4">
         <img
           src={logo}
@@ -120,38 +117,26 @@ export default function AdminSidebar({
         />
       </div>
 
-      {/* ================================================================
-          USER
-      ================================================================= */}
-
+      {/* USER */}
       <SidebarUser
         name={user?.name ?? 'Administrator'}
         role={role ?? 'Administrator'}
         photo={user?.photo ?? null}
       />
 
-      {/* ================================================================
-          MENU
-      ================================================================= */}
-
+      {/* MENU */}
       <div className="flex-1 overflow-y-auto px-3 py-5">
-
         <SidebarMenu
           activeMenu={activeMenu}
           onMenuChange={onMenuChange}
           allowedMenus={allowedMenus}
         />
-
       </div>
 
-      {/* ================================================================
-          FOOTER
-      ================================================================= */}
-
+      {/* FOOTER */}
       <SidebarFooter
         onLogout={onLogout}
       />
-
     </aside>
   )
 }

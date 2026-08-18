@@ -136,9 +136,9 @@ export default function App() {
   */
 
   const getPathForPage = (
-    p: NavPage
+    targetPage: NavPage
   ): string => {
-    switch (p) {
+    switch (targetPage) {
       case 'home':
         return '/'
 
@@ -179,6 +179,252 @@ export default function App() {
         return '/'
     }
   }
+
+  /*
+  |--------------------------------------------------------------------------
+  | INITIAL URL / DIRECT ACCESS
+  |--------------------------------------------------------------------------
+  */
+
+  useEffect(() => {
+    const pathname =
+      window.location.pathname
+
+    const search =
+      window.location.search
+
+    /*
+    |--------------------------------------------------------------------------
+    | DONASI / MIDTRANS RETURN
+    |--------------------------------------------------------------------------
+    */
+
+    if (pathname === '/donasi') {
+      setPage('donasi')
+
+      window.history.replaceState(
+        {
+          page: 'donasi',
+        },
+        '',
+        `/donasi${search}`
+      )
+
+      return
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | HOME
+    |--------------------------------------------------------------------------
+    */
+
+    if (
+      pathname === '/' ||
+      pathname === ''
+    ) {
+      setPage('home')
+
+      window.history.replaceState(
+        {
+          page: 'home',
+        },
+        '',
+        '/'
+      )
+
+      return
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | BERITA / ARTIKEL DETAIL
+    |--------------------------------------------------------------------------
+    */
+
+    const contentMatch =
+      pathname.match(
+        /^\/(berita|artikel)\/(\d+)$/
+      )
+
+    if (contentMatch) {
+      const type =
+        contentMatch[1] as
+          | 'berita'
+          | 'artikel'
+
+      const id = Number(
+        contentMatch[2]
+      )
+
+      const content = {
+        type,
+        id,
+      }
+
+      setCurrentContent(content)
+      setPage('baca')
+
+      window.history.replaceState(
+        {
+          page: 'baca',
+          content,
+        },
+        '',
+        pathname + search
+      )
+
+      return
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | CAMPAIGN DETAIL
+    |--------------------------------------------------------------------------
+    */
+
+    const campaignMatch =
+      pathname.match(
+        /^\/campaign\/(\d+)$/
+      )
+
+    if (campaignMatch) {
+      const id = Number(
+        campaignMatch[1]
+      )
+
+      setCurrentCampaignId(id)
+      setCurrentCampaignId(id)
+      setPage('campaign-detail')
+
+      window.history.replaceState(
+        {
+          page: 'campaign-detail',
+          campaignId: id,
+        },
+        '',
+        pathname + search
+      )
+
+      return
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | PILAR DETAIL
+    |--------------------------------------------------------------------------
+    */
+
+    const pillarMatch =
+      pathname.match(
+        /^\/program\/(.+)$/
+      )
+
+    if (pillarMatch) {
+      const slug = decodeURIComponent(
+        pillarMatch[1]
+      )
+
+      const category = slug
+        .split('-')
+        .map(
+          (word) =>
+            word.charAt(0).toUpperCase() +
+            word.slice(1)
+        )
+        .join(' ')
+
+      setCurrentPillar(category)
+      setPage('pilar-detail')
+
+      window.history.replaceState(
+        {
+          page: 'pilar-detail',
+          category,
+        },
+        '',
+        pathname + search
+      )
+
+      return
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | HALAMAN NORMAL
+    |--------------------------------------------------------------------------
+    */
+
+    const pathPage =
+      pathname
+        .replace(/^\/+/, '')
+        .replace(/\/+$/, '') as NavPage
+
+    const validPages: NavPage[] = [
+      'home',
+      'zakat',
+      'donasi',
+      'about',
+      'program',
+      'campaign',
+      'berita',
+      'artikel',
+      'publikasi',
+      'login',
+      'register',
+      'dashboard',
+    ]
+
+    if (
+      validPages.includes(pathPage)
+    ) {
+      if (
+        pathPage === 'dashboard' &&
+        !localStorage.getItem('token')
+      ) {
+        setPage('login')
+
+        window.history.replaceState(
+          {
+            page: 'login',
+          },
+          '',
+          '/login'
+        )
+
+        return
+      }
+
+      setPage(pathPage)
+
+      window.history.replaceState(
+        {
+          page: pathPage,
+        },
+        '',
+        pathname + search
+      )
+
+      return
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | FALLBACK
+    |--------------------------------------------------------------------------
+    */
+
+    setPage('home')
+
+    window.history.replaceState(
+      {
+        page: 'home',
+      },
+      '',
+      '/'
+    )
+  }, [])
+
   /*
   |--------------------------------------------------------------------------
   | GENERAL NAVIGATION
@@ -186,12 +432,41 @@ export default function App() {
   */
 
   const handleNavigate = (
-    p: NavPage
+    targetPage: NavPage
   ) => {
-    console.log(
-      '[DEBUG App] Navigate:',
-      p
-    )
+    /*
+    |--------------------------------------------------------------------------
+    | Dashboard membutuhkan login
+    |--------------------------------------------------------------------------
+    */
+
+    if (targetPage === 'dashboard') {
+      const token =
+        localStorage.getItem('token')
+
+      if (!token) {
+        setPage('login')
+
+        window.history.pushState(
+          {
+            page: 'login',
+          },
+          '',
+          '/login'
+        )
+
+        return
+      }
+
+      sessionStorage.setItem(
+        'adminDashboard',
+        'true'
+      )
+    } else {
+      sessionStorage.removeItem(
+        'adminDashboard'
+      )
+    }
 
     /*
     |--------------------------------------------------------------------------
@@ -199,14 +474,14 @@ export default function App() {
     |--------------------------------------------------------------------------
     */
 
-    if (p !== 'donasi') {
+    if (targetPage !== 'donasi') {
       setZakatAmount(null)
       setSelectedProgram(null)
     }
 
     /*
     |--------------------------------------------------------------------------
-    | Reset article / news state
+    | Reset content
     |--------------------------------------------------------------------------
     */
 
@@ -214,23 +489,25 @@ export default function App() {
 
     /*
     |--------------------------------------------------------------------------
-    | Reset pillar state
+    | Reset pillar
     |--------------------------------------------------------------------------
     */
 
-    if (p !== 'pilar-detail') {
+    if (
+      targetPage !== 'pilar-detail'
+    ) {
       setCurrentPillar(null)
     }
 
     /*
     |--------------------------------------------------------------------------
-    | Reset campaign state
+    | Reset campaign
     |--------------------------------------------------------------------------
     */
 
     if (
-      p !== 'campaign' &&
-      p !== 'campaign-detail'
+      targetPage !== 'campaign' &&
+      targetPage !== 'campaign-detail'
     ) {
       setCurrentCampaignId(null)
     }
@@ -241,7 +518,7 @@ export default function App() {
     |--------------------------------------------------------------------------
     */
 
-    setPage(p)
+    setPage(targetPage)
 
     /*
     |--------------------------------------------------------------------------
@@ -251,10 +528,10 @@ export default function App() {
 
     window.history.pushState(
       {
-        page: p,
+        page: targetPage,
       },
       '',
-      getPathForPage(p)
+      getPathForPage(targetPage)
     )
 
     /*
@@ -265,9 +542,9 @@ export default function App() {
 
     window.scrollTo({
       top: 0,
-      behavior: "smooth",
-    });
-  };
+      behavior: 'smooth',
+    })
+  }
 
   /*
   |--------------------------------------------------------------------------
@@ -278,45 +555,20 @@ export default function App() {
   const handleOpenPillar = (
     category: string
   ) => {
-    console.log(
-      '[DEBUG App] Membuka pilar:',
-      category
-    )
-
-    /*
-    |--------------------------------------------------------------------------
-    | Set state
-    |--------------------------------------------------------------------------
-    */
-
     setCurrentPillar(category)
 
     setCurrentCampaignId(null)
-
     setCurrentContent(null)
 
     setZakatAmount(null)
-
     setSelectedProgram(null)
 
     setPage('pilar-detail')
-
-    /*
-    |--------------------------------------------------------------------------
-    | Buat slug URL
-    |--------------------------------------------------------------------------
-    */
 
     const slug = category
       .toLowerCase()
       .trim()
       .replace(/\s+/g, '-')
-
-    /*
-    |--------------------------------------------------------------------------
-    | Browser history
-    |--------------------------------------------------------------------------
-    */
 
     window.history.pushState(
       {
@@ -326,12 +578,6 @@ export default function App() {
       '',
       `/program/${slug}`
     )
-
-    /*
-    |--------------------------------------------------------------------------
-    | Scroll
-    |--------------------------------------------------------------------------
-    */
 
     window.scrollTo({
       top: 0,
@@ -351,11 +597,8 @@ export default function App() {
     setZakatAmount(amount)
 
     setCurrentContent(null)
-
     setCurrentPillar(null)
-
     setCurrentCampaignId(null)
-
     setSelectedProgram(null)
 
     setPage('donasi')
@@ -383,19 +626,12 @@ export default function App() {
   const handleNavigateToDonasiWithProgram = (
     program: string
   ) => {
-    console.log(
-      '[DEBUG App] Donasi program:',
-      program
-    )
-
     setSelectedProgram(program)
 
     setZakatAmount(null)
 
     setCurrentContent(null)
-
     setCurrentPillar(null)
-
     setCurrentCampaignId(null)
 
     setPage('donasi')
@@ -425,12 +661,6 @@ export default function App() {
     type: 'berita' | 'artikel',
     id: number
   ) => {
-    console.log(
-      '[DEBUG App] Membuka content:',
-      type,
-      id
-    )
-
     const content = {
       type,
       id,
@@ -439,11 +669,9 @@ export default function App() {
     setCurrentContent(content)
 
     setCurrentPillar(null)
-
     setCurrentCampaignId(null)
 
     setZakatAmount(null)
-
     setSelectedProgram(null)
 
     setPage('baca')
@@ -472,40 +700,15 @@ export default function App() {
   const handleOpenCampaign = (
     id: number
   ) => {
-    console.log(
-      '[DEBUG App] Membuka campaign:',
-      id
-    )
-
-    /*
-    |--------------------------------------------------------------------------
-    | Set campaign
-    |--------------------------------------------------------------------------
-    */
-
     setCurrentCampaignId(id)
 
-    /*
-    |--------------------------------------------------------------------------
-    | Campaign detail bukan pillar detail lagi
-    |--------------------------------------------------------------------------
-    */
-
     setCurrentPillar(null)
-
     setCurrentContent(null)
 
     setZakatAmount(null)
-
     setSelectedProgram(null)
 
     setPage('campaign-detail')
-
-    /*
-    |--------------------------------------------------------------------------
-    | Browser history
-    |--------------------------------------------------------------------------
-    */
 
     window.history.pushState(
       {
@@ -515,12 +718,6 @@ export default function App() {
       '',
       `/campaign/${id}`
     )
-
-    /*
-    |--------------------------------------------------------------------------
-    | Scroll
-    |--------------------------------------------------------------------------
-    */
 
     window.scrollTo({
       top: 0,
@@ -535,53 +732,81 @@ export default function App() {
   */
 
   useEffect(() => {
-    const restoreSession = async () => {
-      const token =
-        localStorage.getItem('token')
+    const restoreSession =
+      async () => {
+        const token =
+          localStorage.getItem('token')
 
-      /*
-      |--------------------------------------------------------------------------
-      | Tidak ada token
-      |--------------------------------------------------------------------------
-      */
-
-      if (!token) {
-        setAuthLoading(false)
-        return
-      }
-
-      try {
-        const user =
-          await getProfile()
-
-        localStorage.setItem(
-          'user',
-          JSON.stringify(user)
-        )
-
-        /*
-        |--------------------------------------------------------------------------
-        | Role admin yang diperbolehkan
-        |--------------------------------------------------------------------------
-        */
-
-        const allowedRoles = [
-          'Super Admin',
-          'Admin Donasi',
-          'Admin Konten',
-        ]
-
-        /*
-        |--------------------------------------------------------------------------
-        | Role tidak valid
-        |--------------------------------------------------------------------------
-        */
-
-        if (
-          !allowedRoles.includes(
-            user.role
+        if (!token) {
+          localStorage.removeItem(
+            'user'
           )
-        ) {
+
+          sessionStorage.removeItem(
+            'adminDashboard'
+          )
+
+          setAuthLoading(false)
+
+          return
+        }
+
+        try {
+          const user =
+            await getProfile()
+
+          const allowedRoles = [
+            'Super Admin',
+            'Admin Donasi',
+            'Admin Konten',
+          ]
+
+          if (
+            !user.role ||
+            !allowedRoles.includes(
+              user.role
+            )
+          ) {
+            localStorage.removeItem(
+              'token'
+            )
+
+            localStorage.removeItem(
+              'user'
+            )
+
+            sessionStorage.removeItem(
+              'adminDashboard'
+            )
+
+            setPage('login')
+
+            return
+          }
+
+          localStorage.setItem(
+            'user',
+            JSON.stringify(user)
+          )
+
+          const shouldOpenDashboard =
+            sessionStorage.getItem(
+              'adminDashboard'
+            ) === 'true'
+
+          if (
+            shouldOpenDashboard &&
+            window.location.pathname !==
+              '/donasi'
+          ) {
+            setPage('dashboard')
+          }
+        } catch (error) {
+          console.error(
+            'Session tidak valid:',
+            error
+          )
+
           localStorage.removeItem(
             'token'
           )
@@ -594,48 +819,22 @@ export default function App() {
             'adminDashboard'
           )
 
-          setPage('login')
+          /*
+          |--------------------------------------------------------------------------
+          | Jangan ganggu return Midtrans
+          |--------------------------------------------------------------------------
+          */
 
-          return
+          if (
+            window.location.pathname !==
+            '/donasi'
+          ) {
+            setPage('login')
+          }
+        } finally {
+          setAuthLoading(false)
         }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Restore dashboard
-        |--------------------------------------------------------------------------
-        */
-
-        const shouldOpenDashboard =
-          sessionStorage.getItem(
-            'adminDashboard'
-          ) === 'true'
-
-        if (shouldOpenDashboard) {
-          setPage('dashboard')
-        }
-      } catch (error) {
-        console.error(
-          'Session tidak valid:',
-          error
-        )
-
-        localStorage.removeItem(
-          'token'
-        )
-
-        localStorage.removeItem(
-          'user'
-        )
-
-        sessionStorage.removeItem(
-          'adminDashboard'
-        )
-
-        setPage('login')
-      } finally {
-        setAuthLoading(false)
       }
-    }
 
     restoreSession()
   }, [])
@@ -653,28 +852,14 @@ export default function App() {
       const state =
         event.state
 
-      console.log(
-        '[DEBUG App] PopState:',
-        state
-      )
-
-      /*
-      |--------------------------------------------------------------------------
-      | Tidak ada state
-      |--------------------------------------------------------------------------
-      */
-
       if (!state?.page) {
         setPage('home')
 
         setCurrentContent(null)
-
         setCurrentPillar(null)
-
         setCurrentCampaignId(null)
 
         setZakatAmount(null)
-
         setSelectedProgram(null)
 
         window.scrollTo({
@@ -685,24 +870,34 @@ export default function App() {
         return
       }
 
-      /*
-      |--------------------------------------------------------------------------
-      | PAGE
-      |--------------------------------------------------------------------------
-      */
-
-      setPage(
+      const targetPage =
         state.page as NavPage
-      )
 
       /*
       |--------------------------------------------------------------------------
-      | NEWS / ARTICLE
+      | Dashboard protection
       |--------------------------------------------------------------------------
       */
 
       if (
-        state.page === 'baca' &&
+        targetPage === 'dashboard' &&
+        !localStorage.getItem('token')
+      ) {
+        setPage('login')
+
+        return
+      }
+
+      setPage(targetPage)
+
+      /*
+      |--------------------------------------------------------------------------
+      | Content
+      |--------------------------------------------------------------------------
+      */
+
+      if (
+        targetPage === 'baca' &&
         state.content
       ) {
         setCurrentContent(
@@ -714,12 +909,12 @@ export default function App() {
 
       /*
       |--------------------------------------------------------------------------
-      | PILAR
+      | Pilar
       |--------------------------------------------------------------------------
       */
 
       if (
-        state.page === 'pilar-detail'
+        targetPage === 'pilar-detail'
       ) {
         setCurrentPillar(
           state.category ?? null
@@ -730,12 +925,12 @@ export default function App() {
 
       /*
       |--------------------------------------------------------------------------
-      | CAMPAIGN
+      | Campaign
       |--------------------------------------------------------------------------
       */
 
       if (
-        state.page ===
+        targetPage ===
         'campaign-detail'
       ) {
         const campaignId =
@@ -756,12 +951,12 @@ export default function App() {
 
       /*
       |--------------------------------------------------------------------------
-      | DONATION
+      | Donation
       |--------------------------------------------------------------------------
       */
 
       if (
-        state.page !== 'donasi'
+        targetPage !== 'donasi'
       ) {
         setZakatAmount(null)
         setSelectedProgram(null)
@@ -799,12 +994,6 @@ export default function App() {
   */
 
   useEffect(() => {
-    /*
-    |--------------------------------------------------------------------------
-    | Jangan menimpa history jika sudah ada
-    |--------------------------------------------------------------------------
-    */
-
     if (!window.history.state) {
       window.history.replaceState(
         {
@@ -823,14 +1012,12 @@ export default function App() {
   */
 
   const noFooterPages: NavPage[] = [
-    "login",
-    "dashboard",
-  ];
+    'login',
+    'dashboard',
+  ]
 
   const showFooter =
-    !noFooterPages.includes(
-      page
-    )
+    !noFooterPages.includes(page)
 
   /*
   |--------------------------------------------------------------------------
@@ -903,7 +1090,7 @@ export default function App() {
 
       /*
       |--------------------------------------------------------------------------
-      | PROGRAM / 6 PILAR
+      | PROGRAM
       |--------------------------------------------------------------------------
       */
 
@@ -963,7 +1150,7 @@ export default function App() {
 
       /*
       |--------------------------------------------------------------------------
-      | CAMPAIGN LIST
+      | CAMPAIGN
       |--------------------------------------------------------------------------
       */
 
@@ -1050,15 +1237,21 @@ export default function App() {
         if (!currentContent) {
           return (
             <HomePage
-              onNavigate={handleNavigate}
+              onNavigate={
+                handleNavigate
+              }
             />
           )
         }
 
         return (
           <BacaPage
-            content={currentContent}
-            onNavigate={handleNavigate}
+            content={
+              currentContent
+            }
+            onNavigate={
+              handleNavigate
+            }
           />
         )
 
@@ -1133,13 +1326,7 @@ export default function App() {
           />
         )
     }
-  };
-
-  /*
-  |--------------------------------------------------------------------------
-  | Auth Loading
-  |--------------------------------------------------------------------------
-  */
+  }
 
   /*
   |--------------------------------------------------------------------------
@@ -1150,6 +1337,7 @@ export default function App() {
   if (authLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#FFF8F2]">
+
         <div className="text-center">
 
           <div className="mx-auto mb-3 h-8 w-8 animate-spin rounded-full border-4 border-[#F58220] border-t-transparent" />
@@ -1159,8 +1347,9 @@ export default function App() {
           </p>
 
         </div>
+
       </div>
-    );
+    )
   }
 
   /*
