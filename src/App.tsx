@@ -179,7 +179,6 @@ export default function App() {
         return '/'
     }
   }
-
   /*
   |--------------------------------------------------------------------------
   | GENERAL NAVIGATION
@@ -266,9 +265,9 @@ export default function App() {
 
     window.scrollTo({
       top: 0,
-      behavior: 'smooth',
-    })
-  }
+      behavior: "smooth",
+    });
+  };
 
   /*
   |--------------------------------------------------------------------------
@@ -824,10 +823,9 @@ export default function App() {
   */
 
   const noFooterPages: NavPage[] = [
-    'login',
-    'register',
-    'dashboard',
-  ]
+    "login",
+    "dashboard",
+  ];
 
   const showFooter =
     !noFooterPages.includes(
@@ -1049,26 +1047,18 @@ export default function App() {
       */
 
       case 'baca':
-        if (
-          !currentContent
-        ) {
+        if (!currentContent) {
           return (
             <HomePage
-              onNavigate={
-                handleNavigate
-              }
+              onNavigate={handleNavigate}
             />
           )
         }
 
         return (
           <BacaPage
-            type={
-              currentContent.type
-            }
-            id={
-              currentContent.id
-            }
+            content={currentContent}
+            onNavigate={handleNavigate}
           />
         )
 
@@ -1143,7 +1133,13 @@ export default function App() {
           />
         )
     }
-  }
+  };
+
+  /*
+  |--------------------------------------------------------------------------
+  | Auth Loading
+  |--------------------------------------------------------------------------
+  */
 
   /*
   |--------------------------------------------------------------------------
@@ -1164,7 +1160,7 @@ export default function App() {
 
         </div>
       </div>
-    )
+    );
   }
 
   /*

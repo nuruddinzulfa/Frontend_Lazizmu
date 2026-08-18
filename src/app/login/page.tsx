@@ -1,129 +1,128 @@
-import { useState } from 'react'
-import type { NavPage } from '../../App'
-import { login } from "@/service/auth.service";
-
+import { useState } from "react";
+import type { NavPage } from "../../App";
+import { authService } from "@/services/auth.service";
 
 interface LoginPageProps {
-  onNavigate?: (page: NavPage) => void
+  onNavigate?: (page: NavPage) => void;
 }
 
-export default function LoginPage({ onNavigate }: LoginPageProps) {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState('')
+export default function LoginPage({
+  onNavigate,
+}: LoginPageProps) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
-const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (
+    e: React.FormEvent
+  ) => {
     e.preventDefault();
 
     setError("");
 
-    if (!email || !password) {
-        setError("Email dan kata sandi wajib diisi.");
-        return;
+    if (!email.trim() || !password) {
+      setError(
+        "Email dan kata sandi wajib diisi."
+      );
+      return;
     }
 
     try {
-        setIsLoading(true);
+      setIsLoading(true);
 
-        const result = await login({
-            email,
-            password,
-        });
+      const result = await authService.login(
+        email.trim(),
+        password
+      );
 
-        console.log("LOGIN RESPONSE:", result);
+      const user = result.data.user;
 
-        const user = result.data.user;
-        const role = user.role;
+      const allowedRoles = [
+        "Super Admin",
+        "Admin Konten",
+        "Admin Donasi",
+      ];
 
-        /*
-        |--------------------------------------------------------------------------
-        | Simpan session
-        |--------------------------------------------------------------------------
-        */
-
-        localStorage.setItem(
-  "token",
-  result.data.token
-)
-
-localStorage.setItem(
-  "user",
-  JSON.stringify(result.data.user)
-)
-
-sessionStorage.setItem(
-  "adminDashboard",
-  "true"
-)
-
-onNavigate?.("dashboard")
-        /*
-        |--------------------------------------------------------------------------
-        | Cek Role
-        |--------------------------------------------------------------------------
-        */
-
-        if (role === "Super Admin") {
-            onNavigate?.("dashboard");
-            return;
-        }
-
-        if (role === "Admin Konten") {
-            onNavigate?.("dashboard");
-            return;
-        }
-
-        if (role === "Admin Donasi") {
-            onNavigate?.("dashboard");
-            return;
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Role tidak dikenal
-        |--------------------------------------------------------------------------
-        */
-
+      if (
+        !user.role ||
+        !allowedRoles.includes(user.role)
+      ) {
         localStorage.removeItem("token");
-        localStorage.removeItem("user");
 
         setError(
-            "Akun Anda tidak memiliki akses ke dashboard."
+          "Akun Anda tidak memiliki akses ke dashboard."
         );
 
+        return;
+      }
+
+      localStorage.setItem(
+        "user",
+        JSON.stringify(user)
+      );
+
+      sessionStorage.setItem(
+        "adminDashboard",
+        "true"
+      );
+
+      onNavigate?.("dashboard");
     } catch (err) {
-        console.error("LOGIN ERROR:", err);
+      console.error("LOGIN ERROR:", err);
 
-        setError(
-            err instanceof Error
-                ? err.message
-                : "Login gagal."
-        );
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Login gagal."
+      );
     } finally {
-        setIsLoading(false);
+      setIsLoading(false);
     }
-};
-
-    // setIsLoading(true)
-    // // await new Promise(r => setTimeout(r, 1500))
-    // setIsLoading(false)
-    // setError('Email atau kata sandi tidak valid.')
-  
+  };
 
   return (
     <div className="min-h-screen bg-[#FFF8F2] flex items-center justify-center px-4 py-24">
       <div className="w-full max-w-md bg-white border border-[#F3DEC8] rounded-2xl shadow-sm p-8">
-        {/* Logo */}
         <div className="text-center mb-8">
           <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#F58220] to-[#D96D0A] flex items-center justify-center mx-auto mb-3">
-            <svg viewBox="0 0 40 40" fill="none" className="w-8 h-8">
-              <path d="M20 6 L26 14 L34 14 L28 20 L31 29 L20 23 L9 29 L12 20 L6 14 L14 14 Z" fill="white" opacity="0.9" />
+            <svg
+              viewBox="0 0 40 40"
+              fill="none"
+              className="w-8 h-8"
+            >
+              <path
+                d="M20 6 L26 14 L34 14 L28 20 L31 29 L20 23 L9 29 L12 20 L6 14 L14 14 Z"
+                fill="white"
+                opacity="0.9"
+              />
             </svg>
           </div>
-          <div className="text-lg font-bold text-gray-900" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>LAZISMU Pemalang</div>
-          <h1 className="text-2xl font-bold text-gray-900 mt-4" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Masuk ke Akun Anda</h1>
-          <p className="text-sm text-gray-500 mt-1">Masukkan kredensial Anda untuk melanjutkan</p>
+
+          <div
+            className="text-lg font-bold text-gray-900"
+            style={{
+              fontFamily:
+                "'Plus Jakarta Sans', sans-serif",
+            }}
+          >
+            LAZISMU Pemalang
+          </div>
+
+          <h1
+            className="text-2xl font-bold text-gray-900 mt-4"
+            style={{
+              fontFamily:
+                "'Plus Jakarta Sans', sans-serif",
+            }}
+          >
+            Masuk ke Akun Anda
+          </h1>
+
+          <p className="text-sm text-gray-500 mt-1">
+            Masukkan kredensial Anda untuk
+            melanjutkan
+          </p>
         </div>
 
         {error && (
@@ -132,30 +131,44 @@ onNavigate?.("dashboard")
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-5"
+        >
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">Email</label>
+            <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+              Email
+            </label>
+
             <input
               type="email"
               value={email}
-              onChange={e => setEmail(e.target.value)}
+              onChange={(e) =>
+                setEmail(e.target.value)
+              }
               placeholder="email@anda.com"
+              autoComplete="email"
               className="w-full px-4 py-3 border border-[#F3DEC8] rounded-xl text-sm focus:outline-none focus:border-[#F58220] focus:ring-2 focus:ring-[#FEF0E4] transition-all"
             />
           </div>
+
           <div>
-            <div className="flex items-center justify-between mb-1.5">
-              <label className="text-sm font-semibold text-gray-700">Kata Sandi</label>
-              <button type="button" className="text-xs text-[#F58220] hover:underline">Lupa Password?</button>
-            </div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+              Kata Sandi
+            </label>
+
             <input
               type="password"
               value={password}
-              onChange={e => setPassword(e.target.value)}
+              onChange={(e) =>
+                setPassword(e.target.value)
+              }
               placeholder="••••••••"
+              autoComplete="current-password"
               className="w-full px-4 py-3 border border-[#F3DEC8] rounded-xl text-sm focus:outline-none focus:border-[#F58220] focus:ring-2 focus:ring-[#FEF0E4] transition-all"
             />
           </div>
+
           <button
             type="submit"
             disabled={isLoading}
@@ -163,21 +176,35 @@ onNavigate?.("dashboard")
           >
             {isLoading ? (
               <span className="flex items-center justify-center gap-2">
-                <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
+                <svg
+                  className="w-4 h-4 animate-spin"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  />
+
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                  />
+                </svg>
+
                 Memproses...
               </span>
-            ) : 'Masuk'}
+            ) : (
+              "Masuk"
+            )}
           </button>
         </form>
-
-        <p className="text-center text-sm text-gray-500 mt-6">
-          Belum punya akun?{' '}
-          <button onClick={() => onNavigate?.('register')} className="text-[#F58220] font-semibold hover:underline">
-            Daftar
-          </button>
-        </p>
       </div>
     </div>
-  )
+  );
 }
-

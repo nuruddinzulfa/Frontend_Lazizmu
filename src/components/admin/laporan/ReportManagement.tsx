@@ -7,7 +7,6 @@ import {
   updateReport,
   deleteReport,
   getReportFileUrl,
-  getReportThumbnailUrl,
   type FinancialReport,
   type FinancialReportPayload,
   type PublicationType,
@@ -61,7 +60,6 @@ export default function ReportManagement() {
     year: number
     description: string
     status: 'draft' | 'published'
-    thumbnail: File | null
     file: File | null
   }>({
     title: '',
@@ -69,7 +67,6 @@ export default function ReportManagement() {
     year: new Date().getFullYear(),
     description: '',
     status: 'published',
-    thumbnail: null,
     file: null,
   })
 
@@ -186,7 +183,6 @@ export default function ReportManagement() {
       year: new Date().getFullYear(),
       description: '',
       status: 'published',
-      thumbnail: null,
       file: null,
     })
 
@@ -211,7 +207,6 @@ export default function ReportManagement() {
       year: report.year,
       description: report.description || '',
       status: report.status,
-      thumbnail: null,
       file: null,
     })
 
@@ -253,44 +248,6 @@ export default function ReportManagement() {
         field === 'year'
           ? Number(value)
           : value,
-    }))
-  }
-
-  /*
-  |--------------------------------------------------------------------------
-  | THUMBNAIL
-  |--------------------------------------------------------------------------
-  */
-
-  const handleThumbnailChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const file =
-      event.target.files?.[0] || null
-
-    if (file) {
-      const allowedTypes = [
-        'image/jpeg',
-        'image/png',
-        'image/jpg',
-        'image/webp',
-      ]
-
-      if (!allowedTypes.includes(file.type)) {
-        setError(
-          'Thumbnail harus berupa JPG, JPEG, PNG, atau WEBP.'
-        )
-
-        event.target.value = ''
-        return
-      }
-    }
-
-    setError('')
-
-    setForm((current) => ({
-      ...current,
-      thumbnail: file,
     }))
   }
 
@@ -371,10 +328,8 @@ export default function ReportManagement() {
         type: form.type,
         year: form.year,
         description:
-          form.description.trim() ||
-          undefined,
+          form.description.trim() || undefined,
         status: form.status,
-        thumbnail: form.thumbnail,
         file: form.file,
       }
 
@@ -510,9 +465,7 @@ export default function ReportManagement() {
   return (
     <div className="space-y-5">
 
-      {/* =========================================================
-          HEADER
-      ========================================================== */}
+      {/* HEADER */}
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 
@@ -528,8 +481,7 @@ export default function ReportManagement() {
           </h1>
 
           <p className="mt-1 text-sm text-gray-500">
-            Kelola laporan dan dokumen publikasi
-            LAZISMU.
+            Kelola laporan publikasi LAZISMU.
           </p>
         </div>
 
@@ -547,9 +499,7 @@ export default function ReportManagement() {
 
       </div>
 
-      {/* =========================================================
-          ERROR
-      ========================================================== */}
+      {/* ERROR */}
 
       {error && (
         <div className="flex items-start justify-between gap-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
@@ -567,9 +517,7 @@ export default function ReportManagement() {
         </div>
       )}
 
-      {/* =========================================================
-          STATISTICS
-      ========================================================== */}
+      {/* STATISTICS */}
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
 
@@ -623,9 +571,7 @@ export default function ReportManagement() {
 
       </div>
 
-      {/* =========================================================
-          SUMMARY
-      ========================================================== */}
+      {/* SUMMARY */}
 
       <div className="grid gap-4 lg:grid-cols-2">
 
@@ -733,9 +679,7 @@ export default function ReportManagement() {
 
       </div>
 
-      {/* =========================================================
-          FILTER
-      ========================================================== */}
+      {/* FILTER */}
 
       <div className="rounded-2xl border border-[#F3DEC8] bg-white p-5 shadow-sm">
 
@@ -804,9 +748,7 @@ export default function ReportManagement() {
         </div>
       </div>
 
-      {/* =========================================================
-          TABLE
-      ========================================================== */}
+      {/* TABLE */}
 
       <div className="overflow-hidden rounded-2xl border border-[#F3DEC8] bg-white shadow-sm">
 
@@ -832,7 +774,7 @@ export default function ReportManagement() {
 
         <div className="overflow-x-auto">
 
-          <table className="w-full min-w-[1100px] text-sm">
+          <table className="w-full min-w-[1000px] text-sm">
 
             <thead className="bg-gray-50">
               <tr>
@@ -899,21 +841,9 @@ export default function ReportManagement() {
 
                           <div className="flex items-center gap-3">
 
-                            {report.thumbnail ? (
-                              <img
-                                src={
-                                  getReportThumbnailUrl(
-                                    report.thumbnail
-                                  ) || ''
-                                }
-                                alt=""
-                                className="h-10 w-10 rounded-lg object-cover"
-                              />
-                            ) : (
-                              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-red-50 text-xs font-bold text-red-500">
-                                PDF
-                              </div>
-                            )}
+                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-red-50 text-xs font-bold text-red-500">
+                              PDF
+                            </div>
 
                             <div className="min-w-0">
 
@@ -1071,9 +1001,7 @@ export default function ReportManagement() {
         </div>
       </div>
 
-      {/* =========================================================
-          MODAL CREATE / EDIT
-      ========================================================== */}
+      {/* MODAL CREATE / EDIT */}
 
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
@@ -1249,27 +1177,6 @@ export default function ReportManagement() {
                   placeholder="Deskripsi singkat publikasi..."
                   className="w-full resize-none rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-[#F58220] focus:ring-1 focus:ring-[#F58220]"
                 />
-              </div>
-
-              {/* THUMBNAIL */}
-
-              <div>
-                <label className="mb-2 block text-sm font-medium text-gray-700">
-                  Thumbnail / Cover
-                </label>
-
-                <input
-                  type="file"
-                  accept="image/png,image/jpeg,image/jpg,image/webp"
-                  onChange={
-                    handleThumbnailChange
-                  }
-                  className="block w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-600 file:mr-4 file:rounded-lg file:border-0 file:bg-orange-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-[#F58220]"
-                />
-
-                <p className="mt-1 text-xs text-gray-400">
-                  JPG, JPEG, PNG atau WEBP.
-                </p>
               </div>
 
               {/* PDF */}

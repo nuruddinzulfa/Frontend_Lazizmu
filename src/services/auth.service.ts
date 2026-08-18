@@ -1,32 +1,78 @@
-import { api } from './api'
-import type { AuthResponse, User } from '../types'
+import { api } from "./api";
+
+type Role =
+  | "Super Admin"
+  | "Admin Konten"
+  | "Admin Donasi";
+
+export interface User {
+  id: number;
+  name: string;
+  email: string;
+  phone: string | null;
+  photo: string | null;
+  status: "active" | "inactive";
+  role: Role | null;
+}
+
+interface LoginResponse {
+  success: boolean;
+  message: string;
+  data: {
+    token: string;
+    user: User;
+  };
+}
+
+interface ProfileResponse {
+  success: boolean;
+  message: string;
+  data: User;
+}
+
+interface LogoutResponse {
+  success: boolean;
+  message: string;
+}
 
 export const authService = {
-  async login(email: string, password: string): Promise<AuthResponse> {
-    const res = await api.post<AuthResponse>('/auth/login', { email, password })
-    localStorage.setItem('lazismu_token', res.token)
-    localStorage.setItem('lazismu_refresh_token', res.refreshToken)
-    return res
-  },
+  async login(
+    email: string,
+    password: string
+  ): Promise<LoginResponse> {
+    const res = await api.post<LoginResponse>(
+      "/admin/login",
+      {
+        email,
+        password,
+      }
+    );
 
-  async register(data: { name: string; email: string; phone: string; password: string }): Promise<AuthResponse> {
-    const res = await api.post<AuthResponse>('/auth/register', data)
-    localStorage.setItem('lazismu_token', res.token)
-    return res
-  },
+    localStorage.setItem(
+      "token",
+      res.data.token
+    );
 
-  logout(): void {
-    localStorage.removeItem('lazismu_token')
-    localStorage.removeItem('lazismu_refresh_token')
+    return res;
   },
 
   async getCurrentUser(): Promise<User> {
-    return api.get<User>('/auth/me')
+    const res =
+      await api.get<ProfileResponse>(
+        "/admin/profile"
+      );
+
+    return res.data;
   },
 
-  async refreshToken(): Promise<AuthResponse> {
-    const refresh = localStorage.getItem('lazismu_refresh_token')
-    return api.post<AuthResponse>('/auth/refresh', { refreshToken: refresh })
+  async logout(): Promise<void> {
+    try {
+      await api.post<LogoutResponse>(
+        "/admin/logout",
+        {}
+      );
+    } finally {
+      localStorage.removeItem("token");
+    }
   },
-}
-
+};

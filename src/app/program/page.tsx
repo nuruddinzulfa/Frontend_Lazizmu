@@ -8,6 +8,12 @@ interface ProgramPageProps {
   onOpenPillar?: (category: string) => void
 }
 
+/*
+|--------------------------------------------------------------------------
+| DATA 6 PILAR
+|--------------------------------------------------------------------------
+*/
+
 const pillars = [
   {
     icon: '📚',
@@ -41,12 +47,26 @@ const pillars = [
   },
 ]
 
+/*
+|--------------------------------------------------------------------------
+| COMPONENT
+|--------------------------------------------------------------------------
+*/
+
 export default function ProgramPage({
   onNavigate,
   onDonateProgram,
   onOpenPillar,
 }: ProgramPageProps) {
-  const handleOpenPillar = (category: string) => {
+  /*
+  |--------------------------------------------------------------------------
+  | OPEN PILAR
+  |--------------------------------------------------------------------------
+  */
+
+  const handleOpenPillar = (
+    category: string
+  ) => {
     console.log(
       '[DEBUG ProgramPage] Pilar diklik:',
       category
@@ -56,34 +76,47 @@ export default function ProgramPage({
       console.warn(
         '[DEBUG ProgramPage] onOpenPillar belum diberikan dari App.tsx'
       )
+
       return
     }
 
     onOpenPillar(category)
   }
 
+  /*
+  |--------------------------------------------------------------------------
+  | RENDER
+  |--------------------------------------------------------------------------
+  */
+
   return (
     <div className="min-h-screen bg-[#FFF8F2]">
 
-      {/* =====================================================
+      {/* ============================================================
           HEADER
-      ===================================================== */}
+      ============================================================ */}
 
-      <div className="bg-gradient-to-br from-[#F58220] to-[#D96D0A] text-white py-16 pt-32">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="bg-gradient-to-br from-[#F58220] to-[#D96D0A] py-16 pt-32 text-white">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
-          <div className="text-sm mb-3 opacity-80">
+          {/* Breadcrumb */}
+
+          <div className="mb-3 text-sm opacity-80">
             <span>Beranda</span>
 
             <span className="mx-2">
               /
             </span>
 
-            <span>Program & Kampanye</span>
+            <span>
+              Program & Kampanye
+            </span>
           </div>
 
+          {/* Title */}
+
           <h1
-            className="text-3xl sm:text-4xl lg:text-5xl font-bold"
+            className="text-3xl font-bold sm:text-4xl lg:text-5xl"
             style={{
               fontFamily:
                 "'Plus Jakarta Sans', sans-serif",
@@ -92,7 +125,9 @@ export default function ProgramPage({
             Program & Kampanye
           </h1>
 
-          <p className="mt-4 text-lg opacity-90 max-w-2xl">
+          {/* Description */}
+
+          <p className="mt-4 max-w-2xl text-lg leading-relaxed opacity-90">
             Mengenal pilar program LAZISMU Pemalang
             dan berbagai bentuk kebaikan yang
             diwujudkan melalui program serta kampanye
@@ -100,17 +135,19 @@ export default function ProgramPage({
           </p>
 
         </div>
-      </div>
+      </section>
 
-      {/* =====================================================
+      {/* ============================================================
           6 PILAR
-      ===================================================== */}
+      ============================================================ */}
 
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
 
-        <div className="text-center mb-10">
+        {/* Section Header */}
 
-          <div className="inline-flex items-center gap-2 bg-[#F58220] text-white px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wide mb-4">
+        <div className="mb-10 text-center">
+
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-[#F58220] px-4 py-1.5 text-xs font-bold uppercase tracking-wide text-white">
             Pilar Utama
           </div>
 
@@ -124,7 +161,7 @@ export default function ProgramPage({
             6 Pilar Program Unggulan
           </h2>
 
-          <p className="mt-3 text-gray-500 max-w-xl mx-auto text-sm leading-relaxed">
+          <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-gray-500">
             Setiap pilar mewakili komitmen LAZISMU
             Pemalang dalam memberdayakan masyarakat
             secara menyeluruh dan berkelanjutan.
@@ -132,39 +169,44 @@ export default function ProgramPage({
 
         </div>
 
-        {/* =====================================================
+        {/* ==========================================================
             PILLAR CARDS
-        ===================================================== */}
+        ========================================================== */}
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
 
-          {pillars.map((pilar) => (
-
+          {pillars.map((pillar) => (
             <button
-              key={pilar.name}
+              key={pillar.name}
               type="button"
               onClick={() =>
-                handleOpenPillar(pilar.name)
+                handleOpenPillar(
+                  pillar.name
+                )
               }
-              className="group w-full text-left bg-white border border-[#F3DEC8] rounded-2xl p-6 shadow-sm hover:shadow-md hover:border-[#F58220] transition-all duration-200"
+              className="group w-full rounded-2xl border border-[#F3DEC8] bg-white p-6 text-left shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-[#F58220] hover:shadow-md"
             >
 
-              {/* Icon */}
+              {/* Card Header */}
 
               <div className="flex items-start justify-between">
 
-                <div className="inline-flex items-center justify-center w-14 h-14 bg-[#FEF0E4] rounded-xl text-2xl group-hover:bg-[#F58220] transition-colors duration-200">
-                  <span className="group-hover:scale-110 transition-transform">
-                    {pilar.icon}
+                {/* Icon */}
+
+                <div className="inline-flex h-14 w-14 items-center justify-center rounded-xl bg-[#FEF0E4] text-2xl transition-colors duration-200 group-hover:bg-[#F58220]">
+
+                  <span className="transition-transform duration-200 group-hover:scale-110">
+                    {pillar.icon}
                   </span>
+
                 </div>
 
                 {/* Arrow */}
 
-                <div className="flex items-center justify-center w-9 h-9 rounded-full bg-[#FFF8F2] text-[#F58220] group-hover:bg-[#F58220] group-hover:text-white transition-all">
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#FFF8F2] text-[#F58220] transition-all group-hover:bg-[#F58220] group-hover:text-white">
 
                   <svg
-                    className="w-4 h-4"
+                    className="h-4 w-4"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -184,29 +226,31 @@ export default function ProgramPage({
               {/* Title */}
 
               <h3
-                className="mt-5 font-bold text-gray-900 text-base"
+                className="mt-5 text-base font-bold text-gray-900"
                 style={{
                   fontFamily:
                     "'Plus Jakarta Sans', sans-serif",
                 }}
               >
-                {pilar.name}
+                {pillar.name}
               </h3>
 
               {/* Description */}
 
-              <p className="mt-2 text-sm text-gray-500 leading-relaxed">
-                {pilar.desc}
+              <p className="mt-2 text-sm leading-relaxed text-gray-500">
+                {pillar.desc}
               </p>
 
               {/* Action */}
 
               <div className="mt-5 flex items-center gap-2 text-sm font-semibold text-[#F58220]">
 
-                Lihat Program
+                <span>
+                  Lihat Program
+                </span>
 
                 <svg
-                  className="w-4 h-4 group-hover:translate-x-1 transition-transform"
+                  className="h-4 w-4 transition-transform group-hover:translate-x-1"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -229,22 +273,21 @@ export default function ProgramPage({
               </div>
 
             </button>
-
           ))}
 
         </div>
 
       </section>
 
-      {/* =====================================================
+      {/* ============================================================
           INFO
-      ===================================================== */}
+      ============================================================ */}
 
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
+      <section className="mx-auto max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
 
-        <div className="rounded-2xl bg-white border border-[#F3DEC8] p-6 sm:p-8">
+        <div className="rounded-2xl border border-[#F3DEC8] bg-white p-6 sm:p-8">
 
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-5">
+          <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
 
             <div>
 
@@ -263,7 +306,7 @@ export default function ProgramPage({
                 program dan kampanye nyata.
               </h3>
 
-              <p className="mt-2 text-sm text-gray-500 max-w-2xl leading-relaxed">
+              <p className="mt-2 max-w-2xl text-sm leading-relaxed text-gray-500">
                 Pilih salah satu pilar untuk melihat
                 program yang dijalankan serta kampanye
                 yang sedang berlangsung di dalamnya.

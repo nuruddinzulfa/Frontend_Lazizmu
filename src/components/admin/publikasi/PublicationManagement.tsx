@@ -8,7 +8,6 @@ import {
   updateReport,
   deleteReport,
   getReportFileUrl,
-  getReportThumbnailUrl,
   type FinancialReport,
   type FinancialReportPayload,
 } from '@/service/report.service'
@@ -30,7 +29,6 @@ interface FormState {
   year: string
   description: string
   status: 'draft' | 'published'
-  thumbnail: File | null
   file: File | null
 }
 
@@ -40,12 +38,13 @@ const initialForm: FormState = {
   year: new Date().getFullYear().toString(),
   description: '',
   status: 'published',
-  thumbnail: null,
   file: null,
 }
 
 export default function PublicationManagement() {
-  const [publications, setPublications] = useState<FinancialReport[]>([])
+  const [publications, setPublications] = useState<
+    FinancialReport[]
+  >([])
 
   const [search, setSearch] = useState('')
   const [typeFilter, setTypeFilter] = useState('Semua')
@@ -58,10 +57,12 @@ export default function PublicationManagement() {
   const [success, setSuccess] = useState('')
 
   const [isModalOpen, setIsModalOpen] = useState(false)
+
   const [editingReport, setEditingReport] =
     useState<FinancialReport | null>(null)
 
-  const [form, setForm] = useState<FormState>(initialForm)
+  const [form, setForm] =
+    useState<FormState>(initialForm)
 
   /*
   |--------------------------------------------------------------------------
@@ -125,7 +126,9 @@ export default function PublicationManagement() {
 
   const filteredPublications = useMemo(() => {
     return publications.filter((publication) => {
-      const keyword = search.toLowerCase().trim()
+      const keyword = search
+        .toLowerCase()
+        .trim()
 
       const matchesSearch =
         !keyword ||
@@ -142,7 +145,8 @@ export default function PublicationManagement() {
 
       const matchesYear =
         yearFilter === 'Semua' ||
-        publication.year.toString() === yearFilter
+        publication.year.toString() ===
+          yearFilter
 
       return (
         matchesSearch &&
@@ -163,15 +167,17 @@ export default function PublicationManagement() {
   |--------------------------------------------------------------------------
   */
 
-  const publishedCount = publications.filter(
-    (publication) =>
-      publication.status === 'published'
-  ).length
+  const publishedCount =
+    publications.filter(
+      (publication) =>
+        publication.status === 'published'
+    ).length
 
-  const draftCount = publications.filter(
-    (publication) =>
-      publication.status === 'draft'
-  ).length
+  const draftCount =
+    publications.filter(
+      (publication) =>
+        publication.status === 'draft'
+    ).length
 
   const activeYear =
     publications.length > 0
@@ -182,15 +188,14 @@ export default function PublicationManagement() {
         )
       : null
 
-  const typeCounts = publicationTypes.map(
-    (type) => ({
+  const typeCounts =
+    publicationTypes.map((type) => ({
       type,
       count: publications.filter(
         (publication) =>
           publication.type === type
       ).length,
-    })
-  )
+    }))
 
   /*
   |--------------------------------------------------------------------------
@@ -230,7 +235,6 @@ export default function PublicationManagement() {
       description:
         report.description ?? '',
       status: report.status,
-      thumbnail: null,
       file: null,
     })
 
@@ -283,12 +287,20 @@ export default function PublicationManagement() {
 
     setError('')
 
+    /*
+     * Validasi judul
+     */
+
     if (!form.title.trim()) {
       setError(
         'Judul publikasi wajib diisi.'
       )
       return
     }
+
+    /*
+     * Validasi tahun
+     */
 
     if (!form.year) {
       setError(
@@ -298,17 +310,22 @@ export default function PublicationManagement() {
     }
 
     /*
-     * PDF wajib ketika membuat data baru.
+     * PDF wajib ketika membuat publikasi baru.
      *
-     * Saat edit, file lama tetap dipakai
-     * jika admin tidak memilih file baru.
+     * Ketika edit, file lama tetap digunakan
+     * apabila admin tidak memilih file baru.
      */
+
     if (!editingReport && !form.file) {
       setError(
         'File publikasi PDF wajib dipilih.'
       )
       return
     }
+
+    /*
+     * Validasi format PDF
+     */
 
     if (
       form.file &&
@@ -327,15 +344,23 @@ export default function PublicationManagement() {
       const payload: FinancialReportPayload =
         {
           title: form.title.trim(),
+
           type: form.type,
+
           year: Number(form.year),
+
           description:
             form.description.trim() ||
             undefined,
+
           status: form.status,
-          thumbnail: form.thumbnail,
+
           file: form.file,
         }
+
+      /*
+       * EDIT
+       */
 
       if (editingReport) {
         await updateReport(
@@ -346,7 +371,13 @@ export default function PublicationManagement() {
         showSuccess(
           'Publikasi berhasil diperbarui.'
         )
-      } else {
+      }
+
+      /*
+       * CREATE
+       */
+
+      else {
         await createReport(payload)
 
         showSuccess(
@@ -409,7 +440,7 @@ export default function PublicationManagement() {
 
   /*
   |--------------------------------------------------------------------------
-  | FILE ACTION
+  | VIEW PDF
   |--------------------------------------------------------------------------
   */
 
@@ -432,6 +463,12 @@ export default function PublicationManagement() {
     )
   }
 
+  /*
+  |--------------------------------------------------------------------------
+  | DOWNLOAD PDF
+  |--------------------------------------------------------------------------
+  */
+
   const handleDownloadFile = (
     file: string | null
   ) => {
@@ -453,7 +490,9 @@ export default function PublicationManagement() {
     link.download = ''
 
     document.body.appendChild(link)
+
     link.click()
+
     document.body.removeChild(link)
   }
 
@@ -484,8 +523,7 @@ export default function PublicationManagement() {
           </h1>
 
           <p className="mt-1 text-sm text-gray-500">
-            Kelola laporan dan dokumen publikasi
-            LAZISMU.
+            Kelola laporan publikasi LAZISMU.
           </p>
         </div>
 
@@ -500,7 +538,7 @@ export default function PublicationManagement() {
       </div>
 
       {/* ================================================================
-          ALERT ERROR
+          ERROR
       ================================================================= */}
 
       {error && (
@@ -522,7 +560,7 @@ export default function PublicationManagement() {
       )}
 
       {/* ================================================================
-          ALERT SUCCESS
+          SUCCESS
       ================================================================= */}
 
       {success && (
@@ -593,6 +631,8 @@ export default function PublicationManagement() {
 
       <div className="grid gap-5 lg:grid-cols-2">
 
+        {/* Ringkasan */}
+
         <div className="rounded-2xl border border-[#F3DEC8] bg-white p-5 shadow-sm">
 
           <h2
@@ -645,6 +685,8 @@ export default function PublicationManagement() {
           </div>
 
         </div>
+
+        {/* Jenis Publikasi */}
 
         <div className="rounded-2xl border border-[#F3DEC8] bg-white p-5 shadow-sm">
 
@@ -739,7 +781,6 @@ export default function PublicationManagement() {
                   </option>
                 )
               )}
-
             </select>
           </div>
 
@@ -773,7 +814,6 @@ export default function PublicationManagement() {
                   </option>
                 )
               )}
-
             </select>
           </div>
 
@@ -809,7 +849,7 @@ export default function PublicationManagement() {
 
         <div className="overflow-x-auto">
 
-          <table className="w-full min-w-[1100px] text-sm">
+          <table className="w-full min-w-[1000px] text-sm">
 
             <thead className="bg-gray-50">
 
@@ -852,18 +892,21 @@ export default function PublicationManagement() {
               {loading ? (
 
                 <tr>
+
                   <td
                     colSpan={7}
                     className="px-5 py-12 text-center text-sm text-gray-400"
                   >
                     Memuat data publikasi...
                   </td>
+
                 </tr>
 
               ) : filteredPublications.length ===
                 0 ? (
 
                 <tr>
+
                   <td
                     colSpan={7}
                     className="px-5 py-12 text-center"
@@ -884,12 +927,14 @@ export default function PublicationManagement() {
                     </button>
 
                   </td>
+
                 </tr>
 
               ) : (
 
                 filteredPublications.map(
                   (publication) => (
+
                     <tr
                       key={publication.id}
                       className="transition-colors hover:bg-gray-50"
@@ -901,45 +946,36 @@ export default function PublicationManagement() {
 
                         <div className="flex items-center gap-3">
 
-                          {getReportThumbnailUrl(
-                            publication.thumbnail
-                          ) ? (
+                          {/* PDF Icon */}
 
-                            <img
-                              src={getReportThumbnailUrl(
-                                publication.thumbnail
-                              ) ?? ''}
-                              alt={
-                                publication.title
-                              }
-                              className="h-10 w-10 rounded-lg border border-gray-100 object-cover"
-                            />
+                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-red-50 text-red-500">
 
-                          ) : (
+                            <svg
+                              className="h-5 w-5"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
 
-                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-red-50 text-red-500">
-                              <svg
-                                className="h-5 w-5"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M7 3h8l4 4v14H7a2 2 0 01-2-2V5a2 2 0 012-2z"
-                                />
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M14 3v5h5"
-                                />
-                              </svg>
-                            </div>
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M7 3h8l4 4v14H7a2 2 0 01-2-2V5a2 2 0 012-2z"
+                              />
 
-                          )}
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M14 3v5h5"
+                              />
+
+                            </svg>
+
+                          </div>
+
+                          {/* Title */}
 
                           <div className="min-w-0">
 
@@ -1099,6 +1135,7 @@ export default function PublicationManagement() {
                       </td>
 
                     </tr>
+
                   )
                 )
 
@@ -1159,22 +1196,29 @@ export default function PublicationManagement() {
 
             </div>
 
-            {/* Modal Form */}
+            {/* ============================================================
+                FORM
+            ============================================================= */}
 
             <form
               onSubmit={handleSubmit}
               className="space-y-5 px-6 py-6"
             >
 
-              {/* Title */}
+              {/* ==========================================================
+                  TITLE
+              =========================================================== */}
 
               <div>
 
                 <label className="mb-2 block text-sm font-semibold text-gray-700">
-                  Judul Publikasi{' '}
+
+                  Judul Publikasi
+
                   <span className="text-red-500">
-                    *
+                    {' '}*
                   </span>
+
                 </label>
 
                 <input
@@ -1193,17 +1237,24 @@ export default function PublicationManagement() {
 
               </div>
 
-              {/* Type + Year */}
+              {/* ==========================================================
+                  TYPE + YEAR
+              =========================================================== */}
 
               <div className="grid gap-4 sm:grid-cols-2">
+
+                {/* Type */}
 
                 <div>
 
                   <label className="mb-2 block text-sm font-semibold text-gray-700">
-                    Jenis Publikasi{' '}
+
+                    Jenis Publikasi
+
                     <span className="text-red-500">
-                      *
+                      {' '}*
                     </span>
+
                   </label>
 
                   <select
@@ -1220,12 +1271,14 @@ export default function PublicationManagement() {
 
                     {publicationTypes.map(
                       (type) => (
+
                         <option
                           key={type}
                           value={type}
                         >
                           {type}
                         </option>
+
                       )
                     )}
 
@@ -1233,13 +1286,18 @@ export default function PublicationManagement() {
 
                 </div>
 
+                {/* Year */}
+
                 <div>
 
                   <label className="mb-2 block text-sm font-semibold text-gray-700">
-                    Tahun{' '}
+
+                    Tahun
+
                     <span className="text-red-500">
-                      *
+                      {' '}*
                     </span>
+
                   </label>
 
                   <input
@@ -1261,7 +1319,9 @@ export default function PublicationManagement() {
 
               </div>
 
-              {/* Status */}
+              {/* ==========================================================
+                  STATUS
+              =========================================================== */}
 
               <div>
 
@@ -1295,7 +1355,9 @@ export default function PublicationManagement() {
 
               </div>
 
-              {/* Description */}
+              {/* ==========================================================
+                  DESCRIPTION
+              =========================================================== */}
 
               <div>
 
@@ -1318,44 +1380,19 @@ export default function PublicationManagement() {
 
               </div>
 
-              {/* Thumbnail */}
-
-              <div>
-
-                <label className="mb-2 block text-sm font-semibold text-gray-700">
-                  Thumbnail / Cover
-                </label>
-
-                <input
-                  type="file"
-                  accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
-                  onChange={(event) =>
-                    updateForm(
-                      'thumbnail',
-                      event.target
-                        .files?.[0] ?? null
-                    )
-                  }
-                  className="block w-full rounded-xl border border-gray-200 bg-white text-sm file:mr-4 file:border-0 file:bg-orange-50 file:px-4 file:py-3 file:font-semibold file:text-[#F58220]"
-                />
-
-                <p className="mt-1 text-xs text-gray-400">
-                  JPG, JPEG, PNG atau WEBP.
-                </p>
-
-              </div>
-
-              {/* PDF */}
+              {/* ==========================================================
+                  PDF
+              =========================================================== */}
 
               <div>
 
                 <label className="mb-2 block text-sm font-semibold text-gray-700">
 
-                  File Publikasi PDF{' '}
+                  File Publikasi PDF
 
                   {!editingReport && (
                     <span className="text-red-500">
-                      *
+                      {' '}*
                     </span>
                   )}
 
@@ -1377,15 +1414,19 @@ export default function PublicationManagement() {
 
                 <p className="mt-1 text-xs text-gray-400">
                   File harus berupa PDF.
+
                   {editingReport &&
                     ' Kosongkan jika ingin menggunakan file lama.'}
                 </p>
 
               </div>
 
-              {/* Existing File */}
+              {/* ==========================================================
+                  EXISTING PDF
+              =========================================================== */}
 
               {editingReport?.file && (
+
                 <div className="rounded-xl bg-gray-50 p-4">
 
                   <p className="text-xs text-gray-500">
@@ -1405,9 +1446,12 @@ export default function PublicationManagement() {
                   </button>
 
                 </div>
+
               )}
 
-              {/* Modal Footer */}
+              {/* ==========================================================
+                  FOOTER
+              =========================================================== */}
 
               <div className="flex justify-end gap-3 border-t border-gray-100 pt-5">
 

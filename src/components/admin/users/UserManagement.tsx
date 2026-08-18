@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import {
   getAdminUsers,
@@ -10,243 +10,182 @@ import {
   updateAdminUserStatus,
   deleteAdminUser,
   type AdminUser,
+  type AdminUserRole,
+  type AdminUserStatus,
 } from '../../../service/user.service'
 
-type UserRole =
-  | 'Super Admin'
-  | 'Admin Donasi'
-  | 'Admin Konten'
-
-type UserStatus =
-  | 'active'
-  | 'inactive'
-
-export default function UserManagement() {
-  /*
-  |--------------------------------------------------------------------------
-  | USERS
-  |--------------------------------------------------------------------------
-  */
-
-  const [users, setUsers] =
-    useState<AdminUser[]>([])
-
-  const [loading, setLoading] =
-    useState(true)
-
-  const [error, setError] =
-    useState<string | null>(null)
-
-  /*
-  |--------------------------------------------------------------------------
-  | DETAIL USER
-  |--------------------------------------------------------------------------
-  */
-
-  const [selectedUser, setSelectedUser] =
-    useState<AdminUser | null>(null)
-
-  const [detailLoading, setDetailLoading] =
-    useState(false)
-
-  const [detailError, setDetailError] =
-    useState<string | null>(null)
-
-  /*
-  |--------------------------------------------------------------------------
-  | FILTER
-  |--------------------------------------------------------------------------
-  */
-
-  const [search, setSearch] =
-    useState('')
-
-  const [roleFilter, setRoleFilter] =
-    useState('Semua')
-
-  const [statusFilter, setStatusFilter] =
-    useState('Semua')
-
-  /*
-  |--------------------------------------------------------------------------
-  | CREATE USER FORM
-  |--------------------------------------------------------------------------
-  */
-
-  const [createForm, setCreateForm] =
-    useState({
-      name: '',
-      email: '',
-      phone: '',
-      password: '',
-      password_confirmation: '',
-      role: 'Admin Konten' as UserRole,
-      status: 'active' as UserStatus,
-      photo: null as File | null,
-    })
-
-  const [createLoading, setCreateLoading] =
-    useState(false)
-
-  const [showCreateModal, setShowCreateModal] =
-    useState(false)
-
-  const [createError, setCreateError] =
-    useState<string | null>(null)
-
-  /*
-  |--------------------------------------------------------------------------
-  | EDIT USER FORM
-  |--------------------------------------------------------------------------
-  */
-
-  const [showEditModal, setShowEditModal] =
-    useState(false)
-
-  const [editUserId, setEditUserId] =
-    useState<number | null>(null)
-
-  const [editCurrentPhoto, setEditCurrentPhoto] =
-    useState<string | null>(null)
-
-  const [editForm, setEditForm] =
-    useState({
-      name: '',
-      email: '',
-      phone: '',
-      password: '',
-      password_confirmation: '',
-      role: 'Admin Konten' as UserRole,
-      status: 'active' as UserStatus,
-      photo: null as File | null,
-    })
-
-  const [editLoading, setEditLoading] =
-    useState(false)
-
-  const [editError, setEditError] =
-    useState<string | null>(null)
-
-  /*
-  |--------------------------------------------------------------------------
-  | STATUS USER
-  |--------------------------------------------------------------------------
-  | 6.3
-  |--------------------------------------------------------------------------
-  */
-
-  const [statusLoadingId, setStatusLoadingId] =
-    useState<number | null>(null)
-
-  const [statusError, setStatusError] =
-    useState<string | null>(null)
-
-  /*
+/*
 |--------------------------------------------------------------------------
-| DELETE USER
-|--------------------------------------------------------------------------
-| 7.6
+| FORM TYPES
 |--------------------------------------------------------------------------
 */
 
-  const [deleteLoadingId, setDeleteLoadingId] =
-    useState<number | null>(null)
+interface CreateFormState {
+  name: string
+  email: string
+  phone: string
+  password: string
+  password_confirmation: string
+  role: AdminUserRole
+  status: AdminUserStatus
+  photo: File | null
+}
 
-  const [deleteError, setDeleteError] =
-    useState<string | null>(null)
+interface EditFormState {
+  name: string
+  email: string
+  phone: string
+  password: string
+  password_confirmation: string
+  role: AdminUserRole
+  status: AdminUserStatus
+  photo: File | null
+}
 
-  /*
-  |--------------------------------------------------------------------------
-  | CREATE FORM HELPERS
-  |--------------------------------------------------------------------------
-  */
+const initialCreateForm: CreateFormState = {
+  name: '',
+  email: '',
+  phone: '',
+  password: '',
+  password_confirmation: '',
+  role: 'Admin Konten',
+  status: 'active',
+  photo: null,
+}
 
-  function resetCreateForm() {
-    setCreateForm({
-      name: '',
-      email: '',
-      phone: '',
-      password: '',
-      password_confirmation: '',
-      role: 'Admin Konten',
-      status: 'active',
-      photo: null,
-    })
+const initialEditForm: EditFormState = {
+  name: '',
+  email: '',
+  phone: '',
+  password: '',
+  password_confirmation: '',
+  role: 'Admin Konten',
+  status: 'active',
+  photo: null,
+}
 
-    setCreateError(null)
-  }
+const VALID_ROLES: AdminUserRole[] = [
+  'Super Admin',
+  'Admin Donasi',
+  'Admin Konten',
+]
 
-  function handleCreateInputChange(
-    field: keyof typeof createForm,
-    value: string
-  ) {
-    setCreateForm((current) => ({
-      ...current,
-      [field]: value,
-    }))
-  }
+const VALID_STATUSES: AdminUserStatus[] = ['active', 'inactive']
 
-  function handleCreatePhotoChange(
-    file: File | null
-  ) {
-    setCreateForm((current) => ({
-      ...current,
-      photo: file,
-    }))
-  }
+const MAX_PHOTO_SIZE = 2 * 1024 * 1024
 
-  /*
-  |--------------------------------------------------------------------------
-  | EDIT FORM HELPERS
-  |--------------------------------------------------------------------------
-  */
+const ALLOWED_PHOTO_TYPES = ['image/jpeg', 'image/png', 'image/webp']
 
-  function resetEditForm() {
-    setEditUserId(null)
-    setEditCurrentPhoto(null)
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
-    setEditForm({
-      name: '',
-      email: '',
-      phone: '',
-      password: '',
-      password_confirmation: '',
-      role: 'Admin Konten',
-      status: 'active',
-      photo: null,
-    })
+/*
+|--------------------------------------------------------------------------
+| PASSWORD INPUT (shared UI, no shared state)
+|--------------------------------------------------------------------------
+*/
 
-    setEditError(null)
-  }
+interface PasswordFieldProps {
+  label: string
+  name: string
+  value: string
+  visible: boolean
+  disabled: boolean
+  placeholder: string
+  onChange: (value: string) => void
+  onToggleVisible: () => void
+}
 
-  function handleEditInputChange(
-    field: keyof typeof editForm,
-    value: string
-  ) {
-    setEditForm((current) => ({
-      ...current,
-      [field]: value,
-    }))
-  }
+function PasswordField(props: PasswordFieldProps) {
+  const {
+    label,
+    name,
+    value,
+    visible,
+    disabled,
+    placeholder,
+    onChange,
+    onToggleVisible,
+  } = props
 
-  function handleEditPhotoChange(
-    file: File | null
-  ) {
-    setEditForm((current) => ({
-      ...current,
-      photo: file,
-    }))
-  }
+  return (
+    <div>
+      <label className="mb-2 block text-xs font-medium text-gray-600">
+        {label}
+      </label>
 
-  /*
-  |--------------------------------------------------------------------------
-  | INITIAL LOAD
-  |--------------------------------------------------------------------------
-  */
+      <div className="relative">
+        <input
+          type={visible ? 'text' : 'password'}
+          name={name}
+          autoComplete="new-password"
+          value={value}
+          disabled={disabled}
+          placeholder={placeholder}
+          onChange={(event) => onChange(event.target.value)}
+          className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 pr-11 text-sm outline-none transition focus:border-[#F58220] focus:ring-1 focus:ring-[#F58220] disabled:cursor-not-allowed disabled:bg-gray-50"
+        />
 
-  useEffect(() => {
-    loadUsers()
-  }, [])
+        <button
+          type="button"
+          disabled={disabled}
+          onClick={onToggleVisible}
+          aria-label={visible ? 'Sembunyikan password' : 'Tampilkan password'}
+          className="absolute inset-y-0 right-0 flex items-center px-3 text-sm text-gray-400 hover:text-gray-600 disabled:cursor-not-allowed"
+        >
+          {visible ? '🙈' : '👁️'}
+        </button>
+      </div>
+    </div>
+  )
+}
+
+/*
+|--------------------------------------------------------------------------
+| MAIN COMPONENT
+|--------------------------------------------------------------------------
+*/
+
+export default function UserManagement() {
+  /* USERS LIST */
+  const [users, setUsers] = useState<AdminUser[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  /* DETAIL */
+  const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null)
+  const [detailLoading, setDetailLoading] = useState(false)
+  const [detailError, setDetailError] = useState<string | null>(null)
+
+  /* FILTER */
+  const [search, setSearch] = useState('')
+  const [roleFilter, setRoleFilter] = useState('Semua')
+  const [statusFilter, setStatusFilter] = useState('Semua')
+
+  /* CREATE FORM */
+  const [createForm, setCreateForm] = useState<CreateFormState>(initialCreateForm)
+  const [createLoading, setCreateLoading] = useState(false)
+  const [showCreateModal, setShowCreateModal] = useState(false)
+  const [createError, setCreateError] = useState<string | null>(null)
+  const [showCreatePassword, setShowCreatePassword] = useState(false)
+  const [showCreatePasswordConfirmation, setShowCreatePasswordConfirmation] = useState(false)
+
+  /* EDIT FORM */
+  const [showEditModal, setShowEditModal] = useState(false)
+  const [editUserId, setEditUserId] = useState<number | null>(null)
+  const [editCurrentPhoto, setEditCurrentPhoto] = useState<string | null>(null)
+  const [editForm, setEditForm] = useState<EditFormState>(initialEditForm)
+  const [editLoading, setEditLoading] = useState(false)
+  const [editError, setEditError] = useState<string | null>(null)
+  const [showEditPassword, setShowEditPassword] = useState(false)
+  const [showEditPasswordConfirmation, setShowEditPasswordConfirmation] = useState(false)
+
+  /* STATUS TOGGLE */
+  const [statusLoadingId, setStatusLoadingId] = useState<number | null>(null)
+  const [statusError, setStatusError] = useState<string | null>(null)
+
+  /* DELETE */
+  const [deleteLoadingId, setDeleteLoadingId] = useState<number | null>(null)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
 
   /*
   |--------------------------------------------------------------------------
@@ -254,21 +193,20 @@ export default function UserManagement() {
   |--------------------------------------------------------------------------
   */
 
+  useEffect(() => {
+    loadUsers()
+  }, [])
+
   async function loadUsers() {
     try {
       setLoading(true)
       setError(null)
 
-      const data =
-        await getAdminUsers()
+      const data = await getAdminUsers()
 
       setUsers(data)
-    } catch (error) {
-      setError(
-        error instanceof Error
-          ? error.message
-          : 'Gagal mengambil data pengguna.'
-      )
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Gagal mengambil data pengguna.')
     } finally {
       setLoading(false)
     }
@@ -276,38 +214,25 @@ export default function UserManagement() {
 
   /*
   |--------------------------------------------------------------------------
-  | DETAIL USER
+  | DETAIL
   |--------------------------------------------------------------------------
   */
 
-  async function handleDetail(
-    id: number
-  ) {
+  async function handleDetail(id: number) {
     try {
       setDetailLoading(true)
       setDetailError(null)
       setSelectedUser(null)
 
-      const user =
-        await getAdminUser(id)
+      const user = await getAdminUser(id)
 
       setSelectedUser(user)
-    } catch (error) {
-      setDetailError(
-        error instanceof Error
-          ? error.message
-          : 'Gagal mengambil detail pengguna.'
-      )
+    } catch (err) {
+      setDetailError(err instanceof Error ? err.message : 'Gagal mengambil detail pengguna.')
     } finally {
       setDetailLoading(false)
     }
   }
-
-  /*
-  |--------------------------------------------------------------------------
-  | CLOSE DETAIL
-  |--------------------------------------------------------------------------
-  */
 
   function closeDetail() {
     setSelectedUser(null)
@@ -317,84 +242,48 @@ export default function UserManagement() {
 
   /*
   |--------------------------------------------------------------------------
-  | OPEN EDIT USER
+  | CREATE FORM HELPERS
   |--------------------------------------------------------------------------
   */
 
-  async function handleEdit(
-    id: number
-  ) {
-    try {
-      setEditLoading(true)
-      setEditError(null)
-
-      resetEditForm()
-
-      const user =
-        await getAdminUser(id)
-
-      setEditUserId(user.id)
-
-      setEditCurrentPhoto(
-        user.photo
-      )
-
-      setEditForm({
-        name: user.name || '',
-        email: user.email || '',
-        phone: user.phone || '',
-        password: '',
-        password_confirmation: '',
-        role:
-          (user.role as UserRole) ||
-          'Admin Konten',
-        status:
-          (user.status as UserStatus) ||
-          'active',
-        photo: null,
-      })
-
-      setShowEditModal(true)
-    } catch (error) {
-      setEditError(
-        error instanceof Error
-          ? error.message
-          : 'Gagal mengambil data pengguna.'
-      )
-
-      setShowEditModal(true)
-    } finally {
-      setEditLoading(false)
-    }
+  function resetCreateForm() {
+    setCreateForm(initialCreateForm)
+    setShowCreatePassword(false)
+    setShowCreatePasswordConfirmation(false)
+    setCreateError(null)
   }
 
-  /*
-  |--------------------------------------------------------------------------
-  | CLOSE EDIT
-  |--------------------------------------------------------------------------
-  */
+  function handleCreateInputChange(field: keyof CreateFormState, value: string) {
+    setCreateForm((current) => ({
+      ...current,
+      [field]: value,
+    }))
+  }
 
-  function closeEdit() {
-    if (editLoading) {
+  function handleCreatePhotoChange(file: File | null) {
+    setCreateForm((current) => ({
+      ...current,
+      photo: file,
+    }))
+  }
+
+  function openCreate() {
+    resetCreateForm()
+    setShowCreateModal(true)
+  }
+
+  function closeCreate() {
+    if (createLoading) {
       return
     }
 
-    setShowEditModal(false)
-    resetEditForm()
+    setShowCreateModal(false)
+    resetCreateForm()
   }
 
-  /*
-  |--------------------------------------------------------------------------
-  | VALIDATE CREATE
-  |--------------------------------------------------------------------------
-  */
-
   function validateCreateForm(): string | null {
-    const name =
-      createForm.name.trim()
-
-    const email =
-      createForm.email.trim()
+    const name = createForm.name.trim()
+    const email = createForm.email.trim()
 
     if (!name) {
       return 'Nama lengkap wajib diisi.'
@@ -404,10 +293,7 @@ export default function UserManagement() {
       return 'Email wajib diisi.'
     }
 
-    const emailPattern =
-      /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-
-    if (!emailPattern.test(email)) {
+    if (!EMAIL_PATTERN.test(email)) {
       return 'Format email tidak valid.'
     }
 
@@ -415,96 +301,44 @@ export default function UserManagement() {
       return 'Password wajib diisi.'
     }
 
-    if (
-      createForm.password.length < 8
-    ) {
+    if (createForm.password.length < 8) {
       return 'Password minimal 8 karakter.'
     }
 
-    if (
-      !createForm.password_confirmation
-    ) {
+    if (!createForm.password_confirmation) {
       return 'Konfirmasi password wajib diisi.'
     }
 
-    if (
-      createForm.password !==
-      createForm.password_confirmation
-    ) {
+    if (createForm.password !== createForm.password_confirmation) {
       return 'Password dan konfirmasi password tidak sama.'
     }
 
-    const validRoles: UserRole[] = [
-      'Super Admin',
-      'Admin Donasi',
-      'Admin Konten',
-    ]
-
-    if (
-      !validRoles.includes(
-        createForm.role
-      )
-    ) {
+    if (!VALID_ROLES.includes(createForm.role)) {
       return 'Role pengguna tidak valid.'
     }
 
-    const validStatuses: UserStatus[] = [
-      'active',
-      'inactive',
-    ]
-
-    if (
-      !validStatuses.includes(
-        createForm.status
-      )
-    ) {
+    if (!VALID_STATUSES.includes(createForm.status)) {
       return 'Status pengguna tidak valid.'
     }
 
     if (createForm.photo) {
-      const maxSize =
-        2 * 1024 * 1024
-
-      if (
-        createForm.photo.size >
-        maxSize
-      ) {
+      if (createForm.photo.size > MAX_PHOTO_SIZE) {
         return 'Ukuran foto maksimal 2 MB.'
       }
 
-      const allowedTypes = [
-        'image/jpeg',
-        'image/png',
-        'image/webp',
-      ]
-
-      if (
-        !allowedTypes.includes(
-          createForm.photo.type
-        )
-      ) {
-        return 'Format foto harus JPG, JPEG, atau WEBP.'
+      if (!ALLOWED_PHOTO_TYPES.includes(createForm.photo.type)) {
+        return 'Format foto harus JPG, JPEG, PNG, atau WEBP.'
       }
     }
 
     return null
   }
 
-  /*
-  |--------------------------------------------------------------------------
-  | CREATE USER
-  |--------------------------------------------------------------------------
-  */
-
   async function handleCreateUser() {
-    const validationError =
-      validateCreateForm()
+    const validationError = validateCreateForm()
 
     if (validationError) {
-      setCreateError(
-        validationError
-      )
-
+      setCreateError(validationError)
       return
     }
 
@@ -516,10 +350,8 @@ export default function UserManagement() {
         name: createForm.name.trim(),
         email: createForm.email.trim(),
         phone: createForm.phone.trim(),
-        password:
-          createForm.password,
-        password_confirmation:
-          createForm.password_confirmation,
+        password: createForm.password,
+        password_confirmation: createForm.password_confirmation,
         role: createForm.role,
         status: createForm.status,
         photo: createForm.photo,
@@ -528,14 +360,9 @@ export default function UserManagement() {
       await loadUsers()
 
       resetCreateForm()
-
       setShowCreateModal(false)
-    } catch (error) {
-      setCreateError(
-        error instanceof Error
-          ? error.message
-          : 'Gagal menambahkan pengguna.'
-      )
+    } catch (err) {
+      setCreateError(err instanceof Error ? err.message : 'Gagal menambahkan pengguna.')
     } finally {
       setCreateLoading(false)
     }
@@ -543,16 +370,77 @@ export default function UserManagement() {
 
   /*
   |--------------------------------------------------------------------------
-  | VALIDATE EDIT
+  | EDIT FORM HELPERS
   |--------------------------------------------------------------------------
   */
 
-  function validateEditForm(): string | null {
-    const name =
-      editForm.name.trim()
+  function resetEditForm() {
+    setEditUserId(null)
+    setEditCurrentPhoto(null)
+    setEditForm(initialEditForm)
+    setShowEditPassword(false)
+    setShowEditPasswordConfirmation(false)
+    setEditError(null)
+  }
 
-    const email =
-      editForm.email.trim()
+  function handleEditInputChange(field: keyof EditFormState, value: string) {
+    setEditForm((current) => ({
+      ...current,
+      [field]: value,
+    }))
+  }
+
+  function handleEditPhotoChange(file: File | null) {
+    setEditForm((current) => ({
+      ...current,
+      photo: file,
+    }))
+  }
+
+  async function handleEdit(id: number) {
+    try {
+      setEditLoading(true)
+      setEditError(null)
+
+      resetEditForm()
+
+      const user = await getAdminUser(id)
+
+      setEditUserId(user.id)
+      setEditCurrentPhoto(user.photo)
+
+      setEditForm({
+        name: user.name || '',
+        email: user.email || '',
+        phone: user.phone || '',
+        password: '',
+        password_confirmation: '',
+        role: user.role || 'Admin Konten',
+        status: user.status || 'active',
+        photo: null,
+      })
+
+      setShowEditModal(true)
+    } catch (err) {
+      setEditError(err instanceof Error ? err.message : 'Gagal mengambil data pengguna.')
+      setShowEditModal(true)
+    } finally {
+      setEditLoading(false)
+    }
+  }
+
+  function closeEdit() {
+    if (editLoading) {
+      return
+    }
+
+    setShowEditModal(false)
+    resetEditForm()
+  }
+
+  function validateEditForm(): string | null {
+    const name = editForm.name.trim()
+    const email = editForm.email.trim()
 
     if (!name) {
       return 'Nama lengkap wajib diisi.'
@@ -562,125 +450,55 @@ export default function UserManagement() {
       return 'Email wajib diisi.'
     }
 
-    const emailPattern =
-      /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-
-    if (!emailPattern.test(email)) {
+    if (!EMAIL_PATTERN.test(email)) {
       return 'Format email tidak valid.'
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | PASSWORD OPTIONAL
-    |--------------------------------------------------------------------------
-    */
-
     if (editForm.password) {
-      if (
-        editForm.password.length < 8
-      ) {
+      if (editForm.password.length < 8) {
         return 'Password minimal 8 karakter.'
       }
 
-      if (
-        !editForm.password_confirmation
-      ) {
+      if (!editForm.password_confirmation) {
         return 'Konfirmasi password wajib diisi jika password diubah.'
       }
 
-      if (
-        editForm.password !==
-        editForm.password_confirmation
-      ) {
+      if (editForm.password !== editForm.password_confirmation) {
         return 'Password dan konfirmasi password tidak sama.'
       }
     }
 
-    const validRoles: UserRole[] = [
-      'Super Admin',
-      'Admin Donasi',
-      'Admin Konten',
-    ]
-
-    if (
-      !validRoles.includes(
-        editForm.role
-      )
-    ) {
+    if (!VALID_ROLES.includes(editForm.role)) {
       return 'Role pengguna tidak valid.'
     }
 
-    const validStatuses: UserStatus[] = [
-      'active',
-      'inactive',
-    ]
-
-    if (
-      !validStatuses.includes(
-        editForm.status
-      )
-    ) {
+    if (!VALID_STATUSES.includes(editForm.status)) {
       return 'Status pengguna tidak valid.'
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | PHOTO
-    |--------------------------------------------------------------------------
-    */
-
     if (editForm.photo) {
-      const maxSize =
-        2 * 1024 * 1024
-
-      if (
-        editForm.photo.size >
-        maxSize
-      ) {
+      if (editForm.photo.size > MAX_PHOTO_SIZE) {
         return 'Ukuran foto maksimal 2 MB.'
       }
 
-      const allowedTypes = [
-        'image/jpeg',
-        'image/png',
-        'image/webp',
-      ]
-
-      if (
-        !allowedTypes.includes(
-          editForm.photo.type
-        )
-      ) {
-        return 'Format foto harus JPG, JPEG, atau WEBP.'
+      if (!ALLOWED_PHOTO_TYPES.includes(editForm.photo.type)) {
+        return 'Format foto harus JPG, JPEG, PNG, atau WEBP.'
       }
     }
 
     return null
   }
 
-  /*
-  |--------------------------------------------------------------------------
-  | UPDATE USER
-  |--------------------------------------------------------------------------
-  */
-
   async function handleUpdateUser() {
     if (editUserId === null) {
-      setEditError(
-        'ID pengguna tidak ditemukan.'
-      )
-
+      setEditError('ID pengguna tidak ditemukan.')
       return
     }
 
-    const validationError =
-      validateEditForm()
+    const validationError = validateEditForm()
 
     if (validationError) {
-      setEditError(
-        validationError
-      )
-
+      setEditError(validationError)
       return
     }
 
@@ -688,49 +506,23 @@ export default function UserManagement() {
       setEditLoading(true)
       setEditError(null)
 
-      await updateAdminUser(
-        editUserId,
-        {
-          name:
-            editForm.name.trim(),
-
-          email:
-            editForm.email.trim(),
-
-          phone:
-            editForm.phone.trim(),
-
-          password:
-            editForm.password ||
-            undefined,
-
-          password_confirmation:
-            editForm.password_confirmation ||
-            undefined,
-
-          role:
-            editForm.role,
-
-          status:
-            editForm.status,
-
-          photo:
-            editForm.photo,
-        }
-      )
+      await updateAdminUser(editUserId, {
+        name: editForm.name.trim(),
+        email: editForm.email.trim(),
+        phone: editForm.phone.trim(),
+        password: editForm.password || undefined,
+        password_confirmation: editForm.password_confirmation || undefined,
+        role: editForm.role,
+        status: editForm.status,
+        photo: editForm.photo,
+      })
 
       await loadUsers()
 
       setShowEditModal(false)
-
       resetEditForm()
-
-    } catch (error) {
-      setEditError(
-        error instanceof Error
-          ? error.message
-          : 'Gagal memperbarui pengguna.'
-      )
+    } catch (err) {
+      setEditError(err instanceof Error ? err.message : 'Gagal memperbarui pengguna.')
     } finally {
       setEditLoading(false)
     }
@@ -738,367 +530,156 @@ export default function UserManagement() {
 
   /*
   |--------------------------------------------------------------------------
-  | TOGGLE USER STATUS
-  |--------------------------------------------------------------------------
-  | 6.1 - 6.8
+  | TOGGLE STATUS
   |--------------------------------------------------------------------------
   */
 
-  async function handleToggleStatus(
-    user: AdminUser
-  ) {
-    /*
-    |--------------------------------------------------------------------------
-    | CEGAH DOUBLE CLICK
-    |--------------------------------------------------------------------------
-    */
-
-    if (
-      statusLoadingId !== null
-    ) {
+  async function handleToggleStatus(user: AdminUser) {
+    if (statusLoadingId !== null) {
       return
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | SUPER ADMIN
-    |--------------------------------------------------------------------------
-    |
-    | Pengaman tambahan di frontend.
-    |
-    */
-
-    if (
-      user.role === 'Super Admin'
-    ) {
-      setStatusError(
-        'Status Super Admin tidak dapat diubah dari halaman ini.'
-      )
-
+    if (user.role === 'Super Admin') {
+      setStatusError('Status Super Admin tidak dapat diubah dari halaman ini.')
       return
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | TENTUKAN STATUS BARU
-    |--------------------------------------------------------------------------
-    */
+    const nextStatus: AdminUserStatus = user.status === 'active' ? 'inactive' : 'active'
+    const currentLabel = user.status === 'active' ? 'Aktif' : 'Nonaktif'
+    const nextLabel = nextStatus === 'active' ? 'Aktif' : 'Nonaktif'
 
-    const nextStatus: UserStatus =
-      user.status === 'active'
-        ? 'inactive'
-        : 'active'
-
-    const currentLabel =
-      user.status === 'active'
-        ? 'Aktif'
-        : 'Nonaktif'
-
-    const nextLabel =
-      nextStatus === 'active'
-        ? 'Aktif'
-        : 'Nonaktif'
-
-    /*
-    |--------------------------------------------------------------------------
-    | CONFIRMATION
-    |--------------------------------------------------------------------------
-    | 6.5
-    |--------------------------------------------------------------------------
-    */
-
-    const confirmed =
-      window.confirm(
-        `Status pengguna "${user.name}" saat ini ${currentLabel}.\n\n` +
-        `Apakah Anda yakin ingin mengubahnya menjadi ${nextLabel}?`
-      )
+    const confirmed = window.confirm(
+      `Status pengguna "${user.name}" saat ini ${currentLabel}.\n\nApakah Anda yakin ingin mengubahnya menjadi ${nextLabel}?`
+    )
 
     if (!confirmed) {
       return
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | REQUEST
-    |--------------------------------------------------------------------------
-    | 6.3 - 6.4
-    |--------------------------------------------------------------------------
-    */
-
     try {
-      setStatusLoadingId(
-        user.id
-      )
-
+      setStatusLoadingId(user.id)
       setStatusError(null)
 
-      await updateAdminUserStatus(
-        user,
-        nextStatus
-      )
-
-      /*
-      |--------------------------------------------------------------------------
-      | REFRESH DATA
-      |--------------------------------------------------------------------------
-      | 6.6
-      |--------------------------------------------------------------------------
-      */
+      await updateAdminUserStatus(user, nextStatus)
 
       await loadUsers()
-
-    } catch (error) {
-      /*
-      |--------------------------------------------------------------------------
-      | ERROR HANDLING
-      |--------------------------------------------------------------------------
-      | 6.7
-      |--------------------------------------------------------------------------
-      */
-
-      setStatusError(
-        error instanceof Error
-          ? error.message
-          : 'Gagal mengubah status pengguna.'
-      )
+    } catch (err) {
+      setStatusError(err instanceof Error ? err.message : 'Gagal mengubah status pengguna.')
     } finally {
-      /*
-      |--------------------------------------------------------------------------
-      | RESET LOADING
-      |--------------------------------------------------------------------------
-      */
-
       setStatusLoadingId(null)
     }
   }
 
   /*
-|--------------------------------------------------------------------------
-| DELETE USER
-|--------------------------------------------------------------------------
-| 7.4 - 7.8
-|--------------------------------------------------------------------------
-*/
+  |--------------------------------------------------------------------------
+  | DELETE
+  |--------------------------------------------------------------------------
+  */
 
-  async function handleDeleteUser(
-    user: AdminUser
-  ) {
-    /*
-    |--------------------------------------------------------------------------
-    | CEGAH DOUBLE CLICK
-    |--------------------------------------------------------------------------
-    */
-
-    if (
-      deleteLoadingId !== null
-    ) {
+  async function handleDeleteUser(user: AdminUser) {
+    if (deleteLoadingId !== null) {
       return
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | SUPER ADMIN
-    |--------------------------------------------------------------------------
-    |
-    | Super Admin tidak boleh dihapus dari
-    | tombol ini.
-    |
-    */
-
-    if (
-      user.role === 'Super Admin'
-    ) {
-      setDeleteError(
-        'Akun Super Admin tidak dapat dihapus dari halaman ini.'
-      )
-
+    if (user.role === 'Super Admin') {
+      setDeleteError('Akun Super Admin tidak dapat dihapus dari halaman ini.')
       return
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | CONFIRMATION
-    |--------------------------------------------------------------------------
-    | 7.5
-    |--------------------------------------------------------------------------
-    */
-
-    const confirmed =
-      window.confirm(
-        `Apakah Anda yakin ingin menghapus pengguna "${user.name}"?\n\n` +
-        `Data pengguna akan dihapus dari sistem.`
-      )
+    const confirmed = window.confirm(
+      `Apakah Anda yakin ingin menghapus pengguna "${user.name}"?\n\nData pengguna akan dihapus dari sistem.`
+    )
 
     if (!confirmed) {
       return
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | DELETE REQUEST
-    |--------------------------------------------------------------------------
-    | 7.7
-    |--------------------------------------------------------------------------
-    */
-
     try {
-      setDeleteLoadingId(
-        user.id
-      )
-
+      setDeleteLoadingId(user.id)
       setDeleteError(null)
 
-      await deleteAdminUser(
-        user.id
-      )
-
-      /*
-      |--------------------------------------------------------------------------
-      | REFRESH DATA
-      |--------------------------------------------------------------------------
-      | 7.8
-      |--------------------------------------------------------------------------
-      */
+      await deleteAdminUser(user.id)
 
       await loadUsers()
-
-    } catch (error) {
-
-      setDeleteError(
-        error instanceof Error
-          ? error.message
-          : 'Gagal menghapus pengguna.'
-      )
-
+    } catch (err) {
+      setDeleteError(err instanceof Error ? err.message : 'Gagal menghapus pengguna.')
     } finally {
-
       setDeleteLoadingId(null)
     }
   }
 
   /*
   |--------------------------------------------------------------------------
-  | FILTERED USERS
+  | DERIVED DATA
   |--------------------------------------------------------------------------
   */
 
-  const filteredUsers =
-    users.filter((user) => {
-      const searchValue =
-        search
-          .toLowerCase()
-          .trim()
+  const filteredUsers = useMemo(() => {
+    const searchValue = search.toLowerCase().trim()
 
+    return users.filter((user) => {
       const matchesSearch =
-        user.name
-          .toLowerCase()
-          .includes(searchValue) ||
-        user.email
-          .toLowerCase()
-          .includes(searchValue)
+        user.name.toLowerCase().includes(searchValue) ||
+        user.email.toLowerCase().includes(searchValue)
 
-      const matchesRole =
-        roleFilter === 'Semua' ||
-        user.role === roleFilter
+      const matchesRole = roleFilter === 'Semua' || user.role === roleFilter
+      const matchesStatus = statusFilter === 'Semua' || user.status === statusFilter
 
-      const matchesStatus =
-        statusFilter === 'Semua' ||
-        user.status === statusFilter
-
-      return (
-        matchesSearch &&
-        matchesRole &&
-        matchesStatus
-      )
+      return matchesSearch && matchesRole && matchesStatus
     })
+  }, [users, search, roleFilter, statusFilter])
 
-  /*
-  |--------------------------------------------------------------------------
-  | STATISTICS
-  |--------------------------------------------------------------------------
-  */
+  const activeUsers = useMemo(
+    () => users.filter((user) => user.status === 'active').length,
+    [users]
+  )
 
-  const activeUsers =
-    users.filter(
-      (user) =>
-        user.status === 'active'
-    ).length
+  const superAdmins = useMemo(
+    () => users.filter((user) => user.role === 'Super Admin').length,
+    [users]
+  )
 
-  const superAdmins =
-    users.filter(
-      (user) =>
-        user.role === 'Super Admin'
-    ).length
+  const donationAdmins = useMemo(
+    () => users.filter((user) => user.role === 'Admin Donasi').length,
+    [users]
+  )
 
-  const donationAdmins =
-    users.filter(
-      (user) =>
-        user.role === 'Admin Donasi'
-    ).length
+  const contentAdmins = useMemo(
+    () => users.filter((user) => user.role === 'Admin Konten').length,
+    [users]
+  )
 
-  const contentAdmins =
-    users.filter(
-      (user) =>
-        user.role === 'Admin Konten'
-    ).length
-
-  /*
-  |--------------------------------------------------------------------------
-  | HELPERS
-  |--------------------------------------------------------------------------
-  */
-
-  function getStatusLabel(
-    status: UserStatus
-  ) {
-    return status === 'active'
-      ? 'Aktif'
-      : 'Nonaktif'
+  function getStatusLabel(status: AdminUserStatus) {
+    return status === 'active' ? 'Aktif' : 'Nonaktif'
   }
 
-  function getRoleClass(
-    role: UserRole | undefined
-  ) {
-    if (
-      role === 'Super Admin'
-    ) {
+  function getRoleClass(role: AdminUserRole | undefined) {
+    if (role === 'Super Admin') {
       return 'bg-orange-100 text-[#F58220]'
     }
 
-    if (
-      role === 'Admin Donasi'
-    ) {
+    if (role === 'Admin Donasi') {
       return 'bg-blue-100 text-blue-700'
     }
 
     return 'bg-green-100 text-green-700'
   }
 
-  function formatDate(
-    value: string
-  ) {
+  function formatDate(value: string) {
     if (!value) {
       return '—'
     }
 
-    const date =
-      new Date(value)
+    const date = new Date(value)
 
-    if (
-      Number.isNaN(
-        date.getTime()
-      )
-    ) {
+    if (Number.isNaN(date.getTime())) {
       return '—'
     }
 
-    return date.toLocaleString(
-      'id-ID',
-      {
-        dateStyle: 'medium',
-        timeStyle: 'short',
-      }
-    )
+    return date.toLocaleString('id-ID', {
+      dateStyle: 'medium',
+      timeStyle: 'short',
+    })
   }
 
   /*
@@ -1109,57 +690,35 @@ export default function UserManagement() {
 
   return (
     <div className="space-y-5">
-
-      {/* =========================================================
-          HEADER
-      ========================================================== */}
-
+      {/* HEADER */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-
         <div>
-
           <h1
             className="text-lg font-bold text-gray-900"
-            style={{
-              fontFamily:
-                "'Plus Jakarta Sans', sans-serif",
-            }}
+            style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
           >
             Pengguna & Admin
           </h1>
 
           <p className="mt-1 text-sm text-gray-500">
-            Kelola pengguna, admin, dan hak
-            akses sistem LAZISMU.
+            Kelola pengguna, admin, dan hak akses sistem LAZISMU.
           </p>
-
         </div>
 
         <button
           type="button"
-          onClick={() => {
-            resetCreateForm()
-            setShowCreateModal(true)
-          }}
+          onClick={openCreate}
           className="rounded-xl bg-[#F58220] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-orange-600"
         >
           + Tambah Pengguna
         </button>
-
       </div>
 
-      {/* =========================================================
-          GENERAL ERROR
-      ========================================================== */}
-
+      {/* GENERAL ERROR */}
       {error && (
         <div className="rounded-2xl border border-red-200 bg-red-50 p-4">
-
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-
-            <p className="text-sm text-red-700">
-              {error}
-            </p>
+            <p className="text-sm text-red-700">{error}</p>
 
             <button
               type="button"
@@ -1168,229 +727,125 @@ export default function UserManagement() {
             >
               Coba lagi
             </button>
-
           </div>
-
         </div>
       )}
 
-      {/* =========================================================
-          STATUS ERROR
-          6.7
-      ========================================================== */}
-
+      {/* STATUS ERROR */}
       {statusError && (
         <div className="rounded-2xl border border-red-200 bg-red-50 p-4">
-
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-
-            <p className="text-sm text-red-700">
-              {statusError}
-            </p>
+            <p className="text-sm text-red-700">{statusError}</p>
 
             <button
               type="button"
-              onClick={() =>
-                setStatusError(null)
-              }
+              onClick={() => setStatusError(null)}
               className="w-fit text-sm font-semibold text-red-600 hover:underline"
             >
               Tutup
             </button>
-
           </div>
-
         </div>
       )}
 
-      {/* =========================================================
-    DELETE ERROR
-========================================================== */}
-
+      {/* DELETE ERROR */}
       {deleteError && (
         <div className="rounded-2xl border border-red-200 bg-red-50 p-4">
-
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-
-            <p className="text-sm text-red-700">
-              {deleteError}
-            </p>
+            <p className="text-sm text-red-700">{deleteError}</p>
 
             <button
               type="button"
-              onClick={() =>
-                setDeleteError(null)
-              }
+              onClick={() => setDeleteError(null)}
               className="w-fit text-sm font-semibold text-red-600 hover:underline"
             >
               Tutup
             </button>
-
           </div>
-
         </div>
       )}
-      {/* =========================================================
-          STATISTICS
-      ========================================================== */}
 
+      {/* STATISTICS */}
       <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
-
         <div className="rounded-2xl border border-[#F3DEC8] bg-white p-4 shadow-sm">
-
-          <p className="text-xs text-gray-500">
-            Total Pengguna
-          </p>
-
+          <p className="text-xs text-gray-500">Total Pengguna</p>
           <p className="mt-1 text-xl font-bold text-gray-900">
-            {loading
-              ? '...'
-              : users.length}
+            {loading ? '...' : users.length}
           </p>
-
         </div>
 
         <div className="rounded-2xl border border-[#F3DEC8] bg-white p-4 shadow-sm">
-
-          <p className="text-xs text-gray-500">
-            Pengguna Aktif
-          </p>
-
+          <p className="text-xs text-gray-500">Pengguna Aktif</p>
           <p className="mt-1 text-xl font-bold text-green-600">
-            {loading
-              ? '...'
-              : activeUsers}
+            {loading ? '...' : activeUsers}
           </p>
-
         </div>
 
         <div className="rounded-2xl border border-[#F3DEC8] bg-white p-4 shadow-sm">
-
-          <p className="text-xs text-gray-500">
-            Admin Donasi
-          </p>
-
+          <p className="text-xs text-gray-500">Admin Donasi</p>
           <p className="mt-1 text-xl font-bold text-blue-600">
-            {loading
-              ? '...'
-              : donationAdmins}
+            {loading ? '...' : donationAdmins}
           </p>
-
         </div>
 
         <div className="rounded-2xl border border-[#F3DEC8] bg-white p-4 shadow-sm">
-
-          <p className="text-xs text-gray-500">
-            Admin Konten
-          </p>
-
+          <p className="text-xs text-gray-500">Admin Konten</p>
           <p className="mt-1 text-xl font-bold text-[#F58220]">
-            {loading
-              ? '...'
-              : contentAdmins}
+            {loading ? '...' : contentAdmins}
           </p>
-
         </div>
-
       </div>
 
-      {/* =========================================================
-          ROLE INFORMATION
-      ========================================================== */}
-
+      {/* ROLE INFORMATION */}
       <div className="rounded-2xl border border-[#F3DEC8] bg-white p-5 shadow-sm">
-
         <h2
           className="font-bold text-gray-900"
-          style={{
-            fontFamily:
-              "'Plus Jakarta Sans', sans-serif",
-          }}
+          style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
         >
           Hak Akses Admin
         </h2>
 
         <p className="mt-1 text-xs text-gray-400">
-          Pembagian akses berdasarkan role
-          pengguna.
+          Pembagian akses berdasarkan role pengguna.
         </p>
 
         <div className="mt-4 grid gap-3 md:grid-cols-3">
-
           <div className="rounded-xl bg-orange-50 p-4">
-
-            <div className="text-sm font-semibold text-[#F58220]">
-              Super Admin
-            </div>
-
+            <div className="text-sm font-semibold text-[#F58220]">Super Admin</div>
             <p className="mt-1 text-xs leading-5 text-gray-500">
-              Memiliki akses penuh terhadap
-              seluruh fitur administrasi.
+              Memiliki akses penuh terhadap seluruh fitur administrasi.
             </p>
-
             <div className="mt-3 text-xs font-medium text-gray-600">
-              {loading
-                ? '...'
-                : superAdmins}{' '}
-              pengguna
+              {loading ? '...' : superAdmins} pengguna
             </div>
-
           </div>
 
           <div className="rounded-xl bg-blue-50 p-4">
-
-            <div className="text-sm font-semibold text-blue-600">
-              Admin Donasi
-            </div>
-
+            <div className="text-sm font-semibold text-blue-600">Admin Donasi</div>
             <p className="mt-1 text-xs leading-5 text-gray-500">
-              Mengelola donasi, transaksi,
-              dan campaign penggalangan dana.
+              Mengelola donasi, transaksi, dan campaign penggalangan dana.
             </p>
-
             <div className="mt-3 text-xs font-medium text-gray-600">
-              {loading
-                ? '...'
-                : donationAdmins}{' '}
-              pengguna
+              {loading ? '...' : donationAdmins} pengguna
             </div>
-
           </div>
 
           <div className="rounded-xl bg-green-50 p-4">
-
-            <div className="text-sm font-semibold text-green-600">
-              Admin Konten
-            </div>
-
+            <div className="text-sm font-semibold text-green-600">Admin Konten</div>
             <p className="mt-1 text-xs leading-5 text-gray-500">
-              Mengelola berita, artikel,
-              program, dan publikasi website.
+              Mengelola berita, artikel, program, dan publikasi website.
             </p>
-
             <div className="mt-3 text-xs font-medium text-gray-600">
-              {loading
-                ? '...'
-                : contentAdmins}{' '}
-              pengguna
+              {loading ? '...' : contentAdmins} pengguna
             </div>
-
           </div>
-
         </div>
-
       </div>
 
-      {/* =========================================================
-          FILTER
-      ========================================================== */}
-
+      {/* FILTER */}
       <div className="rounded-2xl border border-[#F3DEC8] bg-white p-5 shadow-sm">
-
         <div className="grid gap-4 md:grid-cols-3">
-
           <div>
-
             <label className="mb-2 block text-xs font-medium text-gray-600">
               Cari Pengguna
             </label>
@@ -1400,614 +855,310 @@ export default function UserManagement() {
               name="user-search"
               autoComplete="off"
               value={search}
-              onChange={(event) =>
-                setSearch(event.target.value)
-              }
+              onChange={(event) => setSearch(event.target.value)}
               placeholder="Nama atau email..."
               className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm outline-none transition focus:border-[#F58220] focus:ring-1 focus:ring-[#F58220]"
             />
-
           </div>
 
           <div>
-
-            <label className="mb-2 block text-xs font-medium text-gray-600">
-              Role
-            </label>
+            <label className="mb-2 block text-xs font-medium text-gray-600">Role</label>
 
             <select
               value={roleFilter}
-              onChange={(event) =>
-                setRoleFilter(
-                  event.target.value
-                )
-              }
+              onChange={(event) => setRoleFilter(event.target.value)}
               className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm outline-none transition focus:border-[#F58220] focus:ring-1 focus:ring-[#F58220]"
             >
-
-              <option value="Semua">
-                Semua Role
-              </option>
-
-              <option value="Super Admin">
-                Super Admin
-              </option>
-
-              <option value="Admin Donasi">
-                Admin Donasi
-              </option>
-
-              <option value="Admin Konten">
-                Admin Konten
-              </option>
-
+              <option value="Semua">Semua Role</option>
+              <option value="Super Admin">Super Admin</option>
+              <option value="Admin Donasi">Admin Donasi</option>
+              <option value="Admin Konten">Admin Konten</option>
             </select>
-
           </div>
 
           <div>
-
-            <label className="mb-2 block text-xs font-medium text-gray-600">
-              Status
-            </label>
+            <label className="mb-2 block text-xs font-medium text-gray-600">Status</label>
 
             <select
               value={statusFilter}
-              onChange={(event) =>
-                setStatusFilter(
-                  event.target.value
-                )
-              }
+              onChange={(event) => setStatusFilter(event.target.value)}
               className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm outline-none transition focus:border-[#F58220] focus:ring-1 focus:ring-[#F58220]"
             >
-
-              <option value="Semua">
-                Semua Status
-              </option>
-
-              <option value="active">
-                Aktif
-              </option>
-
-              <option value="inactive">
-                Nonaktif
-              </option>
-
+              <option value="Semua">Semua Status</option>
+              <option value="active">Aktif</option>
+              <option value="inactive">Nonaktif</option>
             </select>
-
           </div>
-
         </div>
-
       </div>
 
-      {/* =========================================================
-          USER TABLE
-      ========================================================== */}
-
+      {/* USER TABLE */}
       <div className="overflow-hidden rounded-2xl border border-[#F3DEC8] bg-white shadow-sm">
-
         <div className="border-b border-gray-100 p-5">
-
           <h2
             className="font-bold text-gray-900"
-            style={{
-              fontFamily:
-                "'Plus Jakarta Sans', sans-serif",
-            }}
+            style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
           >
             Daftar Pengguna
           </h2>
 
           <p className="mt-1 text-xs text-gray-400">
-            {loading
-              ? 'Memuat data pengguna...'
-              : `Menampilkan ${filteredUsers.length} pengguna.`}
+            {loading ? 'Memuat data pengguna...' : `Menampilkan ${filteredUsers.length} pengguna.`}
           </p>
-
         </div>
 
         <div className="overflow-x-auto">
-
           <table className="w-full min-w-[900px] text-sm">
-
             <thead className="bg-gray-50">
-
               <tr>
-
                 <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
                   Pengguna
                 </th>
-
                 <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
                   Role
                 </th>
-
                 <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
                   Status
                 </th>
-
                 <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                  Login Terakhir
+                  Tanggal Dibuat
                 </th>
-
                 <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
                   Aksi
                 </th>
-
               </tr>
-
             </thead>
 
             <tbody className="divide-y divide-gray-50">
-
               {loading && (
                 <tr>
-
-                  <td
-                    colSpan={5}
-                    className="px-5 py-12 text-center text-sm text-gray-400"
-                  >
+                  <td colSpan={5} className="px-5 py-12 text-center text-sm text-gray-400">
                     Memuat data pengguna...
                   </td>
-
                 </tr>
               )}
 
-              {!loading &&
-                !error &&
-                filteredUsers.map(
-                  (user) => (
-                    <tr
-                      key={user.id}
-                      className="transition-colors hover:bg-gray-50"
+              {!loading && !error && filteredUsers.map((user) => (
+                <tr key={user.id} className="transition-colors hover:bg-gray-50">
+                  <td className="px-5 py-4">
+                    <div className="font-medium text-gray-900">{user.name}</div>
+                    <div className="mt-1 text-xs text-gray-400">{user.email}</div>
+                  </td>
+
+                  <td className="px-5 py-4">
+                    <span
+                      className={`rounded-full px-2.5 py-1 text-xs font-semibold ${getRoleClass(user.role)}`}
                     >
+                      {user.role}
+                    </span>
+                  </td>
 
-                      <td className="px-5 py-4">
+                  <td className="px-5 py-4">
+                    <span
+                      className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
+                        user.status === 'active'
+                          ? 'bg-green-100 text-green-700'
+                          : 'bg-gray-100 text-gray-600'
+                      }`}
+                    >
+                      {getStatusLabel(user.status)}
+                    </span>
+                  </td>
 
-                        <div className="font-medium text-gray-900">
-                          {user.name}
-                        </div>
+                  <td className="px-5 py-4 text-xs text-gray-500">
+                    {formatDate(user.created_at)}
+                  </td>
 
-                        <div className="mt-1 text-xs text-gray-400">
-                          {user.email}
-                        </div>
+                  <td className="px-5 py-4">
+                    <div className="flex items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={() => handleDetail(user.id)}
+                        className="text-xs font-medium text-[#F58220] hover:underline"
+                      >
+                        Detail
+                      </button>
 
-                      </td>
+                      <button
+                        type="button"
+                        onClick={() => handleEdit(user.id)}
+                        disabled={statusLoadingId === user.id}
+                        className="text-xs font-medium text-blue-600 hover:underline disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        Edit
+                      </button>
 
-                      <td className="px-5 py-4">
-
-                        <span
-                          className={`rounded-full px-2.5 py-1 text-xs font-semibold ${getRoleClass(
-                            user.role
-                          )}`}
-                        >
-                          {user.role}
-                        </span>
-
-                      </td>
-
-                      <td className="px-5 py-4">
-
-                        <span
-                          className={`rounded-full px-2.5 py-1 text-xs font-semibold ${user.status ===
-                            'active'
-                            ? 'bg-green-100 text-green-700'
-                            : 'bg-gray-100 text-gray-600'
-                            }`}
-                        >
-                          {getStatusLabel(
-                            user.status
-                          )}
-                        </span>
-
-                      </td>
-
-                      <td className="px-5 py-4 text-xs text-gray-500">
-                        —
-                      </td>
-
-                      <td className="px-5 py-4">
-
-                        <div className="flex items-center gap-3">
-
-                          {/* DETAIL */}
+                      {user.role !== 'Super Admin' && (
+                        <>
+                          <button
+                            type="button"
+                            disabled={statusLoadingId === user.id}
+                            onClick={() => handleToggleStatus(user)}
+                            className="text-xs font-medium text-gray-600 hover:underline disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            {statusLoadingId === user.id
+                              ? 'Memproses...'
+                              : user.status === 'active'
+                              ? 'Nonaktifkan'
+                              : 'Aktifkan'}
+                          </button>
 
                           <button
                             type="button"
-                            onClick={() =>
-                              handleDetail(
-                                user.id
-                              )
-                            }
-                            className="text-xs font-medium text-[#F58220] hover:underline"
+                            disabled={deleteLoadingId === user.id || statusLoadingId === user.id}
+                            onClick={() => handleDeleteUser(user)}
+                            className="text-xs font-medium text-red-500 hover:underline disabled:cursor-not-allowed disabled:opacity-50"
                           >
-                            Detail
+                            {deleteLoadingId === user.id ? 'Menghapus...' : 'Hapus'}
                           </button>
+                        </>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
 
-                          {/* EDIT */}
-
-                          <button
-                            type="button"
-                            onClick={() =>
-                              handleEdit(
-                                user.id
-                              )
-                            }
-                            disabled={
-                              statusLoadingId ===
-                              user.id
-                            }
-                            className="text-xs font-medium text-blue-600 hover:underline disabled:cursor-not-allowed disabled:opacity-50"
-                          >
-                            Edit
-                          </button>
-
-                          {/* STATUS + DELETE */}
-
-                          {user.role !==
-                            'Super Admin' && (
-                              <>
-
-                                {/* =====================================================
-                                  6.1 - 6.8 STATUS BUTTON
-                              ====================================================== */}
-
-                                <button
-                                  type="button"
-                                  disabled={
-                                    statusLoadingId ===
-                                    user.id
-                                  }
-                                  onClick={() =>
-                                    handleToggleStatus(
-                                      user
-                                    )
-                                  }
-                                  className="text-xs font-medium text-gray-600 hover:underline disabled:cursor-not-allowed disabled:opacity-50"
-                                >
-                                  {statusLoadingId ===
-                                    user.id
-                                    ? 'Memproses...'
-                                    : user.status ===
-                                      'active'
-                                      ? 'Nonaktifkan'
-                                      : 'Aktifkan'}
-                                </button>
-
-                                {/* =====================================================
-                                  DELETE
-                                  Akan dikerjakan pada langkah berikutnya.
-                              ====================================================== */}
-
-                                <button
-                                  type="button"
-                                  disabled={
-                                    deleteLoadingId === user.id ||
-                                    statusLoadingId === user.id
-                                  }
-                                  onClick={() =>
-                                    handleDeleteUser(user)
-                                  }
-                                  className="text-xs font-medium text-red-500 hover:underline disabled:cursor-not-allowed disabled:opacity-50"
-                                >
-                                  {deleteLoadingId === user.id
-                                    ? 'Menghapus...'
-                                    : 'Hapus'}
-                                </button>
-
-                              </>
-                            )}
-
-                        </div>
-
-                      </td>
-
-                    </tr>
-                  )
-                )}
-
-              {!loading &&
-                !error &&
-                filteredUsers.length ===
-                0 && (
-                  <tr>
-
-                    <td
-                      colSpan={5}
-                      className="px-5 py-10 text-center text-sm text-gray-400"
-                    >
-                      Pengguna tidak ditemukan.
-                    </td>
-
-                  </tr>
-                )}
-
+              {!loading && !error && filteredUsers.length === 0 && (
+                <tr>
+                  <td colSpan={5} className="px-5 py-10 text-center text-sm text-gray-400">
+                    Pengguna tidak ditemukan.
+                  </td>
+                </tr>
+              )}
             </tbody>
-
           </table>
-
         </div>
-
       </div>
 
-      {/* =========================================================
-          DETAIL MODAL
-      ========================================================== */}
-
-      {(detailLoading ||
-        selectedUser ||
-        detailError) && (
-
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-
-            <div className="w-full max-w-lg rounded-2xl bg-white shadow-xl">
-
-              <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
-
-                <div>
-
-                  <h2 className="text-base font-bold text-gray-900">
-                    Detail Pengguna
-                  </h2>
-
-                  <p className="mt-1 text-xs text-gray-400">
-                    Informasi akun pengguna.
-                  </p>
-
-                </div>
-
-                <button
-                  type="button"
-                  onClick={closeDetail}
-                  className="text-xl leading-none text-gray-400 hover:text-gray-700"
-                  aria-label="Tutup"
-                >
-                  ×
-                </button>
-
-              </div>
-
-              {detailLoading && (
-
-                <div className="px-6 py-10 text-center text-sm text-gray-400">
-                  Memuat detail pengguna...
-                </div>
-
-              )}
-
-              {!detailLoading &&
-                detailError && (
-
-                  <div className="px-6 py-8">
-
-                    <div className="rounded-xl border border-red-200 bg-red-50 p-4">
-
-                      <p className="text-sm text-red-700">
-                        {detailError}
-                      </p>
-
-                    </div>
-
-                  </div>
-
-                )}
-
-              {!detailLoading &&
-                !detailError &&
-                selectedUser && (
-
-                  <div className="space-y-5 px-6 py-6">
-
-                    <div className="flex items-center gap-4">
-
-                      {selectedUser.photo ? (
-
-                        <img
-                          src={selectedUser.photo}
-                          alt={selectedUser.name}
-                          className="h-16 w-16 rounded-full object-cover"
-                        />
-
-                      ) : (
-
-                        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-orange-50 text-xl font-bold text-[#F58220]">
-
-                          {selectedUser.name
-                            .charAt(0)
-                            .toUpperCase()}
-
-                        </div>
-
-                      )}
-
-                      <div>
-
-                        <h3 className="font-bold text-gray-900">
-                          {selectedUser.name}
-                        </h3>
-
-                        <span
-                          className={`mt-1 inline-block rounded-full px-2.5 py-1 text-xs font-semibold ${getRoleClass(
-                            selectedUser.role
-                          )}`}
-                        >
-                          {selectedUser.role}
-                        </span>
-
-                      </div>
-
-                    </div>
-
-                    <div className="grid gap-4 sm:grid-cols-2">
-
-                      <div>
-
-                        <p className="text-xs text-gray-400">
-                          Email
-                        </p>
-
-                        <p className="mt-1 break-words text-sm font-medium text-gray-900">
-                          {selectedUser.email}
-                        </p>
-
-                      </div>
-
-                      <div>
-
-                        <p className="text-xs text-gray-400">
-                          Telepon
-                        </p>
-
-                        <p className="mt-1 text-sm font-medium text-gray-900">
-                          {selectedUser.phone ||
-                            '—'}
-                        </p>
-
-                      </div>
-
-                      <div>
-
-                        <p className="text-xs text-gray-400">
-                          Status
-                        </p>
-
-                        <span
-                          className={`mt-1 inline-block rounded-full px-2.5 py-1 text-xs font-semibold ${selectedUser.status ===
-                            'active'
-                            ? 'bg-green-100 text-green-700'
-                            : 'bg-gray-100 text-gray-600'
-                            }`}
-                        >
-                          {getStatusLabel(
-                            selectedUser.status
-                          )}
-                        </span>
-
-                      </div>
-
-                      <div>
-
-                        <p className="text-xs text-gray-400">
-                          ID Pengguna
-                        </p>
-
-                        <p className="mt-1 text-sm font-medium text-gray-900">
-                          #{selectedUser.id}
-                        </p>
-
-                      </div>
-
-                      <div>
-
-                        <p className="text-xs text-gray-400">
-                          Dibuat
-                        </p>
-
-                        <p className="mt-1 text-sm font-medium text-gray-900">
-                          {formatDate(
-                            selectedUser.created_at
-                          )}
-                        </p>
-
-                      </div>
-
-                      <div>
-
-                        <p className="text-xs text-gray-400">
-                          Diperbarui
-                        </p>
-
-                        <p className="mt-1 text-sm font-medium text-gray-900">
-                          {formatDate(
-                            selectedUser.updated_at
-                          )}
-                        </p>
-
-                      </div>
-
-                    </div>
-
-                  </div>
-
-                )}
-
-              {!detailLoading && (
-
-                <div className="flex justify-end border-t border-gray-100 px-6 py-4">
-
-                  <button
-                    type="button"
-                    onClick={closeDetail}
-                    className="rounded-xl border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
-                  >
-                    Tutup
-                  </button>
-
-                </div>
-
-              )}
-
-            </div>
-
-          </div>
-
-        )}
-
-      {/* =========================================================
-          CREATE USER MODAL
-      ========================================================== */}
-
-      {showCreateModal && (
-
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 p-4">
-
-          <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white shadow-xl">
-
+      {/* DETAIL MODAL */}
+      {(detailLoading || selectedUser || detailError) && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white shadow-xl">
             <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
-
               <div>
-
-                <h2 className="text-base font-bold text-gray-900">
-                  Tambah Pengguna
-                </h2>
-
-                <p className="mt-1 text-xs text-gray-400">
-                  Tambahkan pengguna atau admin baru.
-                </p>
-
+                <h2 className="text-base font-bold text-gray-900">Detail Pengguna</h2>
+                <p className="mt-1 text-xs text-gray-400">Informasi akun pengguna.</p>
               </div>
 
               <button
                 type="button"
-                onClick={() => {
-                  setShowCreateModal(false)
-                  setCreateError(null)
-                }}
+                onClick={closeDetail}
                 className="text-xl leading-none text-gray-400 hover:text-gray-700"
                 aria-label="Tutup"
               >
                 ×
               </button>
+            </div>
 
+            {detailLoading && (
+              <div className="px-6 py-10 text-center text-sm text-gray-400">
+                Memuat detail pengguna...
+              </div>
+            )}
+
+            {!detailLoading && detailError && (
+              <div className="px-6 py-8">
+                <div className="rounded-xl border border-red-200 bg-red-50 p-4">
+                  <p className="text-sm text-red-700">{detailError}</p>
+                </div>
+              </div>
+            )}
+
+            {!detailLoading && !detailError && selectedUser && (
+              <div className="space-y-5 px-6 py-6">
+                <div className="flex items-center gap-4">
+                  {selectedUser.photo ? (
+                    <img
+                      src={selectedUser.photo}
+                      alt={selectedUser.name}
+                      className="h-16 w-16 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-orange-50 text-xl font-bold text-[#F58220]">
+                      {selectedUser.name.charAt(0).toUpperCase()}
+                    </div>
+                  )}
+
+                  <div>
+                    <h3 className="font-bold text-gray-900">{selectedUser.name}</h3>
+                    <span
+                      className={`mt-1 inline-block rounded-full px-2.5 py-1 text-xs font-semibold ${getRoleClass(selectedUser.role)}`}
+                    >
+                      {selectedUser.role}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <p className="text-xs text-gray-400">Email</p>
+                    <p className="mt-1 break-words text-sm font-medium text-gray-900">
+                      {selectedUser.email}
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="text-xs text-gray-400">Telepon</p>
+                    <p className="mt-1 text-sm font-medium text-gray-900">
+                      {selectedUser.phone || '—'}
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="text-xs text-gray-400">Status</p>
+                    <span
+                      className={`mt-1 inline-block rounded-full px-2.5 py-1 text-xs font-semibold ${
+                        selectedUser.status === 'active'
+                          ? 'bg-green-100 text-green-700'
+                          : 'bg-gray-100 text-gray-600'
+                      }`}
+                    >
+                      {getStatusLabel(selectedUser.status)}
+                    </span>
+                  </div>
+
+                  <div>
+                    <p className="text-xs text-gray-400">Dibuat</p>
+                    <p className="mt-1 text-sm font-medium text-gray-900">
+                      {formatDate(selectedUser.created_at)}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* CREATE MODAL */}
+      {showCreateModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white shadow-xl">
+            <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
+              <div>
+                <h2 className="text-base font-bold text-gray-900">Tambah Pengguna</h2>
+                <p className="mt-1 text-xs text-gray-400">Buat akun pengguna atau admin baru.</p>
+              </div>
+
+              <button
+                type="button"
+                disabled={createLoading}
+                onClick={closeCreate}
+                className="text-xl leading-none text-gray-400 hover:text-gray-700 disabled:cursor-not-allowed"
+                aria-label="Tutup"
+              >
+                ×
+              </button>
             </div>
 
             <div className="space-y-5 px-6 py-6">
-
               {createError && (
-
                 <div className="rounded-xl border border-red-200 bg-red-50 p-4">
-
-                  <p className="text-sm text-red-700">
-                    {createError}
-                  </p>
-
+                  <p className="text-sm text-red-700">{createError}</p>
                 </div>
-
               )}
 
               <div>
-
                 <label className="mb-2 block text-xs font-medium text-gray-600">
                   Nama Lengkap *
                 </label>
@@ -2015,181 +1166,101 @@ export default function UserManagement() {
                 <input
                   type="text"
                   value={createForm.name}
-                  onChange={(event) =>
-                    handleCreateInputChange(
-                      'name',
-                      event.target.value
-                    )
-                  }
-                  placeholder="Masukkan nama lengkap"
-                  className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm outline-none transition focus:border-[#F58220] focus:ring-1 focus:ring-[#F58220]"
+                  disabled={createLoading}
+                  onChange={(event) => handleCreateInputChange('name', event.target.value)}
+                  placeholder="Nama lengkap"
+                  className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm outline-none transition focus:border-[#F58220] focus:ring-1 focus:ring-[#F58220] disabled:cursor-not-allowed disabled:bg-gray-50"
                 />
-
               </div>
 
               <div>
-
-                <label className="mb-2 block text-xs font-medium text-gray-600">
-                  Email *
-                </label>
+                <label className="mb-2 block text-xs font-medium text-gray-600">Email *</label>
 
                 <input
                   type="email"
-                  name="create-user-email"
-                  autoComplete="off"
                   value={createForm.email}
-                  onChange={(event) =>
-                    handleCreateInputChange(
-                      'email',
-                      event.target.value
-                    )
-                  }
-                  placeholder="contoh@email.com"
-                  className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm outline-none transition focus:border-[#F58220] focus:ring-1 focus:ring-[#F58220]"
+                  disabled={createLoading}
+                  onChange={(event) => handleCreateInputChange('email', event.target.value)}
+                  placeholder="nama@lazismu.org"
+                  className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm outline-none transition focus:border-[#F58220] focus:ring-1 focus:ring-[#F58220] disabled:cursor-not-allowed disabled:bg-gray-50"
                 />
-
               </div>
 
               <div>
-
                 <label className="mb-2 block text-xs font-medium text-gray-600">
                   Nomor Telepon
                 </label>
 
                 <input
-                  type="tel"
+                  type="text"
                   value={createForm.phone}
-                  onChange={(event) =>
-                    handleCreateInputChange(
-                      'phone',
-                      event.target.value
-                    )
-                  }
+                  disabled={createLoading}
+                  onChange={(event) => handleCreateInputChange('phone', event.target.value)}
                   placeholder="08xxxxxxxxxx"
-                  className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm outline-none transition focus:border-[#F58220] focus:ring-1 focus:ring-[#F58220]"
+                  className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm outline-none transition focus:border-[#F58220] focus:ring-1 focus:ring-[#F58220] disabled:cursor-not-allowed disabled:bg-gray-50"
+                />
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-2">
+                <PasswordField
+                  label="Password *"
+                  name="new-user-password"
+                  value={createForm.password}
+                  visible={showCreatePassword}
+                  disabled={createLoading}
+                  placeholder="Minimal 8 karakter"
+                  onChange={(value) => handleCreateInputChange('password', value)}
+                  onToggleVisible={() => setShowCreatePassword((current) => !current)}
                 />
 
+                <PasswordField
+                  label="Konfirmasi Password *"
+                  name="new-user-password-confirmation"
+                  value={createForm.password_confirmation}
+                  visible={showCreatePasswordConfirmation}
+                  disabled={createLoading}
+                  placeholder="Ulangi password"
+                  onChange={(value) => handleCreateInputChange('password_confirmation', value)}
+                  onToggleVisible={() =>
+                    setShowCreatePasswordConfirmation((current) => !current)
+                  }
+                />
               </div>
 
               <div className="grid gap-4 md:grid-cols-2">
-
                 <div>
-
-                  <label className="mb-2 block text-xs font-medium text-gray-600">
-                    Password *
-                  </label>
-
-                  <input
-                    type="password"
-                    name="new-password"
-                    autoComplete="new-password"
-                    value={editForm.password}
-                    disabled={editLoading}
-                    onChange={(event) =>
-                      handleEditInputChange(
-                        'password',
-                        event.target.value
-                      )
-                    }
-                    placeholder="Minimal 8 karakter"
-                    className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm outline-none transition focus:border-[#F58220] focus:ring-1 focus:ring-[#F58220] disabled:cursor-not-allowed disabled:bg-gray-50"
-                  />
-
-                </div>
-
-                <div>
-
-                  <label className="mb-2 block text-xs font-medium text-gray-600">
-                    Konfirmasi Password *
-                  </label>
-
-                  <input
-                    type="password"
-                    value={
-                      createForm.password_confirmation
-                    }
-                    onChange={(event) =>
-                      handleCreateInputChange(
-                        'password_confirmation',
-                        event.target.value
-                      )
-                    }
-                    placeholder="Ulangi password"
-                    className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm outline-none transition focus:border-[#F58220] focus:ring-1 focus:ring-[#F58220]"
-                  />
-
-                </div>
-
-              </div>
-
-              <div className="grid gap-4 md:grid-cols-2">
-
-                <div>
-
-                  <label className="mb-2 block text-xs font-medium text-gray-600">
-                    Role *
-                  </label>
+                  <label className="mb-2 block text-xs font-medium text-gray-600">Role *</label>
 
                   <select
                     value={createForm.role}
-                    onChange={(event) =>
-                      handleCreateInputChange(
-                        'role',
-                        event.target.value
-                      )
-                    }
-                    className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm outline-none transition focus:border-[#F58220] focus:ring-1 focus:ring-[#F58220]"
+                    disabled={createLoading}
+                    onChange={(event) => handleCreateInputChange('role', event.target.value)}
+                    className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm outline-none transition focus:border-[#F58220] focus:ring-1 focus:ring-[#F58220] disabled:cursor-not-allowed disabled:bg-gray-50"
                   >
-
-                    <option value="Super Admin">
-                      Super Admin
-                    </option>
-
-                    <option value="Admin Donasi">
-                      Admin Donasi
-                    </option>
-
-                    <option value="Admin Konten">
-                      Admin Konten
-                    </option>
-
+                    <option value="Super Admin">Super Admin</option>
+                    <option value="Admin Donasi">Admin Donasi</option>
+                    <option value="Admin Konten">Admin Konten</option>
                   </select>
-
                 </div>
 
                 <div>
-
                   <label className="mb-2 block text-xs font-medium text-gray-600">
                     Status *
                   </label>
 
                   <select
                     value={createForm.status}
-                    onChange={(event) =>
-                      handleCreateInputChange(
-                        'status',
-                        event.target.value
-                      )
-                    }
-                    className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm outline-none transition focus:border-[#F58220] focus:ring-1 focus:ring-[#F58220]"
+                    disabled={createLoading}
+                    onChange={(event) => handleCreateInputChange('status', event.target.value)}
+                    className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm outline-none transition focus:border-[#F58220] focus:ring-1 focus:ring-[#F58220] disabled:cursor-not-allowed disabled:bg-gray-50"
                   >
-
-                    <option value="active">
-                      Aktif
-                    </option>
-
-                    <option value="inactive">
-                      Nonaktif
-                    </option>
-
+                    <option value="active">Aktif</option>
+                    <option value="inactive">Nonaktif</option>
                   </select>
-
                 </div>
-
               </div>
 
               <div>
-
                 <label className="mb-2 block text-xs font-medium text-gray-600">
                   Foto Profil
                 </label>
@@ -2197,13 +1268,11 @@ export default function UserManagement() {
                 <input
                   type="file"
                   accept="image/jpeg,image/png,image/webp"
+                  disabled={createLoading}
                   onChange={(event) =>
-                    handleCreatePhotoChange(
-                      event.target.files?.[0] ||
-                      null
-                    )
+                    handleCreatePhotoChange(event.target.files?.[0] || null)
                   }
-                  className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm file:mr-4 file:rounded-lg file:border-0 file:bg-orange-50 file:px-3 file:py-2 file:text-xs file:font-semibold file:text-[#F58220]"
+                  className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm file:mr-4 file:rounded-lg file:border-0 file:bg-orange-50 file:px-3 file:py-2 file:text-xs file:font-semibold file:text-[#F58220] disabled:cursor-not-allowed disabled:bg-gray-50"
                 />
 
                 <p className="mt-1 text-xs text-gray-400">
@@ -2211,32 +1280,18 @@ export default function UserManagement() {
                 </p>
 
                 {createForm.photo && (
-
                   <p className="mt-2 text-xs text-gray-500">
-
-                    File dipilih:{' '}
-
-                    <span className="font-medium">
-                      {createForm.photo.name}
-                    </span>
-
+                    File dipilih: <span className="font-medium">{createForm.photo.name}</span>
                   </p>
-
                 )}
-
               </div>
-
             </div>
 
             <div className="flex flex-col-reverse gap-3 border-t border-gray-100 px-6 py-4 sm:flex-row sm:justify-end">
-
               <button
                 type="button"
                 disabled={createLoading}
-                onClick={() => {
-                  setShowCreateModal(false)
-                  setCreateError(null)
-                }}
+                onClick={closeCreate}
                 className="rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Batal
@@ -2248,90 +1303,42 @@ export default function UserManagement() {
                 onClick={handleCreateUser}
                 className="rounded-xl bg-[#F58220] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {createLoading
-                  ? 'Menyimpan...'
-                  : 'Simpan Pengguna'}
+                {createLoading ? 'Menyimpan...' : 'Simpan Pengguna'}
               </button>
-
             </div>
-
           </div>
-
         </div>
-
       )}
 
-      {/* =========================================================
-          EDIT USER MODAL
-      ========================================================== */}
-
+      {/* EDIT MODAL */}
       {showEditModal && (
-
-        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/40 p-4">
-
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
           <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white shadow-xl">
-
-            {/* HEADER */}
-
             <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
-
               <div>
-
-                <h2 className="text-base font-bold text-gray-900">
-                  Edit Pengguna
-                </h2>
-
-                <p className="mt-1 text-xs text-gray-400">
-                  Perbarui informasi akun pengguna.
-                </p>
-
+                <h2 className="text-base font-bold text-gray-900">Edit Pengguna</h2>
+                <p className="mt-1 text-xs text-gray-400">Perbarui data akun pengguna.</p>
               </div>
 
               <button
                 type="button"
                 disabled={editLoading}
                 onClick={closeEdit}
-                className="text-xl leading-none text-gray-400 hover:text-gray-700 disabled:cursor-not-allowed disabled:opacity-50"
+                className="text-xl leading-none text-gray-400 hover:text-gray-700 disabled:cursor-not-allowed"
                 aria-label="Tutup"
               >
                 ×
               </button>
-
             </div>
 
-            {/* FORM */}
-
             <div className="space-y-5 px-6 py-6">
-
-              {/* ERROR */}
-
               {editError && (
-
                 <div className="rounded-xl border border-red-200 bg-red-50 p-4">
-
-                  <p className="text-sm text-red-700">
-                    {editError}
-                  </p>
-
+                  <p className="text-sm text-red-700">{editError}</p>
                 </div>
-
               )}
 
-              {/* LOADING */}
-
-              {editLoading &&
-                !editUserId && (
-
-                  <div className="rounded-xl bg-gray-50 p-4 text-center text-sm text-gray-500">
-                    Memuat data pengguna...
-                  </div>
-
-                )}
-
-              {/* NAMA */}
-
               <div>
-
                 <label className="mb-2 block text-xs font-medium text-gray-600">
                   Nama Lengkap *
                 </label>
@@ -2340,176 +1347,90 @@ export default function UserManagement() {
                   type="text"
                   value={editForm.name}
                   disabled={editLoading}
-                  onChange={(event) =>
-                    handleEditInputChange(
-                      'name',
-                      event.target.value
-                    )
-                  }
-                  placeholder="Masukkan nama lengkap"
-                  className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm outline-none transition focus:border-[#F58220] focus:ring-1 focus:ring-[#F58220] disabled:cursor-not-allowed disabled:bg-gray-50"
+                  onChange={(event) => handleEditInputChange('name', event.target.value)}
+                  placeholder="Nama lengkap"
+                  className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm outline-none transition focus:border-[#F58220] focus:ring-1 focus:ring-[#F58220] disabled:cursor-not-allowed disabled:bg-gray-50"
                 />
-
               </div>
 
-              {/* EMAIL */}
-
               <div>
-
-                <label className="mb-2 block text-xs font-medium text-gray-600">
-                  Email *
-                </label>
+                <label className="mb-2 block text-xs font-medium text-gray-600">Email *</label>
 
                 <input
                   type="email"
-                  name="edit-user-email"
-                  autoComplete="off"
                   value={editForm.email}
                   disabled={editLoading}
-                  onChange={(event) =>
-                    handleEditInputChange(
-                      'email',
-                      event.target.value
-                    )
-                  }
-                  placeholder="contoh@email.com"
-                  className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm outline-none transition focus:border-[#F58220] focus:ring-1 focus:ring-[#F58220] disabled:cursor-not-allowed disabled:bg-gray-50"
+                  onChange={(event) => handleEditInputChange('email', event.target.value)}
+                  placeholder="nama@lazismu.org"
+                  className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm outline-none transition focus:border-[#F58220] focus:ring-1 focus:ring-[#F58220] disabled:cursor-not-allowed disabled:bg-gray-50"
                 />
-
               </div>
 
-              {/* PHONE */}
-
               <div>
-
                 <label className="mb-2 block text-xs font-medium text-gray-600">
                   Nomor Telepon
                 </label>
 
                 <input
-                  type="tel"
-                  name="edit-user-phone"
-                  autoComplete="off"
+                  type="text"
                   value={editForm.phone}
                   disabled={editLoading}
-                  onChange={(event) =>
-                    handleEditInputChange(
-                      'phone',
-                      event.target.value
-                    )
-                  }
+                  onChange={(event) => handleEditInputChange('phone', event.target.value)}
                   placeholder="08xxxxxxxxxx"
-                  className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm outline-none transition focus:border-[#F58220] focus:ring-1 focus:ring-[#F58220] disabled:cursor-not-allowed disabled:bg-gray-50"
+                  className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm outline-none transition focus:border-[#F58220] focus:ring-1 focus:ring-[#F58220] disabled:cursor-not-allowed disabled:bg-gray-50"
                 />
-
               </div>
 
-              {/* PASSWORD */}
-
-              <div className="rounded-xl border border-gray-100 bg-gray-50 p-4">
-
-                <p className="mb-4 text-xs font-semibold text-gray-700">
-                  Ubah Password
-                </p>
-
+              <div>
+                <p className="mb-4 text-xs font-semibold text-gray-700">Ubah Password</p>
                 <p className="mb-4 text-xs text-gray-400">
                   Kosongkan jika password tidak ingin diubah.
                 </p>
 
                 <div className="grid gap-4 md:grid-cols-2">
+                  <PasswordField
+                    label="Password Baru"
+                    name="edit-user-password"
+                    value={editForm.password}
+                    visible={showEditPassword}
+                    disabled={editLoading}
+                    placeholder="Minimal 8 karakter"
+                    onChange={(value) => handleEditInputChange('password', value)}
+                    onToggleVisible={() => setShowEditPassword((current) => !current)}
+                  />
 
-                  <div>
-
-                    <label className="mb-2 block text-xs font-medium text-gray-600">
-                      Password Baru
-                    </label>
-
-                    <input
-                      type="password"
-                      value={
-                        editForm.password
-                      }
-                      disabled={editLoading}
-                      onChange={(event) =>
-                        handleEditInputChange(
-                          'password',
-                          event.target.value
-                        )
-                      }
-                      placeholder="Minimal 8 karakter"
-                      className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm outline-none transition focus:border-[#F58220] focus:ring-1 focus:ring-[#F58220] disabled:cursor-not-allowed disabled:bg-gray-50"
-                    />
-
-                  </div>
-
-                  <div>
-
-                    <label className="mb-2 block text-xs font-medium text-gray-600">
-                      Konfirmasi Password
-                    </label>
-
-                    <input
-                      type="password"
-                      name="new-password-confirmation"
-                      autoComplete="new-password"
-                      value={editForm.password_confirmation}
-                      disabled={editLoading}
-                      onChange={(event) =>
-                        handleEditInputChange(
-                          'password_confirmation',
-                          event.target.value
-                        )
-                      }
-                      placeholder="Ulangi password baru"
-                      className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm outline-none transition focus:border-[#F58220] focus:ring-1 focus:ring-[#F58220] disabled:cursor-not-allowed disabled:bg-gray-50"
-                    />
-
-                  </div>
-
+                  <PasswordField
+                    label="Konfirmasi Password"
+                    name="edit-user-password-confirmation"
+                    value={editForm.password_confirmation}
+                    visible={showEditPasswordConfirmation}
+                    disabled={editLoading}
+                    placeholder="Ulangi password baru"
+                    onChange={(value) => handleEditInputChange('password_confirmation', value)}
+                    onToggleVisible={() =>
+                      setShowEditPasswordConfirmation((current) => !current)
+                    }
+                  />
                 </div>
-
               </div>
 
-              {/* ROLE + STATUS */}
-
               <div className="grid gap-4 md:grid-cols-2">
-
                 <div>
-
-                  <label className="mb-2 block text-xs font-medium text-gray-600">
-                    Role *
-                  </label>
+                  <label className="mb-2 block text-xs font-medium text-gray-600">Role *</label>
 
                   <select
                     value={editForm.role}
                     disabled={editLoading}
-                    onChange={(event) =>
-                      handleEditInputChange(
-                        'role',
-                        event.target.value
-                      )
-                    }
+                    onChange={(event) => handleEditInputChange('role', event.target.value)}
                     className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm outline-none transition focus:border-[#F58220] focus:ring-1 focus:ring-[#F58220] disabled:cursor-not-allowed disabled:bg-gray-50"
                   >
-
-                    <option value="Super Admin">
-                      Super Admin
-                    </option>
-
-                    <option value="Admin Donasi">
-                      Admin Donasi
-                    </option>
-
-                    <option value="Admin Konten">
-                      Admin Konten
-                    </option>
-
+                    <option value="Super Admin">Super Admin</option>
+                    <option value="Admin Donasi">Admin Donasi</option>
+                    <option value="Admin Konten">Admin Konten</option>
                   </select>
-
                 </div>
 
                 <div>
-
                   <label className="mb-2 block text-xs font-medium text-gray-600">
                     Status *
                   </label>
@@ -2517,41 +1438,22 @@ export default function UserManagement() {
                   <select
                     value={editForm.status}
                     disabled={editLoading}
-                    onChange={(event) =>
-                      handleEditInputChange(
-                        'status',
-                        event.target.value
-                      )
-                    }
+                    onChange={(event) => handleEditInputChange('status', event.target.value)}
                     className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm outline-none transition focus:border-[#F58220] focus:ring-1 focus:ring-[#F58220] disabled:cursor-not-allowed disabled:bg-gray-50"
                   >
-
-                    <option value="active">
-                      Aktif
-                    </option>
-
-                    <option value="inactive">
-                      Nonaktif
-                    </option>
-
+                    <option value="active">Aktif</option>
+                    <option value="inactive">Nonaktif</option>
                   </select>
-
                 </div>
-
               </div>
 
-              {/* CURRENT PHOTO */}
-
               <div>
-
                 <label className="mb-2 block text-xs font-medium text-gray-600">
                   Foto Profil Saat Ini
                 </label>
 
                 {editCurrentPhoto ? (
-
                   <div className="flex items-center gap-4 rounded-xl border border-gray-100 bg-gray-50 p-4">
-
                     <img
                       src={editCurrentPhoto}
                       alt="Foto profil saat ini"
@@ -2559,53 +1461,29 @@ export default function UserManagement() {
                     />
 
                     <div>
-
-                      <p className="text-sm font-medium text-gray-700">
-                        Foto profil saat ini
-                      </p>
-
+                      <p className="text-sm font-medium text-gray-700">Foto profil saat ini</p>
                       <p className="mt-1 text-xs text-gray-400">
                         Pilih foto baru di bawah jika ingin menggantinya.
                       </p>
-
                     </div>
-
                   </div>
-
                 ) : (
-
                   <div className="flex items-center gap-4 rounded-xl border border-gray-100 bg-gray-50 p-4">
-
                     <div className="flex h-16 w-16 items-center justify-center rounded-full bg-orange-50 text-xl font-bold text-[#F58220]">
-                      {editForm.name
-                        ? editForm.name
-                          .charAt(0)
-                          .toUpperCase()
-                        : '?'}
+                      {editForm.name ? editForm.name.charAt(0).toUpperCase() : '?'}
                     </div>
 
                     <div>
-
-                      <p className="text-sm font-medium text-gray-700">
-                        Belum ada foto profil
-                      </p>
-
+                      <p className="text-sm font-medium text-gray-700">Belum ada foto profil</p>
                       <p className="mt-1 text-xs text-gray-400">
                         Kamu dapat menambahkan foto baru.
                       </p>
-
                     </div>
-
                   </div>
-
                 )}
-
               </div>
 
-              {/* NEW PHOTO */}
-
               <div>
-
                 <label className="mb-2 block text-xs font-medium text-gray-600">
                   Ganti Foto Profil
                 </label>
@@ -2615,10 +1493,7 @@ export default function UserManagement() {
                   accept="image/jpeg,image/png,image/webp"
                   disabled={editLoading}
                   onChange={(event) =>
-                    handleEditPhotoChange(
-                      event.target.files?.[0] ||
-                      null
-                    )
+                    handleEditPhotoChange(event.target.files?.[0] || null)
                   }
                   className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm file:mr-4 file:rounded-lg file:border-0 file:bg-orange-50 file:px-3 file:py-2 file:text-xs file:font-semibold file:text-[#F58220] disabled:cursor-not-allowed disabled:bg-gray-50"
                 />
@@ -2628,27 +1503,14 @@ export default function UserManagement() {
                 </p>
 
                 {editForm.photo && (
-
                   <p className="mt-2 text-xs text-gray-500">
-
-                    File baru:{' '}
-
-                    <span className="font-medium">
-                      {editForm.photo.name}
-                    </span>
-
+                    File baru: <span className="font-medium">{editForm.photo.name}</span>
                   </p>
-
                 )}
-
               </div>
-
             </div>
 
-            {/* FOOTER */}
-
             <div className="flex flex-col-reverse gap-3 border-t border-gray-100 px-6 py-4 sm:flex-row sm:justify-end">
-
               <button
                 type="button"
                 disabled={editLoading}
@@ -2660,28 +1522,16 @@ export default function UserManagement() {
 
               <button
                 type="button"
-                disabled={
-                  editLoading ||
-                  editUserId === null
-                }
-                onClick={
-                  handleUpdateUser
-                }
+                disabled={editLoading || editUserId === null}
+                onClick={handleUpdateUser}
                 className="rounded-xl bg-[#F58220] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {editLoading
-                  ? 'Menyimpan...'
-                  : 'Simpan Perubahan'}
+                {editLoading ? 'Menyimpan...' : 'Simpan Perubahan'}
               </button>
-
             </div>
-
           </div>
-
         </div>
-
       )}
-
     </div>
   )
 }

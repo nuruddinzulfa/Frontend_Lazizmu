@@ -16,6 +16,7 @@ import PublicationManagement from '../../components/admin/publikasi/PublicationM
 import UserManagement from '../../components/admin/users/UserManagement'
 import ReportManagement from '../../components/admin/laporan/ReportManagement'
 import SettingsManagement from '../../components/admin/pengaturan/SettingsManagement'
+import AboutManagement from '../../components/admin/about/AboutManagement'
 
 interface DashboardPageProps {
   onNavigate?: (page: NavPage) => void
@@ -34,6 +35,7 @@ type MenuKey =
   | 'berita'
   | 'artikel'
   | 'publikasi'
+  |'tentang-kami'
   | 'users'
   | 'laporan'
   | 'pengaturan'
@@ -120,6 +122,7 @@ const roleMenus: Record<AdminRole, MenuKey[]> = {
     'berita',
     'artikel',
     'publikasi',
+    'tentang-kami',
     'users',
     'laporan',
     'pengaturan',
@@ -132,6 +135,7 @@ const roleMenus: Record<AdminRole, MenuKey[]> = {
     'berita',
     'artikel',
     'publikasi',
+    'tentang-kami',
   ],
 
   'Admin Donasi': [
@@ -317,6 +321,15 @@ export default function DashboardPage({
 
       case 'donasi':
         return <DonationManagement />
+
+       /*
+      |--------------------------------------------------------------------------
+      | About
+      |--------------------------------------------------------------------------
+      */
+
+      case 'tentang-kami':
+        return <AboutManagement />
 
       /*
       |--------------------------------------------------------------------------
