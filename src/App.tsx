@@ -1033,14 +1033,17 @@ export default function App() {
       |--------------------------------------------------------------------------
       */
 
-      case 'home':
-        return (
-          <HomePage
-            onNavigate={
-              handleNavigate
-            }
-          />
-        )
+  case 'home':
+  return (
+    <HomePage
+      onNavigate={
+        handleNavigate
+      }
+      onOpenPillar={
+        handleOpenPillar
+      }
+    />
+  )
 
       /*
       |--------------------------------------------------------------------------

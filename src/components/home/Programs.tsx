@@ -1,398 +1,233 @@
-import { useEffect, useState } from "react";
-import { useInView } from "../../hooks/useInView";
-import type { NavPage } from "../../App";
-import { api } from "../../services/api";
+'use client'
+
+import type { NavPage } from '../../App'
 
 interface ProgramsProps {
-  onNavigate: (page: NavPage) => void;
-}
-
-interface Program {
-  id: number;
-  title: string;
-  slug: string;
-  excerpt?: string | null;
-  thumbnail?: string | null;
-  pillar?: string | null;
-  published_at?: string | null;
-  views?: number | null;
-  sort_order?: number | null;
-}
-
-interface ProgramResponse {
-  success: boolean;
-  message?: string;
-  data: Program[];
+  onNavigate?: (page: NavPage) => void
+  onOpenPillar?: (category: string) => void
 }
 
 /*
 |--------------------------------------------------------------------------
-| Warna Pillar
+| 6 PILAR PROGRAM
 |--------------------------------------------------------------------------
 */
 
-function getPillarColor(pillar?: string | null) {
-  const value = pillar?.toLowerCase() ?? "";
-
-  if (value.includes("pendidikan")) {
-    return "bg-blue-100 text-blue-700";
-  }
-
-  if (value.includes("kesehatan")) {
-    return "bg-red-100 text-red-700";
-  }
-
-  if (value.includes("ekonomi")) {
-    return "bg-green-100 text-green-700";
-  }
-
-  if (value.includes("sosial")) {
-    return "bg-orange-100 text-orange-700";
-  }
-
-  if (value.includes("dakwah")) {
-    return "bg-purple-100 text-purple-700";
-  }
-
-  if (value.includes("lingkungan")) {
-    return "bg-emerald-100 text-emerald-700";
-  }
-
-  return "bg-gray-100 text-gray-700";
-}
+const pillars = [
+  {
+    icon: '📚',
+    name: 'Pendidikan',
+    desc: 'Pendidikan adalah kunci utama untuk membuka pintu masa depan yang cerah. LAZISMU terus berupaya memberikan akses pendidikan berkualitas bagi seluruh lapisan masyarakat, terutama mereka yang kurang beruntung.',
+  },
+  {
+    icon: '🏥',
+    name: 'Kesehatan',
+    desc: 'Kesehatan menjadi aset yang tak ternilai. LAZISMU hadir dengan komitmen untuk membantu masyarakat memperoleh akses layanan kesehatan yang layak dan mewujudkan masyarakat yang sehat dan sejahtera.',
+  },
+  {
+    icon: '💼',
+    name: 'Ekonomi',
+    desc: 'Melalui Pilar Ekonomi, LAZISMU berkomitmen memberdayakan masyarakat, khususnya mereka yang berada di garis kemiskinan, agar mampu meningkatkan taraf hidup dan kemandirian ekonomi.',
+  },
+  {
+    icon: '🤲',
+    name: 'Sosial Dakwah',
+    desc: 'Pilar Sosial Dakwah berfokus pada penguatan kehidupan sosial dan dakwah dengan menebarkan kebaikan, kepedulian, serta membangun masyarakat yang lebih baik.',
+  },
+  {
+    icon: '🫂',
+    name: 'Kemanusiaan',
+    desc: 'LAZISMU senantiasa hadir di tengah masyarakat untuk memberikan bantuan dan dukungan. Pilar Kemanusiaan menjadi wujud nyata komitmen untuk meringankan beban sesama.',
+  },
+  {
+    icon: '🌱',
+    name: 'Lingkungan',
+    desc: 'Pilar Lingkungan berfokus pada kepedulian terhadap kelestarian alam serta kontribusi positif bagi lingkungan dan generasi yang akan datang.',
+  },
+]
 
 /*
 |--------------------------------------------------------------------------
-| Placeholder Icon
+| COMPONENT
 |--------------------------------------------------------------------------
 */
-
-function getProgramIcon(pillar?: string | null) {
-  const value = pillar?.toLowerCase() ?? "";
-
-  if (value.includes("pendidikan")) {
-    return "🎓";
-  }
-
-  if (value.includes("kesehatan")) {
-    return "🏥";
-  }
-
-  if (value.includes("ekonomi")) {
-    return "💼";
-  }
-
-  if (value.includes("sosial")) {
-    return "🤝";
-  }
-
-  if (value.includes("dakwah")) {
-    return "🕌";
-  }
-
-  if (value.includes("lingkungan")) {
-    return "🌱";
-  }
-
-  return "🤲";
-}
 
 export default function Programs({
   onNavigate,
+  onOpenPillar,
 }: ProgramsProps) {
-  const { inView, ref } = useInView();
-
-  const [programs, setPrograms] =
-    useState<Program[]>([]);
-
-  const [loading, setLoading] =
-    useState(true);
-
-  const [error, setError] =
-    useState("");
-
   /*
   |--------------------------------------------------------------------------
-  | Fetch Program
+  | OPEN PILAR
   |--------------------------------------------------------------------------
   */
 
-  useEffect(() => {
-    const fetchPrograms = async () => {
-      try {
-        setLoading(true);
-        setError("");
+  const handleOpenPillar = (category: string) => {
+    console.log(
+      '[Programs Home] Pilar diklik:',
+      category
+    )
 
-        const response =
-          await api.get<ProgramResponse>(
-            "/programs"
-          );
+    if (!onOpenPillar) {
+      console.warn(
+        '[Programs Home] onOpenPillar belum diberikan dari HomePage/App.'
+      )
+      return
+    }
 
-        if (!response.success) {
-          throw new Error(
-            response.message ||
-              "Gagal mengambil program."
-          );
-        }
+    onOpenPillar(category)
+  }
 
-        const data = Array.isArray(
-          response.data
-        )
-          ? response.data
-          : [];
-
-        /*
-        |--------------------------------------------------------------------------
-        | Urutkan berdasarkan sort_order
-        |--------------------------------------------------------------------------
-        */
-
-        const sorted = [...data].sort(
-          (a, b) =>
-            Number(a.sort_order ?? 0) -
-            Number(b.sort_order ?? 0)
-        );
-
-        setPrograms(sorted.slice(0, 6));
-      } catch (error) {
-        console.error(
-          "PROGRAM ERROR:",
-          error
-        );
-
-        setError(
-          error instanceof Error
-            ? error.message
-            : "Gagal mengambil program."
-        );
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchPrograms();
-  }, []);
+  /*
+  |--------------------------------------------------------------------------
+  | RENDER
+  |--------------------------------------------------------------------------
+  */
 
   return (
     <section
       id="programs"
-      className="py-20 bg-[#FFF8F2]"
+      className="bg-[#FFF8F2] py-16"
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
-        {/* Heading */}
+        {/* ============================================================
+            HEADER
+        ============================================================ */}
 
-        <div
-          ref={
-            ref as React.RefObject<HTMLDivElement>
-          }
-          className={`text-center mb-14 transition-all duration-700 ${
-            inView
-              ? "opacity-100 translate-y-0"
-              : "opacity-0 translate-y-6"
-          }`}
-        >
-          <span className="text-[#F58220] text-sm font-semibold uppercase tracking-wider">
-            Program
-          </span>
+        <div className="mb-10 text-center">
+
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-[#F58220] px-4 py-1.5 text-xs font-bold uppercase tracking-wide text-white">
+            Pilar Utama
+          </div>
 
           <h2
-            className="text-3xl sm:text-4xl font-bold text-gray-900 mt-2 mb-4"
+            className="text-3xl font-bold text-gray-900 sm:text-4xl"
             style={{
               fontFamily:
                 "'Plus Jakarta Sans', sans-serif",
             }}
           >
-            Program Unggulan Kami
+            6 Pilar Program Unggulan
           </h2>
 
-          <p className="text-gray-500 max-w-xl mx-auto">
-            Program LAZISMU Pemalang
-            hadir untuk mendukung
-            pendidikan, kesehatan,
-            ekonomi, sosial, dakwah,
-            dan lingkungan masyarakat.
+          <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-gray-500 sm:text-base">
+            Setiap pilar mewakili komitmen LAZISMU
+            Pemalang dalam memberdayakan masyarakat
+            secara menyeluruh dan berkelanjutan.
           </p>
+
         </div>
 
-        {/* Loading */}
+        {/* ============================================================
+            PILLAR CARDS
+        ============================================================ */}
 
-        {loading && (
-          <div className="flex flex-col items-center justify-center py-12">
-            <div className="w-9 h-9 border-4 border-[#F58220] border-t-transparent rounded-full animate-spin mb-3" />
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
 
-            <p className="text-sm text-gray-400">
-              Mengambil program...
-            </p>
-          </div>
-        )}
+          {pillars.map((pillar) => (
 
-        {/* Error */}
+            <button
+              key={pillar.name}
+              type="button"
+              onClick={() =>
+                handleOpenPillar(pillar.name)
+              }
+              className="group w-full rounded-2xl border border-[#F3DEC8] bg-white p-6 text-left shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-[#F58220] hover:shadow-md"
+            >
 
-        {!loading && error && (
-          <div className="max-w-xl mx-auto bg-red-50 border border-red-200 rounded-2xl p-5 text-center">
-            <p className="text-sm text-red-600">
-              {error}
-            </p>
-          </div>
-        )}
+              {/* CARD HEADER */}
 
-        {/* Empty */}
+              <div className="flex items-start justify-between">
 
-        {!loading &&
-          !error &&
-          programs.length === 0 && (
-            <div className="max-w-xl mx-auto bg-white border border-[#F3DEC8] rounded-2xl p-8 text-center">
-              <div className="text-4xl mb-3">
-                🤲
+                {/* ICON */}
+
+                <div className="inline-flex h-14 w-14 items-center justify-center rounded-xl bg-[#FEF0E4] text-2xl transition-colors duration-200 group-hover:bg-[#F58220]">
+
+                  <span className="transition-transform duration-200 group-hover:scale-110">
+                    {pillar.icon}
+                  </span>
+
+                </div>
+
+                {/* ARROW */}
+
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#FFF8F2] text-[#F58220] transition-all group-hover:bg-[#F58220] group-hover:text-white">
+
+                  <svg
+                    className="h-4 w-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 5l7 7-7 7"
+                    />
+                  </svg>
+
+                </div>
+
               </div>
 
-              <p className="font-semibold text-gray-700 mb-1">
-                Belum ada program
+              {/* TITLE */}
+
+              <h3
+                className="mt-5 text-base font-bold text-gray-900"
+                style={{
+                  fontFamily:
+                    "'Plus Jakarta Sans', sans-serif",
+                }}
+              >
+                {pillar.name}
+              </h3>
+
+              {/* DESCRIPTION */}
+
+              <p className="mt-2 text-sm leading-relaxed text-gray-500">
+                {pillar.desc}
               </p>
 
-              <p className="text-sm text-gray-400">
-                Program akan
-                ditampilkan setelah
-                dipublikasikan oleh
-                admin.
-              </p>
-            </div>
-          )}
+              {/* ACTION */}
 
-        {/* Program Grid */}
+              <div className="mt-5 flex items-center gap-2 text-sm font-semibold text-[#F58220]">
 
-        {!loading &&
-          !error &&
-          programs.length > 0 && (
-            <div
-              className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 transition-all duration-700 delay-200 ${
-                inView
-                  ? "opacity-100 translate-y-0"
-                  : "opacity-0 translate-y-8"
-              }`}
-            >
-              {programs.map(
-                (program) => (
-                  <div
-                    key={program.id}
-                    onClick={() =>
-                      onNavigate(
-                        "program"
-                      )
-                    }
-                    className="card-hover group bg-white rounded-2xl overflow-hidden border border-[#F3DEC8] shadow-sm cursor-pointer"
-                  >
+                <span>
+                  Lihat Program
+                </span>
 
-                    {/* Image */}
+                <svg
+                  className="h-4 w-4 transition-transform group-hover:translate-x-1"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 12h14"
+                  />
 
-                    <div className="relative h-44 bg-orange-50 overflow-hidden">
-                      {program.thumbnail ? (
-                        <img
-                          src={
-                            program.thumbnail
-                          }
-                          alt={
-                            program.title
-                          }
-                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#FEF0E4] to-[#FFF8F2]">
-                          <div className="text-center">
-                            <div className="text-5xl mb-2">
-                              {getProgramIcon(
-                                program.pillar
-                              )}
-                            </div>
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 6l6 6-6 6"
+                  />
+                </svg>
 
-                            <div className="text-xs font-semibold text-[#F58220]">
-                              LAZISMU
-                              Pemalang
-                            </div>
-                          </div>
-                        </div>
-                      )}
+              </div>
 
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+            </button>
 
-                      {program.pillar && (
-                        <span
-                          className={`absolute top-3 left-3 text-xs font-semibold px-3 py-1.5 rounded-full ${getPillarColor(
-                            program.pillar
-                          )}`}
-                        >
-                          {program.pillar}
-                        </span>
-                      )}
-                    </div>
+          ))}
 
-                    {/* Content */}
-
-                    <div className="p-5">
-                      <h3
-                        className="font-bold text-gray-800 mb-3"
-                        style={{
-                          fontFamily:
-                            "'Plus Jakarta Sans', sans-serif",
-                        }}
-                      >
-                        {program.title}
-                      </h3>
-
-                      <p className="text-gray-500 text-sm leading-relaxed mb-4 line-clamp-3">
-                        {program.excerpt ||
-                          "Informasi program LAZISMU Pemalang."}
-                      </p>
-
-                      <div
-                        className="flex items-center gap-1.5 text-[#F58220] text-sm font-semibold group-hover:gap-3 transition-all duration-200"
-                        style={{
-                          fontFamily:
-                            "'Plus Jakarta Sans', sans-serif",
-                        }}
-                      >
-                        Lihat Detail
-
-                        <svg
-                          className="w-4 h-4"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M17 8l4 4m0 0l-4 4m4-4H3"
-                          />
-                        </svg>
-                      </div>
-                    </div>
-                  </div>
-                )
-              )}
-            </div>
-          )}
-
-        {/* All Programs */}
-
-        <div className="text-center mt-10">
-          <button
-            type="button"
-            onClick={() =>
-              onNavigate("program")
-            }
-            className="border-2 border-[#F58220] text-[#F58220] hover:bg-[#F58220] hover:text-white transition-all duration-200 px-8 py-3 rounded-xl font-semibold text-sm"
-            style={{
-              fontFamily:
-                "'Plus Jakarta Sans', sans-serif",
-            }}
-          >
-            Lihat Semua Program →
-          </button>
         </div>
+
       </div>
     </section>
-  );
+  )
 }
