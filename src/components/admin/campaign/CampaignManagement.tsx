@@ -83,6 +83,7 @@ const initialForm: CampaignPayload = {
   start_date: '',
   end_date: '',
   featured: false,
+  urgent: false,
   status: 'draft',
   thumbnail: null,
 }
@@ -336,6 +337,7 @@ export default function CampaignManagement() {
       start_date: '',
       end_date: '',
       featured: false,
+      urgent: false,
       status: 'draft',
       thumbnail: null,
     })
@@ -385,14 +387,16 @@ export default function CampaignManagement() {
         campaign.end_date || '',
       featured:
         Boolean(campaign.featured),
+      urgent:
+        Boolean(campaign.urgent),
       status:
         campaign.status,
 
       /*
        * Thumbnail sengaja null.
        *
-       * Kalau user tidak memilih file baru,
-       * backend akan mempertahankan thumbnail lama.
+       * Jika tidak memilih file baru,
+       * backend mempertahankan thumbnail lama.
        */
       thumbnail: null,
     })
@@ -536,7 +540,6 @@ export default function CampaignManagement() {
       */
 
       resetForm()
-
       setShowForm(false)
     } catch (err) {
       console.error(err)
@@ -952,9 +955,11 @@ export default function CampaignManagement() {
                   <div className="mb-3 flex items-center gap-3 rounded-xl bg-[#FFF8F2] p-3">
 
                     <img
-                      src={getThumbnailUrl(
-                        editingCampaign.thumbnail
-                      ) || ''}
+                      src={
+                        getThumbnailUrl(
+                          editingCampaign.thumbnail
+                        ) || ''
+                      }
                       alt={
                         editingCampaign.title
                       }
@@ -997,29 +1002,60 @@ export default function CampaignManagement() {
           </div>
 
           {/* ============================================================
-              FEATURED
+              CAMPAIGN FLAGS
           ============================================================ */}
 
-          <label className="mt-4 flex cursor-pointer items-center gap-2 text-sm text-gray-600">
+          <div className="mt-4 space-y-3">
 
-            <input
-              type="checkbox"
-              checked={
-                Boolean(form.featured)
-              }
-              onChange={(e) =>
-                updateForm(
-                  'featured',
-                  e.target.checked
-                )
-              }
-              className="h-4 w-4 accent-[#F58220]"
-            />
+            {/* Featured */}
 
-            Tandai sebagai campaign
-            unggulan
+            <label className="flex cursor-pointer items-center gap-2 text-sm text-gray-600">
 
-          </label>
+              <input
+                type="checkbox"
+                checked={
+                  Boolean(form.featured)
+                }
+                onChange={(e) =>
+                  updateForm(
+                    'featured',
+                    e.target.checked
+                  )
+                }
+                className="h-4 w-4 accent-[#F58220]"
+              />
+
+              <span>
+                Tandai sebagai campaign unggulan
+              </span>
+
+            </label>
+
+            {/* Urgent */}
+
+            <label className="flex cursor-pointer items-center gap-2 text-sm text-gray-600">
+
+              <input
+                type="checkbox"
+                checked={
+                  Boolean(form.urgent)
+                }
+                onChange={(e) =>
+                  updateForm(
+                    'urgent',
+                    e.target.checked
+                  )
+                }
+                className="h-4 w-4 accent-red-500"
+              />
+
+              <span>
+                Tandai sebagai campaign urgent
+              </span>
+
+            </label>
+
+          </div>
 
           {/* ============================================================
               ACTIONS
@@ -1371,21 +1407,37 @@ export default function CampaignManagement() {
 
                         <td className="px-5 py-4">
 
-                          <span
-                            className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
-                              campaign.status ===
-                              'published'
-                                ? 'bg-green-100 text-green-700'
-                                : campaign.status ===
-                                    'closed'
-                                  ? 'bg-blue-100 text-blue-700'
-                                  : 'bg-gray-100 text-gray-600'
-                            }`}
-                          >
-                            {
-                              campaign.status
-                            }
-                          </span>
+                          <div className="flex flex-wrap gap-1.5">
+
+                            <span
+                              className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
+                                campaign.status ===
+                                'published'
+                                  ? 'bg-green-100 text-green-700'
+                                  : campaign.status ===
+                                      'closed'
+                                    ? 'bg-blue-100 text-blue-700'
+                                    : 'bg-gray-100 text-gray-600'
+                              }`}
+                            >
+                              {
+                                campaign.status
+                              }
+                            </span>
+
+                            {campaign.featured && (
+                              <span className="rounded-full bg-orange-100 px-2.5 py-1 text-xs font-semibold text-orange-700">
+                                Unggulan
+                              </span>
+                            )}
+
+                            {campaign.urgent && (
+                              <span className="rounded-full bg-red-100 px-2.5 py-1 text-xs font-semibold text-red-700">
+                                Urgent
+                              </span>
+                            )}
+
+                          </div>
 
                         </td>
 

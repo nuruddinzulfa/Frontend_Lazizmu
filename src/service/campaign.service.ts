@@ -21,7 +21,15 @@ export interface Campaign {
   target_amount: number | string;
   collected_amount: number | string;
 
+  /**
+   * Campaign Unggulan
+   */
   featured: boolean;
+
+  /**
+   * Campaign Urgent
+   */
+  urgent: boolean;
 
   status: "draft" | "published" | "closed";
 
@@ -45,7 +53,15 @@ export interface CampaignPayload {
   start_date?: string | null;
   end_date?: string | null;
 
+  /**
+   * Campaign Unggulan
+   */
   featured?: boolean;
+
+  /**
+   * Campaign Urgent
+   */
+  urgent?: boolean;
 
   status: "draft" | "published" | "closed";
 
@@ -87,12 +103,9 @@ function getToken(): string {
 */
 
 /**
- * Ambil campaign yang sedang published.
+ * Mengambil semua campaign yang berstatus published.
  *
- * Endpoint:
  * GET /api/campaigns
- *
- * Tidak membutuhkan token.
  */
 export async function getPublicCampaigns(): Promise<Campaign[]> {
   const response = await fetch(`${API_URL}/campaigns`, {
@@ -102,13 +115,11 @@ export async function getPublicCampaigns(): Promise<Campaign[]> {
     },
   });
 
-  const data: CampaignListResponse =
-    await response.json();
+  const data: CampaignListResponse = await response.json();
 
   if (!response.ok) {
     throw new Error(
-      data.message ||
-        "Gagal mengambil daftar campaign."
+      data.message || "Gagal mengambil daftar campaign."
     );
   }
 
@@ -116,31 +127,25 @@ export async function getPublicCampaigns(): Promise<Campaign[]> {
 }
 
 /**
- * Ambil detail campaign published.
+ * Mengambil detail campaign published berdasarkan ID.
  *
- * Endpoint:
  * GET /api/campaigns/{id}
  */
 export async function getPublicCampaignById(
   id: number
 ): Promise<Campaign> {
-  const response = await fetch(
-    `${API_URL}/campaigns/${id}`,
-    {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-      },
-    }
-  );
+  const response = await fetch(`${API_URL}/campaigns/${id}`, {
+    method: "GET",
+    headers: {
+      Accept: "application/json",
+    },
+  });
 
-  const data: CampaignResponse =
-    await response.json();
+  const data: CampaignResponse = await response.json();
 
   if (!response.ok) {
     throw new Error(
-      data.message ||
-        "Gagal mengambil detail campaign."
+      data.message || "Gagal mengambil detail campaign."
     );
   }
 
@@ -154,36 +159,26 @@ export async function getPublicCampaignById(
 */
 
 /**
- * Ambil semua campaign untuk admin.
+ * Mengambil semua campaign untuk admin.
  *
- * Termasuk:
- * - draft
- * - published
- * - closed
+ * GET /api/admin/campaigns
  */
-export async function getAdminCampaigns(): Promise<
-  Campaign[]
-> {
+export async function getAdminCampaigns(): Promise<Campaign[]> {
   const token = getToken();
 
-  const response = await fetch(
-    `${API_URL}/admin/campaigns`,
-    {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
+  const response = await fetch(`${API_URL}/admin/campaigns`, {
+    method: "GET",
+    headers: {
+      Accept: "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
 
-  const data: CampaignListResponse =
-    await response.json();
+  const data: CampaignListResponse = await response.json();
 
   if (!response.ok) {
     throw new Error(
-      data.message ||
-        "Gagal mengambil daftar campaign admin."
+      data.message || "Gagal mengambil daftar campaign admin."
     );
   }
 
@@ -191,7 +186,9 @@ export async function getAdminCampaigns(): Promise<
 }
 
 /**
- * Detail campaign admin.
+ * Mengambil detail campaign untuk admin.
+ *
+ * GET /api/admin/campaigns/{id}
  */
 export async function getAdminCampaignById(
   id: number
@@ -209,13 +206,11 @@ export async function getAdminCampaignById(
     }
   );
 
-  const data: CampaignResponse =
-    await response.json();
+  const data: CampaignResponse = await response.json();
 
   if (!response.ok) {
     throw new Error(
-      data.message ||
-        "Gagal mengambil detail campaign admin."
+      data.message || "Gagal mengambil detail campaign admin."
     );
   }
 
@@ -228,6 +223,11 @@ export async function getAdminCampaignById(
 |--------------------------------------------------------------------------
 */
 
+/**
+ * Membuat campaign baru.
+ *
+ * POST /api/admin/campaigns
+ */
 export async function createCampaign(
   payload: CampaignPayload
 ): Promise<Campaign> {
@@ -235,86 +235,55 @@ export async function createCampaign(
 
   const formData = new FormData();
 
-  formData.append(
-    "title",
-    payload.title
-  );
-
-  formData.append(
-    "slug",
-    payload.slug
-  );
-
-  formData.append(
-    "category",
-    payload.category
-  );
-
-  formData.append(
-    "short_description",
-    payload.short_description
-  );
-
-  formData.append(
-    "description",
-    payload.description
-  );
+  formData.append("title", payload.title);
+  formData.append("slug", payload.slug);
+  formData.append("category", payload.category);
+  formData.append("short_description", payload.short_description);
+  formData.append("description", payload.description);
 
   formData.append(
     "target_amount",
     String(payload.target_amount)
   );
 
-  formData.append(
-    "status",
-    payload.status
-  );
+  formData.append("status", payload.status);
 
   formData.append(
     "featured",
     payload.featured ? "1" : "0"
   );
 
+  formData.append(
+    "urgent",
+    payload.urgent ? "1" : "0"
+  );
+
   if (payload.start_date) {
-    formData.append(
-      "start_date",
-      payload.start_date
-    );
+    formData.append("start_date", payload.start_date);
   }
 
   if (payload.end_date) {
-    formData.append(
-      "end_date",
-      payload.end_date
-    );
+    formData.append("end_date", payload.end_date);
   }
 
   if (payload.thumbnail) {
-    formData.append(
-      "thumbnail",
-      payload.thumbnail
-    );
+    formData.append("thumbnail", payload.thumbnail);
   }
 
-  const response = await fetch(
-    `${API_URL}/admin/campaigns`,
-    {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: formData,
-    }
-  );
+  const response = await fetch(`${API_URL}/admin/campaigns`, {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: formData,
+  });
 
-  const data: CampaignResponse =
-    await response.json();
+  const data: CampaignResponse = await response.json();
 
   if (!response.ok) {
     throw new Error(
-      data.message ||
-        "Gagal membuat campaign."
+      data.message || "Gagal membuat campaign."
     );
   }
 
@@ -327,6 +296,11 @@ export async function createCampaign(
 |--------------------------------------------------------------------------
 */
 
+/**
+ * Memperbarui campaign.
+ *
+ * POST /api/admin/campaigns/{id}
+ */
 export async function updateCampaign(
   id: number,
   payload: CampaignPayload
@@ -335,65 +309,39 @@ export async function updateCampaign(
 
   const formData = new FormData();
 
-  formData.append(
-    "title",
-    payload.title
-  );
-
-  formData.append(
-    "slug",
-    payload.slug
-  );
-
-  formData.append(
-    "category",
-    payload.category
-  );
-
-  formData.append(
-    "short_description",
-    payload.short_description
-  );
-
-  formData.append(
-    "description",
-    payload.description
-  );
+  formData.append("title", payload.title);
+  formData.append("slug", payload.slug);
+  formData.append("category", payload.category);
+  formData.append("short_description", payload.short_description);
+  formData.append("description", payload.description);
 
   formData.append(
     "target_amount",
     String(payload.target_amount)
   );
 
-  formData.append(
-    "status",
-    payload.status
-  );
+  formData.append("status", payload.status);
 
   formData.append(
     "featured",
     payload.featured ? "1" : "0"
   );
 
+  formData.append(
+    "urgent",
+    payload.urgent ? "1" : "0"
+  );
+
   if (payload.start_date) {
-    formData.append(
-      "start_date",
-      payload.start_date
-    );
+    formData.append("start_date", payload.start_date);
   }
 
   if (payload.end_date) {
-    formData.append(
-      "end_date",
-      payload.end_date
-    );
+    formData.append("end_date", payload.end_date);
   }
 
   if (payload.thumbnail) {
-    formData.append(
-      "thumbnail",
-      payload.thumbnail
-    );
+    formData.append("thumbnail", payload.thumbnail);
   }
 
   const response = await fetch(
@@ -408,13 +356,11 @@ export async function updateCampaign(
     }
   );
 
-  const data: CampaignResponse =
-    await response.json();
+  const data: CampaignResponse = await response.json();
 
   if (!response.ok) {
     throw new Error(
-      data.message ||
-        "Gagal memperbarui campaign."
+      data.message || "Gagal memperbarui campaign."
     );
   }
 
@@ -427,6 +373,11 @@ export async function updateCampaign(
 |--------------------------------------------------------------------------
 */
 
+/**
+ * Menghapus campaign.
+ *
+ * DELETE /api/admin/campaigns/{id}
+ */
 export async function deleteCampaign(
   id: number
 ): Promise<void> {
@@ -450,8 +401,7 @@ export async function deleteCampaign(
 
   if (!response.ok) {
     throw new Error(
-      data.message ||
-        "Gagal menghapus campaign."
+      data.message || "Gagal menghapus campaign."
     );
   }
 }
