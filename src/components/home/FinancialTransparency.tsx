@@ -22,7 +22,7 @@ interface FinancialReportResponse {
 
 /*
 |--------------------------------------------------------------------------
-| Backend Storage URL
+| BACKEND STORAGE URL
 |--------------------------------------------------------------------------
 */
 
@@ -46,12 +46,15 @@ function getStorageUrl(
       ""
     );
 
-  return `${backendUrl}/storage/${path}`;
+  const cleanPath =
+    path.replace(/^\/+/, "");
+
+  return `${backendUrl}/storage/${cleanPath}`;
 }
 
 /*
 |--------------------------------------------------------------------------
-| Date
+| DATE
 |--------------------------------------------------------------------------
 */
 
@@ -84,7 +87,7 @@ function formatDate(
 
 /*
 |--------------------------------------------------------------------------
-| Component
+| COMPONENT
 |--------------------------------------------------------------------------
 */
 
@@ -107,7 +110,18 @@ export default function FinancialTransparency() {
 
   /*
   |--------------------------------------------------------------------------
-  | Fetch Reports
+  | ACTIVE FILTER
+  |--------------------------------------------------------------------------
+  */
+
+  const [
+    activeType,
+    setActiveType,
+  ] = useState("Semua");
+
+  /*
+  |--------------------------------------------------------------------------
+  | FETCH REPORTS
   |--------------------------------------------------------------------------
   */
 
@@ -159,7 +173,51 @@ export default function FinancialTransparency() {
 
   /*
   |--------------------------------------------------------------------------
-  | Download
+  | REPORT TYPES
+  |--------------------------------------------------------------------------
+  |
+  | Filter dibuat otomatis berdasarkan
+  | report.type dari backend.
+  |
+  */
+
+  const reportTypes = [
+    "Semua",
+    ...Array.from(
+      new Set(
+        reports
+          .map(
+            (report) =>
+              report.type
+          )
+          .filter(
+            (
+              type
+            ): type is string =>
+              Boolean(type)
+          )
+      )
+    ),
+  ];
+
+  /*
+  |--------------------------------------------------------------------------
+  | FILTERED REPORTS
+  |--------------------------------------------------------------------------
+  */
+
+  const filteredReports =
+    activeType === "Semua"
+      ? reports
+      : reports.filter(
+          (report) =>
+            report.type ===
+            activeType
+        );
+
+  /*
+  |--------------------------------------------------------------------------
+  | DOWNLOAD
   |--------------------------------------------------------------------------
   */
 
@@ -185,28 +243,90 @@ export default function FinancialTransparency() {
   return (
     <section
       id="transparency"
-      className="py-20 bg-[#FFF8F2]"
+      className="relative overflow-hidden bg-gradient-to-br from-[#FFF9F4] via-[#FFF1E5] to-[#FFE4CC] py-20 sm:py-24"
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-        {/* Heading */}
+      {/* =====================================================
+          BACKGROUND DECORATION
+      ===================================================== */}
+
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -left-40 -top-40 h-[430px] w-[430px] rounded-full bg-[#F58220]/10 blur-3xl"
+      />
+
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -right-40 bottom-[-120px] h-[500px] w-[500px] rounded-full bg-[#F58220]/10 blur-3xl"
+      />
+
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -right-20 -top-20 h-[320px] w-[320px] rounded-full border-2 border-[#F58220]/10"
+      />
+
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute right-10 top-[-60px] h-[210px] w-[210px] rounded-full border-2 border-[#F58220]/10"
+      />
+
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute left-8 top-40 h-24 w-24 opacity-25"
+        style={{
+          backgroundImage:
+            "radial-gradient(#F58220 1.5px, transparent 1.5px)",
+          backgroundSize:
+            "12px 12px",
+        }}
+      />
+
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute bottom-24 right-12 h-24 w-24 opacity-20"
+        style={{
+          backgroundImage:
+            "radial-gradient(#F58220 1.5px, transparent 1.5px)",
+          backgroundSize:
+            "12px 12px",
+        }}
+      />
+
+      {/* =====================================================
+          CONTENT
+      ===================================================== */}
+
+      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+
+        {/* ===================================================
+            HEADING
+        =================================================== */}
 
         <div
           ref={
             ref as React.RefObject<HTMLDivElement>
           }
-          className={`text-center mb-14 transition-all duration-700 ${
+          className={`mx-auto mb-8 max-w-2xl text-center transition-all duration-700 ${
             inView
-              ? "opacity-100 translate-y-0"
-              : "opacity-0 translate-y-6"
+              ? "translate-y-0 opacity-100"
+              : "translate-y-6 opacity-0"
           }`}
         >
-          <span className="text-[#F58220] text-sm font-semibold uppercase tracking-wider">
-            Transparansi
-          </span>
+
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[#F58220]/15 bg-white/80 px-4 py-2 shadow-sm backdrop-blur-sm">
+
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#FFF0E4] text-sm text-[#F58220]">
+              ✓
+            </span>
+
+            <span className="text-xs font-bold uppercase tracking-[0.14em] text-[#F58220]">
+              Transparansi
+            </span>
+
+          </div>
 
           <h2
-            className="text-3xl sm:text-4xl font-bold text-gray-900 mt-2 mb-4"
+            className="text-3xl font-bold leading-tight text-gray-900 sm:text-4xl"
             style={{
               fontFamily:
                 "'Plus Jakarta Sans', sans-serif",
@@ -215,82 +335,185 @@ export default function FinancialTransparency() {
             Transparansi Laporan
           </h2>
 
-          <p className="text-gray-500 max-w-xl mx-auto">
-            LAZISMU Pemalang
-            berkomitmen memberikan
-            akses informasi laporan
-            dan publikasi secara
-            transparan kepada
-            masyarakat.
+          <div className="mx-auto mt-4 h-1 w-14 rounded-full bg-gradient-to-r from-[#F58220] to-[#D96808]" />
+
+          <p className="mx-auto mt-5 text-sm leading-7 text-gray-600 sm:text-base">
+            LAZISMU Pemalang berkomitmen
+            memberikan akses informasi laporan
+            dan publikasi secara transparan
+            kepada masyarakat.
           </p>
+
         </div>
 
-        {/* Content */}
+        {/* ===================================================
+            FILTER
+        =================================================== */}
+
+        {!loading &&
+          !error &&
+          reports.length > 0 && (
+            <div
+              className={`mb-10 flex flex-wrap justify-center gap-2 transition-all duration-700 delay-100 ${
+                inView
+                  ? "translate-y-0 opacity-100"
+                  : "translate-y-4 opacity-0"
+              }`}
+            >
+
+              {reportTypes.map(
+                (type) => (
+                  <button
+                    key={type}
+                    type="button"
+                    onClick={() =>
+                      setActiveType(
+                        type
+                      )
+                    }
+                    className={`rounded-full border px-4 py-2 text-xs font-semibold transition-all duration-200 ${
+                      activeType ===
+                      type
+                        ? "border-[#F58220] bg-[#F58220] text-white shadow-md shadow-orange-100"
+                        : "border-[#F1D9C1] bg-white/80 text-gray-600 hover:border-[#F58220] hover:text-[#F58220]"
+                    }`}
+                  >
+                    {type}
+                  </button>
+                )
+              )}
+
+            </div>
+          )}
+
+        {/* ===================================================
+            CONTENT
+        =================================================== */}
 
         <div
           className={`transition-all duration-700 delay-200 ${
             inView
-              ? "opacity-100 translate-y-0"
-              : "opacity-0 translate-y-8"
+              ? "translate-y-0 opacity-100"
+              : "translate-y-8 opacity-0"
           }`}
         >
 
-          {/* Loading */}
+          {/* =================================================
+              LOADING
+          ================================================= */}
 
           {loading && (
-            <div className="flex flex-col items-center justify-center py-14">
-              <div className="w-9 h-9 border-4 border-[#F58220] border-t-transparent rounded-full animate-spin mb-3" />
+            <div className="rounded-[28px] border border-[#F1D9C1] bg-white/80 py-14 text-center shadow-sm backdrop-blur-sm">
 
-              <p className="text-sm text-gray-400">
+              <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-4 border-[#F58220] border-t-transparent" />
+
+              <p className="text-sm font-medium text-gray-500">
                 Mengambil laporan...
               </p>
+
             </div>
           )}
 
-          {/* Error */}
+          {/* =================================================
+              ERROR
+          ================================================= */}
 
           {!loading &&
             error && (
-              <div className="max-w-xl mx-auto bg-red-50 border border-red-200 rounded-2xl p-5 text-center">
-                <p className="text-sm text-red-600">
+              <div className="mx-auto max-w-xl rounded-[28px] border border-red-200 bg-red-50 p-7 text-center shadow-sm">
+
+                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100 text-lg font-bold text-red-500">
+                  !
+                </div>
+
+                <p className="text-sm leading-6 text-red-600">
                   {error}
                 </p>
+
               </div>
             )}
 
-          {/* Empty */}
+          {/* =================================================
+              EMPTY DATABASE
+          ================================================= */}
 
           {!loading &&
             !error &&
             reports.length ===
               0 && (
-              <div className="max-w-xl mx-auto bg-white border border-[#F3DEC8] rounded-2xl p-8 text-center">
-                <div className="text-4xl mb-3">
+              <div className="mx-auto max-w-xl rounded-[28px] border border-[#F1D9C1] bg-white/85 p-10 text-center shadow-sm backdrop-blur-sm">
+
+                <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#FFF0E4] text-3xl shadow-sm">
                   📄
                 </div>
 
-                <p className="font-semibold text-gray-700 mb-1">
+                <p
+                  className="mb-2 font-bold text-gray-800"
+                  style={{
+                    fontFamily:
+                      "'Plus Jakarta Sans', sans-serif",
+                  }}
+                >
                   Belum ada laporan
                 </p>
 
-                <p className="text-sm text-gray-400">
-                  Laporan akan
-                  ditampilkan setelah
-                  dipublikasikan oleh
+                <p className="text-sm leading-6 text-gray-400">
+                  Laporan akan ditampilkan
+                  setelah dipublikasikan oleh
                   admin.
                 </p>
+
               </div>
             )}
 
-          {/* Report Grid */}
+          {/* =================================================
+              FILTER EMPTY
+          ================================================= */}
 
           {!loading &&
             !error &&
-            reports.length >
+            reports.length > 0 &&
+            filteredReports.length ===
               0 && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="mx-auto max-w-xl rounded-[28px] border border-[#F1D9C1] bg-white/85 p-10 text-center shadow-sm backdrop-blur-sm">
 
-                {reports.map(
+                <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#FFF0E4] text-3xl shadow-sm">
+                  📄
+                </div>
+
+                <p
+                  className="mb-2 font-bold text-gray-800"
+                  style={{
+                    fontFamily:
+                      "'Plus Jakarta Sans', sans-serif",
+                  }}
+                >
+                  Belum ada laporan
+                </p>
+
+                <p className="text-sm leading-6 text-gray-400">
+                  Belum ada laporan untuk
+                  kategori{" "}
+                  <span className="font-semibold text-[#F58220]">
+                    {activeType}
+                  </span>
+                  .
+                </p>
+
+              </div>
+            )}
+
+          {/* =================================================
+              REPORT GRID
+          ================================================= */}
+
+          {!loading &&
+            !error &&
+            filteredReports.length >
+              0 && (
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+
+                {filteredReports.map(
                   (report) => {
                     const thumbnail =
                       getStorageUrl(
@@ -298,16 +521,25 @@ export default function FinancialTransparency() {
                       );
 
                     return (
-                      <div
+                      <article
                         key={
                           report.id
                         }
-                        className="bg-white rounded-2xl border border-[#F3DEC8] shadow-sm hover:shadow-md transition-all overflow-hidden flex flex-col"
+                        className="group relative flex h-full flex-col overflow-hidden rounded-[26px] border border-[#F1D9C1] bg-white shadow-[0_8px_28px_rgba(120,70,30,0.06)] transition-all duration-300 hover:-translate-y-2 hover:border-[#F58220]/40 hover:shadow-[0_18px_45px_rgba(120,70,30,0.12)]"
                       >
 
-                        {/* Thumbnail */}
+                        {/* CARD GLOW */}
 
-                        <div className="relative h-48 bg-[#FEF0E4] overflow-hidden">
+                        <div
+                          aria-hidden="true"
+                          className="pointer-events-none absolute -right-14 -top-14 h-36 w-36 rounded-full bg-[#F58220]/5 blur-2xl transition-all duration-300 group-hover:bg-[#F58220]/10"
+                        />
+
+                        {/* =================================================
+                            THUMBNAIL
+                        ================================================= */}
+
+                        <div className="relative h-52 overflow-hidden bg-[#FEF0E4]">
 
                           {thumbnail ? (
                             <img
@@ -317,18 +549,18 @@ export default function FinancialTransparency() {
                               alt={
                                 report.title
                               }
-                              className="w-full h-full object-cover"
+                              className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                             />
                           ) : (
-                            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#FEF0E4] to-[#FFF8F2]">
+                            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#FEF0E4] via-[#FFF8F2] to-[#FFE4CC]">
 
                               <div className="text-center">
 
-                                <div className="text-5xl mb-2">
+                                <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-2xl bg-white text-4xl shadow-sm">
                                   📄
                                 </div>
 
-                                <div className="text-xs font-semibold text-[#F58220]">
+                                <div className="text-xs font-bold uppercase tracking-wider text-[#F58220]">
                                   LAZISMU
                                   Pemalang
                                 </div>
@@ -338,26 +570,40 @@ export default function FinancialTransparency() {
                             </div>
                           )}
 
-                          <div className="absolute top-3 left-3">
-                            <span className="text-xs font-semibold px-3 py-1.5 rounded-full bg-white/90 text-[#F58220] shadow-sm">
+                          {/* IMAGE OVERLAY */}
+
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent" />
+
+                          {/* TYPE */}
+
+                          <div className="absolute left-4 top-4">
+
+                            <span className="rounded-full border border-white/60 bg-white/90 px-3 py-1.5 text-xs font-bold text-[#F58220] shadow-sm backdrop-blur-sm">
                               {report.type}
                             </span>
+
                           </div>
 
-                          <div className="absolute top-3 right-3">
-                            <span className="text-xs font-bold px-3 py-1.5 rounded-full bg-[#F58220] text-white">
+                          {/* YEAR */}
+
+                          <div className="absolute right-4 top-4">
+
+                            <span className="rounded-full bg-[#F58220] px-3 py-1.5 text-xs font-bold text-white shadow-md">
                               {report.year}
                             </span>
+
                           </div>
 
                         </div>
 
-                        {/* Body */}
+                        {/* =================================================
+                            BODY
+                        ================================================= */}
 
-                        <div className="p-6 flex flex-col flex-1">
+                        <div className="relative flex flex-1 flex-col p-6">
 
                           <h3
-                            className="font-bold text-gray-900 mb-2"
+                            className="mb-3 line-clamp-2 text-base font-bold leading-6 text-gray-900 transition-colors duration-200 group-hover:text-[#F58220]"
                             style={{
                               fontFamily:
                                 "'Plus Jakarta Sans', sans-serif",
@@ -366,17 +612,39 @@ export default function FinancialTransparency() {
                             {report.title}
                           </h3>
 
-                          <p className="text-sm text-gray-500 leading-relaxed mb-5 flex-1">
+                          <p className="mb-5 line-clamp-3 flex-1 text-sm leading-7 text-gray-500">
                             {report.description ||
                               "Publikasi resmi LAZISMU Pemalang."}
                           </p>
 
-                          <div className="text-xs text-gray-400 mb-5">
-                            Dipublikasikan{" "}
-                            {formatDate(
-                              report.published_at
-                            )}
+                          {/* DATE */}
+
+                          <div className="mb-5 flex items-center gap-2 border-t border-[#F3DEC8] pt-4">
+
+                            <svg
+                              className="h-4 w-4 text-[#F58220]"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={1.8}
+                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                              />
+                            </svg>
+
+                            <span className="text-xs text-gray-400">
+                              Dipublikasikan{" "}
+                              {formatDate(
+                                report.published_at
+                              )}
+                            </span>
+
                           </div>
+
+                          {/* DOWNLOAD */}
 
                           <button
                             type="button"
@@ -385,10 +653,15 @@ export default function FinancialTransparency() {
                                 report
                               )
                             }
-                            className="btn-primary w-full py-3 text-sm font-semibold flex items-center justify-center gap-2"
+                            className="group/button flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#F58220] to-[#D96D0A] py-3.5 text-sm font-bold text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
+                            style={{
+                              fontFamily:
+                                "'Plus Jakarta Sans', sans-serif",
+                            }}
                           >
+
                             <svg
-                              className="w-4 h-4"
+                              className="h-4 w-4 transition-transform duration-200 group-hover/button:translate-y-0.5"
                               fill="none"
                               stroke="currentColor"
                               viewBox="0 0 24 24"
@@ -402,10 +675,16 @@ export default function FinancialTransparency() {
                             </svg>
 
                             Unduh Laporan
+
                           </button>
 
                         </div>
-                      </div>
+
+                        {/* BOTTOM ACCENT */}
+
+                        <div className="absolute bottom-0 left-0 h-1 w-0 bg-[#F58220] transition-all duration-300 group-hover:w-full" />
+
+                      </article>
                     );
                   }
                 )}
@@ -413,25 +692,54 @@ export default function FinancialTransparency() {
               </div>
             )}
 
-          {/* Info */}
+          {/* =================================================
+              INFO
+          ================================================= */}
 
           {!loading &&
             !error &&
-            reports.length >
+            filteredReports.length >
               0 && (
-              <div className="mt-8 bg-white border border-[#F3DEC8] rounded-2xl p-5 text-center">
-                <p className="text-sm text-gray-500">
-                  Dokumen yang
-                  ditampilkan merupakan
-                  publikasi resmi yang
-                  telah dipublikasikan
-                  melalui sistem
-                  LAZISMU Pemalang.
-                </p>
+              <div className="relative mt-8 overflow-hidden rounded-[24px] border border-[#F1D9C1] bg-white/75 p-6 shadow-sm backdrop-blur-sm">
+
+                <div
+                  aria-hidden="true"
+                  className="absolute -right-10 -top-10 h-28 w-28 rounded-full bg-[#F58220]/5 blur-2xl"
+                />
+
+                <div className="relative flex flex-col items-center gap-3 text-center sm:flex-row sm:justify-center">
+
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#FFF0E4] text-[#F58220]">
+                    ✓
+                  </div>
+
+                  <p className="max-w-2xl text-sm leading-6 text-gray-500">
+                    Menampilkan{" "}
+                    <span className="font-semibold text-gray-700">
+                      {
+                        filteredReports.length
+                      }
+                    </span>{" "}
+                    laporan{" "}
+                    {activeType !==
+                      "Semua" && (
+                      <>
+                        kategori{" "}
+                        <span className="font-semibold text-[#F58220]">
+                          {activeType}
+                        </span>
+                      </>
+                    )}
+                    .
+                  </p>
+
+                </div>
+
               </div>
             )}
 
         </div>
+
       </div>
     </section>
   );

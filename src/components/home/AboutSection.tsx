@@ -183,7 +183,29 @@ export default function AboutSection({
               "
             >
 
-              {logoUrl ? (
+              {/* ========================================================
+                  LOGO ORGANISASI
+              ======================================================== */}
+
+              {profileLoading ? (
+                <div
+                  className="
+                    w-full h-full
+                    bg-white
+                    flex items-center
+                    justify-center
+                  "
+                >
+                  <div
+                    className="
+                      text-sm
+                      text-gray-400
+                    "
+                  >
+                    Memuat logo...
+                  </div>
+                </div>
+              ) : logoUrl ? (
                 <img
                   src={logoUrl}
                   alt={
@@ -198,14 +220,23 @@ export default function AboutSection({
                   "
                 />
               ) : (
-                <img
-                  src="https://images.unsplash.com/photo-1708481686679-1bfebe1afefc?w=800&h=600&fit=crop&auto=format"
-                  alt="LAZISMU"
+                <div
                   className="
                     w-full h-full
-                    object-cover
+                    bg-white
+                    flex items-center
+                    justify-center
                   "
-                />
+                >
+                  <div
+                    className="
+                      text-sm
+                      text-gray-400
+                    "
+                  >
+                    Logo belum tersedia
+                  </div>
+                </div>
               )}
 
               <div
@@ -256,8 +287,8 @@ export default function AboutSection({
                   leading-snug
                 "
               >
-                Tahun melayani umat
-                dan masyarakat Indonesia
+                Tahun melayani umat dan
+                masyarakat Indonesia
               </div>
 
             </div>
@@ -266,7 +297,8 @@ export default function AboutSection({
 
             <div
               className="
-                absolute -top-6 -left-6
+                absolute -top-6
+                -left-6
                 w-24 h-24
                 rounded-2xl
                 opacity-20
@@ -274,14 +306,15 @@ export default function AboutSection({
               style={{
                 backgroundImage:
                   'radial-gradient(circle, #F58220 1.5px, transparent 1.5px)',
-                backgroundSize: '8px 8px',
+                backgroundSize:
+                  '10px 10px',
               }}
             />
 
           </div>
 
           {/* ============================================================
-              TEXT
+              CONTENT
           ============================================================ */}
 
           <div>
@@ -626,7 +659,6 @@ export default function AboutSection({
                   pointer-events-none
                 "
               >
-
                 <svg
                   viewBox="0 0 160 160"
                   fill="none"
@@ -668,10 +700,14 @@ export default function AboutSection({
                     fill="none"
                   />
                 </svg>
-
               </div>
 
-              <div className="relative z-10">
+              <div
+                className="
+                  relative
+                  z-10
+                "
+              >
 
                 <div
                   className="
@@ -790,7 +826,6 @@ export default function AboutSection({
                   mb-6
                 "
               >
-
                 <svg
                   className="
                     w-7 h-7
@@ -806,18 +841,13 @@ export default function AboutSection({
                     strokeWidth={1.8}
                     d="
                       M9 5H7a2 2 0 00-2 2v12
-                      a2 2 0 002 2h10
-                      a2 2 0 002-2V7
-                      a2 2 0 00-2-2h-2
-                      M9 5a2 2 0 002 2h2
-                      a2 2 0 002-2
-                      M9 5a2 2 0 012-2h2
-                      a2 2 0 012 2
-                      m-6 9l2 2 4-4
+                      a2 2 0 002 2h10a2 2 0 002-2V7
+                      a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2
+                      a2 2 0 002-2M9 5a2 2 0 012-2h2
+                      a2 2 0 012 2m-6 9l2 2 4-4
                     "
                   />
                 </svg>
-
               </div>
 
               <div
@@ -961,11 +991,14 @@ function OrgChart({
   const [error, setError] =
     useState(false)
 
-  /*
-  |--------------------------------------------------------------------------
-  | LOAD ORGANIZATION MEMBERS
-  |--------------------------------------------------------------------------
-  */
+  const [expandedId, setExpandedId] =
+    useState<number | null>(null)
+
+  const [profile, setProfile] =
+    useState<OrganizationProfile | null>(null)
+
+  const organizationName =
+    profile?.name || 'LAZISMU'
 
   useEffect(() => {
     let mounted = true
@@ -982,7 +1015,13 @@ function OrgChart({
           return
         }
 
-        setMembers(data)
+        setMembers(
+          [...data].sort(
+            (a, b) =>
+              a.sort_order - b.sort_order ||
+              a.id - b.id
+          )
+        )
       } catch (error) {
         console.error(
           'Gagal mengambil struktur organisasi:',
@@ -1009,13 +1048,46 @@ function OrgChart({
     }
   }, [])
 
+  useEffect(() => {
+    let mounted = true
+
+    async function loadProfile() {
+      try {
+        const data =
+          await getPublicOrganizationProfile()
+
+        if (mounted) {
+          setProfile(data)
+        }
+      } catch (error) {
+        console.error(
+          'Gagal mengambil profil organisasi:',
+          error
+        )
+      }
+    }
+
+    loadProfile()
+
+    return () => {
+      mounted = false
+    }
+  }, [])
+
+  const toggleCard = (id: number) => {
+    setExpandedId((prev) =>
+      prev === id ? null : id
+    )
+  }
+
   return (
-    <div
+    <section
       ref={
         ref as React.RefObject<HTMLDivElement>
       }
       className={`
-        transition-all duration-700 delay-100
+        transition-all duration-700
+        delay-100
         ${
           inView
             ? 'opacity-100 translate-y-0'
@@ -1024,306 +1096,386 @@ function OrgChart({
       `}
     >
 
-      {/* ==============================================================
-          HEADER
-      ============================================================== */}
+      <div className="mb-12 text-center">
 
-      <div className="text-center mb-12">
-
-        <span
+        <div
           className="
-            text-[#F58220]
+            mb-4
+            inline-flex
+            items-center
+            gap-2
+            rounded-full
+            bg-[#FEF0E4]
+            px-4 py-1.5
             text-sm
             font-semibold
-            uppercase
-            tracking-wider
+            text-[#F58220]
           "
         >
-          Kepengurusan
-        </span>
+          Struktur Organisasi
+        </div>
 
         <h2
           className="
-            text-3xl sm:text-4xl
+            text-3xl
             font-bold
             text-gray-900
-            mt-2
           "
           style={{
             fontFamily:
               "'Plus Jakarta Sans', sans-serif",
           }}
         >
-          Struktur Organisasi
+          Tim Pengurus {organizationName}
         </h2>
-
-        <p
-          className="
-            text-gray-400
-            text-sm
-            mt-3
-          "
-        >
-          Data pengurus terbaru
-        </p>
 
       </div>
 
-      {/* ==============================================================
-          LOADING
-      ============================================================== */}
-
-      {loading && (
+      {loading ? (
         <div
           className="
-            bg-white
+            rounded-2xl
             border
             border-[#F3DEC8]
-            rounded-2xl
+            bg-white
             p-10
             text-center
           "
         >
-          <p
-            className="
-              text-sm
-              text-gray-400
-            "
-          >
-            Memuat data struktur
-            organisasi...
+          <p className="text-sm text-gray-400">
+            Memuat struktur organisasi...
           </p>
         </div>
-      )}
-
-      {/* ==============================================================
-          ERROR
-      ============================================================== */}
-
-      {!loading && error && (
+      ) : error ? (
         <div
           className="
-            bg-white
+            rounded-2xl
             border
             border-red-100
-            rounded-2xl
+            bg-red-50
             p-10
             text-center
           "
         >
-          <p
-            className="
-              text-sm
-              text-red-500
-            "
-          >
-            Data struktur organisasi
-            gagal dimuat.
+          <p className="text-sm text-red-500">
+            Struktur organisasi gagal dimuat.
           </p>
         </div>
-      )}
+      ) : members.length === 0 ? (
+        <div
+          className="
+            rounded-2xl
+            border
+            border-[#F3DEC8]
+            bg-white
+            p-10
+            text-center
+            shadow-sm
+          "
+        >
+          <p className="text-sm text-gray-500">
+            Data struktur organisasi
+            belum tersedia.
+          </p>
+        </div>
+      ) : (
+        <div
+          className="
+            grid
+            grid-cols-1
+            gap-6
+            sm:grid-cols-2
+            md:grid-cols-3
+          "
+        >
 
-      {/* ==============================================================
-          EMPTY
-      ============================================================== */}
+          {members.map((person) => {
+            const isExpanded =
+              expandedId === person.id
 
-      {!loading &&
-        !error &&
-        members.length === 0 && (
-          <div
-            className="
-              bg-white
-              border
-              border-[#F3DEC8]
-              rounded-2xl
-              p-10
-              text-center
-            "
-          >
-            <p
-              className="
-                text-sm
-                text-gray-400
-              "
-            >
-              Data struktur organisasi
-              belum tersedia.
-            </p>
-          </div>
-        )}
+            const photoUrl =
+              getOrganizationMemberPhotoUrl(
+                person.photo
+              )
 
-      {/* ==============================================================
-          MEMBERS
-      ============================================================== */}
+            return (
+              <div
+                key={person.id}
+                className="
+                  overflow-hidden
+                  rounded-2xl
+                  border
+                  border-[#F3DEC8]
+                  bg-white
+                  shadow-sm
+                  transition-all
+                  hover:shadow-md
+                "
+              >
 
-      {!loading &&
-        !error &&
-        members.length > 0 && (
-          <div
-            className="
-              grid
-              grid-cols-1
-              sm:grid-cols-2
-              lg:grid-cols-3
-              gap-5
-            "
-          >
+                {/* CARD HEADER */}
 
-            {members.map((person) => {
-              const photoUrl =
-                getOrganizationMemberPhotoUrl(
-                  person.photo
-                )
-
-              return (
                 <div
-                  key={person.id}
                   className="
-                    bg-white
-                    border-2
-                    border-[#F3DEC8]
-                    hover:border-[#F58220]
-                    rounded-2xl
-                    p-5
-                    shadow-sm
-                    transition-all
+                    cursor-pointer
+                    select-none
+                    p-6
+                    text-center
                   "
+                  onClick={() =>
+                    toggleCard(person.id)
+                  }
+                  role="button"
+                  tabIndex={0}
+                  aria-expanded={
+                    isExpanded
+                  }
+                  onKeyDown={(event) => {
+                    if (
+                      event.key ===
+                        'Enter' ||
+                      event.key === ' '
+                    ) {
+                      event.preventDefault()
+
+                      toggleCard(
+                        person.id
+                      )
+                    }
+                  }}
                 >
+
+                  {/* FOTO */}
 
                   <div
                     className="
+                      mx-auto
+                      mb-4
                       flex
+                      h-16
+                      w-16
                       items-center
-                      gap-4
+                      justify-center
+                      overflow-hidden
+                      rounded-full
+                      bg-gradient-to-br
+                      from-[#F58220]
+                      to-[#D96D0A]
                     "
                   >
 
-                    {/* FOTO */}
-
-                    <div
-                      className="
-                        w-14 h-14
-                        rounded-full
-                        bg-[#FEF0E4]
-                        flex
-                        items-center
-                        justify-center
-                        flex-shrink-0
-                        overflow-hidden
-                      "
-                    >
-
-                      {photoUrl ? (
-                        <img
-                          src={photoUrl}
-                          alt={person.name}
-                          className="
-                            w-full
-                            h-full
-                            object-cover
-                          "
-                        />
-                      ) : (
-                        <span
-                          className="
-                            text-[#F58220]
-                            font-bold
-                            text-lg
-                          "
-                        >
-                          {person.name
-                            .slice(0, 2)
-                            .toUpperCase()}
-                        </span>
-                      )}
-
-                    </div>
-
-                    {/* INFORMASI */}
-
-                    <div className="min-w-0">
-
-                      <div
+                    {photoUrl ? (
+                      <img
+                        src={photoUrl}
+                        alt={person.name}
                         className="
+                          h-full
+                          w-full
+                          object-cover
+                        "
+                      />
+                    ) : (
+                      <span
+                        className="
+                          text-lg
                           font-bold
-                          text-gray-900
+                          text-white
                         "
                         style={{
                           fontFamily:
                             "'Plus Jakarta Sans', sans-serif",
                         }}
                       >
-                        {person.name}
-                      </div>
-
-                      <div
-                        className="
-                          text-sm
-                          font-semibold
-                          text-[#F58220]
-                          mt-1
-                        "
-                      >
-                        {person.position}
-                      </div>
-
-                      {person.period && (
-                        <div
-                          className="
-                            text-xs
-                            text-gray-400
-                            mt-2
-                          "
-                        >
-                          Periode {person.period}
-                        </div>
-                      )}
-
-                    </div>
+                        {person.name
+                          .trim()
+                          .split(/\s+/)
+                          .slice(0, 2)
+                          .map(
+                            (part) =>
+                              part[0]
+                          )
+                          .join('')
+                          .toUpperCase()}
+                      </span>
+                    )}
 
                   </div>
 
+                  {/* JABATAN */}
+
+                  <div
+                    className="
+                      mb-1
+                      text-xs
+                      font-semibold
+                      uppercase
+                      tracking-wide
+                      text-[#F58220]
+                    "
+                  >
+                    {person.position}
+                  </div>
+
+                  {/* NAMA */}
+
+                  <div
+                    className="
+                      mb-2
+                      text-sm
+                      font-bold
+                      text-gray-900
+                    "
+                    style={{
+                      fontFamily:
+                        "'Plus Jakarta Sans', sans-serif",
+                    }}
+                  >
+                    {person.name}
+                  </div>
+
+                  {/* ARROW */}
+
+                  <div
+                    className={`
+                      mx-auto
+                      flex
+                      h-6
+                      w-6
+                      items-center
+                      justify-center
+                      rounded-full
+                      border-2
+                      border-[#F3DEC8]
+                      text-[#F58220]
+                      transition-transform
+                      duration-200
+                      ${
+                        isExpanded
+                          ? 'rotate-180'
+                          : ''
+                      }
+                    `}
+                  >
+                    ↓
+                  </div>
+
                 </div>
-              )
-            })}
 
-          </div>
-        )}
+                {/* DETAIL */}
 
-      {/* ==============================================================
-          BUTTON
-      ============================================================== */}
+                {isExpanded && (
+                  <div
+                    className="
+                      border-t
+                      border-[#F3DEC8]
+                      bg-[#FFF8F2]
+                      p-5
+                    "
+                  >
 
-      <div
-        className="
-          text-center
-          mt-10
-        "
-      >
+                    {person.description && (
+                      <div
+                        className="
+                          mb-4
+                          text-sm
+                          leading-relaxed
+                          text-gray-600
+                        "
+                      >
+                        {person.description}
+                      </div>
+                    )}
 
-        <button
-          onClick={() =>
-            onNavigate('about')
-          }
-          className="
-            border-2
-            border-[#F58220]
-            text-[#F58220]
-            hover:bg-[#F58220]
-            hover:text-white
-            transition-all
-            duration-200
-            px-8 py-3
-            rounded-xl
-            font-semibold
-            text-sm
-          "
-        >
-          Lihat Profil Lengkap →
-        </button>
+                    {/* Email dan telepon sengaja tidak ditampilkan */}
 
-      </div>
+                    <div
+                      className="
+                        mb-3
+                        flex
+                        items-center
+                        gap-2
+                        rounded-xl
+                        border
+                        border-[#F3DEC8]
+                        bg-white
+                        px-3 py-2
+                      "
+                    >
 
-    </div>
+                      <svg
+                        className="
+                          h-3.5
+                          w-3.5
+                          flex-shrink-0
+                          text-[#F58220]
+                        "
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="
+                            M3 8l7.89 5.26
+                            a2 2 0 002.22 0L21 8
+                            M5 19h14
+                            a2 2 0 002-2V7
+                            a2 2 0 00-2-2H5
+                            a2 2 0 00-2 2v10
+                            a2 2 0 002 2z
+                          "
+                        />
+                      </svg>
+
+                      <span
+                        className="
+                          text-xs
+                          text-gray-500
+                        "
+                      >
+                        Hubungi via kantor{' '}
+                        {organizationName}
+                      </span>
+
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setExpandedId(
+                          null
+                        )
+                      }
+                      className="
+                        flex
+                        w-full
+                        items-center
+                        justify-center
+                        gap-1
+                        py-1
+                        text-xs
+                        font-semibold
+                        text-gray-400
+                        transition-colors
+                        hover:text-[#F58220]
+                      "
+                    >
+                      <span>×</span>
+                      Tutup
+                    </button>
+
+                  </div>
+                )}
+
+              </div>
+            )
+          })}
+
+        </div>
+      )}
+
+    </section>
   )
 }

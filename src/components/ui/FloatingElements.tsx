@@ -13,7 +13,7 @@ export default function FloatingElements() {
     <>
       {/* Floating WhatsApp */}
       <a
-        href="https://wa.me/628122345678"
+        href="https://wa.me/628112993327"
         target="_blank"
         rel="noopener noreferrer"
         aria-label="Chat WhatsApp LAZISMU Pemalang"

@@ -34,6 +34,12 @@ const categories = [
   "Laporan",
 ];
 
+/*
+|--------------------------------------------------------------------------
+| DATE
+|--------------------------------------------------------------------------
+*/
+
 function formatDate(
   date?: string | null
 ) {
@@ -61,6 +67,12 @@ function formatDate(
   ).format(parsed);
 }
 
+/*
+|--------------------------------------------------------------------------
+| CATEGORY COLOR
+|--------------------------------------------------------------------------
+*/
+
 function getCategoryColor(
   category?: string | null
 ) {
@@ -70,23 +82,29 @@ function getCategoryColor(
   if (
     value.includes("kegiatan")
   ) {
-    return "bg-blue-100 text-blue-700";
+    return "bg-blue-50 text-blue-700 border-blue-100";
   }
 
   if (
     value.includes("pengumuman")
   ) {
-    return "bg-yellow-100 text-yellow-700";
+    return "bg-yellow-50 text-yellow-700 border-yellow-100";
   }
 
   if (
     value.includes("laporan")
   ) {
-    return "bg-green-100 text-green-700";
+    return "bg-green-50 text-green-700 border-green-100";
   }
 
-  return "bg-gray-100 text-gray-700";
+  return "bg-gray-50 text-gray-700 border-gray-100";
 }
+
+/*
+|--------------------------------------------------------------------------
+| NEWS CARD
+|--------------------------------------------------------------------------
+*/
 
 function NewsCard({
   article,
@@ -97,47 +115,81 @@ function NewsCard({
   featured?: boolean;
   onNavigate: (page: NavPage) => void;
 }) {
+  const thumbnail =
+    article.thumbnail
+      ? getNewsThumbnailUrl(
+          article.thumbnail
+        )
+      : null;
+
+  /*
+  |--------------------------------------------------------------------------
+  | FEATURED
+  |--------------------------------------------------------------------------
+  */
+
   if (featured) {
     return (
-      <div
+      <article
         onClick={() =>
           onNavigate("berita")
         }
-        className="card-hover bg-white rounded-2xl overflow-hidden border border-[#F3DEC8] shadow-sm lg:col-span-2 flex flex-col lg:flex-row cursor-pointer"
+        className="group relative cursor-pointer overflow-hidden rounded-[28px] border border-[#F1D9C1] bg-white shadow-[0_10px_35px_rgba(120,70,30,0.08)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_50px_rgba(120,70,30,0.14)] lg:col-span-2 lg:flex"
       >
-        <div className="relative lg:w-1/2 h-56 lg:h-auto bg-orange-50 overflow-hidden flex-shrink-0">
-          {article.thumbnail ? (
+
+        {/* IMAGE */}
+
+        <div className="relative h-64 overflow-hidden bg-[#FEF0E4] lg:h-auto lg:w-1/2 lg:min-h-[340px]">
+
+          {thumbnail ? (
             <img
-              src={getNewsThumbnailUrl(article.thumbnail) || ""}
+              src={thumbnail}
               alt={article.title}
-              className="w-full h-full object-cover"
+              className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#FEF0E4] to-[#FFF8F2]">
+            <div className="flex h-full min-h-[260px] w-full items-center justify-center bg-gradient-to-br from-[#FFF0E4] via-[#FFF8F2] to-[#FFE5CD]">
+
               <div className="text-center">
-                <div className="text-5xl mb-2">
+
+                <div className="mx-auto mb-3 flex h-20 w-20 items-center justify-center rounded-full bg-white text-4xl shadow-sm">
                   📰
                 </div>
 
-                <div className="text-xs font-semibold text-[#F58220]">
+                <div className="text-xs font-bold uppercase tracking-wider text-[#F58220]">
                   LAZISMU Pemalang
                 </div>
+
               </div>
+
             </div>
           )}
 
-          <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+          {/* IMAGE OVERLAY */}
 
-          <span className="absolute top-3 left-3 text-xs font-bold px-3 py-1.5 bg-[#F58220] text-white rounded-full">
+          <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-black/5 to-transparent" />
+
+          {/* BADGE */}
+
+          <span className="absolute left-5 top-5 rounded-full bg-[#F58220] px-3.5 py-1.5 text-xs font-bold text-white shadow-lg">
             Terbaru
           </span>
+
         </div>
 
-        <div className="p-7 flex flex-col justify-between">
+
+        {/* CONTENT */}
+
+        <div className="flex flex-1 flex-col justify-between p-7 sm:p-8">
+
           <div>
-            <div className="flex flex-wrap items-center gap-2 mb-3">
+
+            {/* META */}
+
+            <div className="mb-4 flex flex-wrap items-center gap-2">
+
               <span
-                className={`text-xs font-semibold px-2.5 py-1 rounded-full ${getCategoryColor(
+                className={`rounded-full border px-3 py-1 text-xs font-semibold ${getCategoryColor(
                   article.category
                 )}`}
               >
@@ -154,7 +206,7 @@ function NewsCard({
               {article.views !==
                 undefined &&
                 article.views !==
-                null && (
+                  null && (
                   <span className="text-xs text-gray-400">
                     ·{" "}
                     {
@@ -163,10 +215,14 @@ function NewsCard({
                     dilihat
                   </span>
                 )}
+
             </div>
 
+
+            {/* TITLE */}
+
             <h3
-              className="text-xl font-bold text-gray-800 mb-3 leading-snug"
+              className="mb-4 text-xl font-bold leading-snug text-gray-900 transition-colors duration-200 group-hover:text-[#F58220] sm:text-2xl"
               style={{
                 fontFamily:
                   "'Plus Jakarta Sans', sans-serif",
@@ -175,23 +231,32 @@ function NewsCard({
               {article.title}
             </h3>
 
-            <p className="text-gray-500 text-sm leading-relaxed">
+
+            {/* EXCERPT */}
+
+            <p className="line-clamp-4 text-sm leading-7 text-gray-500">
               {article.excerpt ||
                 "Informasi terbaru dari LAZISMU Pemalang."}
             </p>
+
           </div>
 
+
+          {/* READ MORE */}
+
           <div
-            className="flex items-center gap-2 text-[#F58220] text-sm font-semibold mt-5 hover:gap-3 transition-all duration-200"
+            className="mt-7 flex items-center gap-2 text-sm font-bold text-[#F58220]"
             style={{
               fontFamily:
                 "'Plus Jakarta Sans', sans-serif",
             }}
           >
-            Baca Selengkapnya
+            <span>
+              Baca Selengkapnya
+            </span>
 
             <svg
-              className="w-4 h-4"
+              className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -204,46 +269,70 @@ function NewsCard({
               />
             </svg>
           </div>
+
         </div>
-      </div>
+
+      </article>
     );
   }
 
+  /*
+  |--------------------------------------------------------------------------
+  | NORMAL CARD
+  |--------------------------------------------------------------------------
+  */
+
   return (
-    <div
+    <article
       onClick={() =>
         onNavigate("berita")
       }
-      className="card-hover bg-white rounded-2xl overflow-hidden border border-[#F3DEC8] shadow-sm flex flex-col cursor-pointer"
+      className="group flex h-full cursor-pointer flex-col overflow-hidden rounded-[26px] border border-[#F1D9C1] bg-white shadow-[0_8px_28px_rgba(120,70,30,0.06)] transition-all duration-300 hover:-translate-y-2 hover:border-[#F58220]/30 hover:shadow-[0_18px_40px_rgba(120,70,30,0.12)]"
     >
-      <div className="relative h-44 bg-orange-50 overflow-hidden">
-        {article.thumbnail ? (
+
+      {/* IMAGE */}
+
+      <div className="relative h-48 overflow-hidden bg-[#FEF0E4]">
+
+        {thumbnail ? (
           <img
-            src={getNewsThumbnailUrl(article.thumbnail) || ""}
+            src={thumbnail}
             alt={article.title}
-            className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#FEF0E4] to-[#FFF8F2]">
+          <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#FFF0E4] via-[#FFF8F2] to-[#FFE5CD]">
+
             <div className="text-center">
-              <div className="text-4xl mb-2">
+
+              <div className="mx-auto mb-2 flex h-14 w-14 items-center justify-center rounded-full bg-white text-3xl shadow-sm">
                 📰
               </div>
 
-              <div className="text-xs font-semibold text-[#F58220]">
+              <div className="text-[10px] font-bold uppercase tracking-wider text-[#F58220]">
                 LAZISMU Pemalang
               </div>
+
             </div>
+
           </div>
         )}
 
-        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent" />
+
       </div>
 
-      <div className="p-5 flex flex-col flex-1">
-        <div className="flex flex-wrap items-center gap-2 mb-2">
+
+      {/* CONTENT */}
+
+      <div className="flex flex-1 flex-col p-5">
+
+        {/* META */}
+
+        <div className="mb-3 flex flex-wrap items-center gap-2">
+
           <span
-            className={`text-xs font-semibold px-2.5 py-1 rounded-full ${getCategoryColor(
+            className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold ${getCategoryColor(
               article.category
             )}`}
           >
@@ -251,15 +340,19 @@ function NewsCard({
               "Berita"}
           </span>
 
-          <span className="text-xs text-gray-400">
+          <span className="text-[11px] text-gray-400">
             {formatDate(
               article.published_at
             )}
           </span>
+
         </div>
 
+
+        {/* TITLE */}
+
         <h3
-          className="font-bold text-gray-800 text-sm leading-snug mb-2 flex-1"
+          className="mb-2 line-clamp-2 text-sm font-bold leading-6 text-gray-800 transition-colors duration-200 group-hover:text-[#F58220]"
           style={{
             fontFamily:
               "'Plus Jakarta Sans', sans-serif",
@@ -268,22 +361,30 @@ function NewsCard({
           {article.title}
         </h3>
 
-        <p className="text-gray-400 text-xs leading-relaxed mb-4 line-clamp-2">
+
+        {/* EXCERPT */}
+
+        <p className="mb-5 line-clamp-2 text-xs leading-6 text-gray-400">
           {article.excerpt ||
             "Informasi terbaru dari LAZISMU Pemalang."}
         </p>
 
+
+        {/* READ MORE */}
+
         <div
-          className="flex items-center gap-1.5 text-[#F58220] text-xs font-semibold"
+          className="mt-auto flex items-center gap-1.5 text-xs font-bold text-[#F58220]"
           style={{
             fontFamily:
               "'Plus Jakarta Sans', sans-serif",
           }}
         >
-          Baca Selengkapnya
+          <span>
+            Baca Selengkapnya
+          </span>
 
           <svg
-            className="w-3.5 h-3.5"
+            className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -296,10 +397,18 @@ function NewsCard({
             />
           </svg>
         </div>
+
       </div>
-    </div>
+
+    </article>
   );
 }
+
+/*
+|--------------------------------------------------------------------------
+| NEWS SECTION
+|--------------------------------------------------------------------------
+*/
 
 export default function NewsSection({
   onNavigate,
@@ -321,6 +430,13 @@ export default function NewsSection({
   const [error, setError] =
     useState("");
 
+
+  /*
+  |--------------------------------------------------------------------------
+  | FETCH NEWS
+  |--------------------------------------------------------------------------
+  */
+
   useEffect(() => {
     const fetchNews =
       async () => {
@@ -336,7 +452,7 @@ export default function NewsSection({
           if (!response.success) {
             throw new Error(
               response.message ||
-              "Gagal mengambil berita."
+                "Gagal mengambil berita."
             );
           }
 
@@ -352,14 +468,11 @@ export default function NewsSection({
               (item) =>
                 !item.status ||
                 item.status ===
-                "published"
+                  "published"
             );
 
           setItems(
-            published.slice(
-              0,
-              6
-            )
+            published.slice(0, 6)
           );
         } catch (error) {
           console.error(
@@ -380,6 +493,13 @@ export default function NewsSection({
     fetchNews();
   }, []);
 
+
+  /*
+  |--------------------------------------------------------------------------
+  | FILTER
+  |--------------------------------------------------------------------------
+  */
+
   const filtered =
     useMemo(() => {
       if (
@@ -399,29 +519,100 @@ export default function NewsSection({
       activeCategory,
     ]);
 
+
   return (
     <section
       id="news"
-      className="py-20 bg-white"
+      className="relative overflow-hidden bg-gradient-to-br from-[#FFF9F4] via-[#FFF1E5] to-[#FFE4CC] py-20 sm:py-24"
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+      {/* =====================================================
+          BACKGROUND DECORATION
+      ===================================================== */}
+
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -left-40 -top-40 h-[430px] w-[430px] rounded-full bg-[#F58220]/10 blur-3xl"
+      />
+
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -right-40 bottom-[-120px] h-[500px] w-[500px] rounded-full bg-[#F58220]/10 blur-3xl"
+      />
+
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -right-20 -top-20 h-[320px] w-[320px] rounded-full border-2 border-[#F58220]/10"
+      />
+
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute right-10 top-[-60px] h-[210px] w-[210px] rounded-full border-2 border-[#F58220]/10"
+      />
+
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute left-8 top-40 h-24 w-24 opacity-25"
+        style={{
+          backgroundImage:
+            "radial-gradient(#F58220 1.5px, transparent 1.5px)",
+          backgroundSize:
+            "12px 12px",
+        }}
+      />
+
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute bottom-24 right-12 h-24 w-24 opacity-20"
+        style={{
+          backgroundImage:
+            "radial-gradient(#F58220 1.5px, transparent 1.5px)",
+          backgroundSize:
+            "12px 12px",
+        }}
+      />
+
+
+      {/* =====================================================
+          CONTENT
+      ===================================================== */}
+
+      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+
+
+        {/* ===================================================
+            HEADER
+        =================================================== */}
 
         <div
           ref={
             ref as React.RefObject<HTMLDivElement>
           }
-          className={`flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-10 transition-all duration-700 ${inView
-            ? "opacity-100 translate-y-0"
-            : "opacity-0 translate-y-6"
-            }`}
+          className={`mb-10 flex flex-col gap-6 transition-all duration-700 sm:flex-row sm:items-end sm:justify-between ${
+            inView
+              ? "translate-y-0 opacity-100"
+              : "translate-y-6 opacity-0"
+          }`}
         >
+
+          {/* TITLE */}
+
           <div>
-            <span className="text-[#F58220] text-sm font-semibold uppercase tracking-wider">
-              Berita
-            </span>
+
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[#F58220]/15 bg-white/80 px-4 py-2 shadow-sm backdrop-blur-sm">
+
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#FFF0E4] text-xs font-bold text-[#F58220]">
+                ✦
+              </span>
+
+              <span className="text-xs font-bold uppercase tracking-[0.14em] text-[#F58220]">
+                Berita & Informasi
+              </span>
+
+            </div>
 
             <h2
-              className="text-3xl sm:text-4xl font-bold text-gray-900 mt-2"
+              className="text-3xl font-bold text-gray-900 sm:text-4xl"
               style={{
                 fontFamily:
                   "'Plus Jakarta Sans', sans-serif",
@@ -429,9 +620,16 @@ export default function NewsSection({
             >
               Kabar Terkini
             </h2>
+
+            <div className="mt-4 h-1 w-14 rounded-full bg-gradient-to-r from-[#F58220] to-[#D96808]" />
+
           </div>
 
+
+          {/* CATEGORY FILTER */}
+
           <div className="flex flex-wrap gap-2">
+
             {categories.map(
               (category) => (
                 <button
@@ -444,68 +642,123 @@ export default function NewsSection({
                       category
                     )
                   }
-                  className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ${activeCategory ===
+                  className={`rounded-full border px-4 py-2 text-xs font-semibold transition-all duration-200 ${
+                    activeCategory ===
                     category
-                    ? "bg-[#F58220] text-white"
-                    : "bg-[#FEF0E4] text-gray-600 hover:bg-[#F58220] hover:text-white"
-                    }`}
+                      ? "border-[#F58220] bg-[#F58220] text-white shadow-md shadow-orange-100"
+                      : "border-[#F1D9C1] bg-white/80 text-gray-600 hover:border-[#F58220] hover:text-[#F58220]"
+                  }`}
                 >
                   {category}
                 </button>
               )
             )}
+
           </div>
+
         </div>
 
-        {loading && (
-          <div className="py-12 text-center">
-            <div className="w-9 h-9 border-4 border-[#F58220] border-t-transparent rounded-full animate-spin mx-auto mb-3" />
 
-            <p className="text-sm text-gray-400">
+        {/* ===================================================
+            DESCRIPTION
+        =================================================== */}
+
+        <div
+          className={`mb-10 max-w-2xl transition-all duration-700 delay-100 ${
+            inView
+              ? "translate-y-0 opacity-100"
+              : "translate-y-5 opacity-0"
+          }`}
+        >
+          <p className="text-sm leading-7 text-gray-600 sm:text-base">
+            Ikuti kabar terbaru, kegiatan,
+            pengumuman, dan laporan LAZISMU
+            Pemalang dalam menjalankan berbagai
+            program kebaikan untuk masyarakat.
+          </p>
+        </div>
+
+
+        {/* ===================================================
+            LOADING
+        =================================================== */}
+
+        {loading && (
+          <div className="rounded-[28px] border border-[#F1D9C1] bg-white/80 py-14 text-center shadow-sm backdrop-blur-sm">
+
+            <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-4 border-[#F58220] border-t-transparent" />
+
+            <p className="text-sm font-medium text-gray-500">
               Mengambil berita...
             </p>
+
           </div>
         )}
 
+
+        {/* ===================================================
+            ERROR
+        =================================================== */}
+
         {!loading &&
           error && (
-            <div className="max-w-xl mx-auto bg-red-50 border border-red-200 rounded-2xl p-5 text-center">
+            <div className="mx-auto max-w-xl rounded-[28px] border border-red-200 bg-red-50 p-7 text-center shadow-sm">
+
+              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100 text-xl font-bold text-red-500">
+                !
+              </div>
+
               <p className="text-sm text-red-600">
                 {error}
               </p>
+
             </div>
           )}
+
+
+        {/* ===================================================
+            EMPTY
+        =================================================== */}
 
         {!loading &&
           !error &&
           filtered.length ===
-          0 && (
-            <div className="max-w-xl mx-auto bg-[#FFF8F2] border border-[#F3DEC8] rounded-2xl p-8 text-center">
-              <div className="text-4xl mb-3">
+            0 && (
+            <div className="mx-auto max-w-xl rounded-[28px] border border-[#F1D9C1] bg-white/80 p-10 text-center shadow-sm backdrop-blur-sm">
+
+              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[#FFF0E4] text-3xl">
                 📰
               </div>
 
-              <p className="font-semibold text-gray-700 mb-1">
+              <p className="mb-2 font-bold text-gray-800">
                 Belum ada berita
               </p>
 
-              <p className="text-sm text-gray-400">
-                Belum ada berita
-                pada kategori ini.
+              <p className="text-sm leading-6 text-gray-400">
+                Belum ada berita pada
+                kategori ini.
               </p>
+
             </div>
           )}
+
+
+        {/* ===================================================
+            NEWS
+        =================================================== */}
 
         {!loading &&
           !error &&
           filtered.length >
-          0 && (
+            0 && (
             <div
-              className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 transition-all duration-700 delay-200 ${inView
-                ? "opacity-100 translate-y-0"
-                : "opacity-0 translate-y-8"
-                }`}
+              className={`grid grid-cols-1 gap-6 transition-all duration-700 delay-200 sm:grid-cols-2 lg:grid-cols-4 ${
+                inView
+                  ? "translate-y-0 opacity-100"
+                  : "translate-y-8 opacity-0"
+              }`}
             >
+
               {filtered.map(
                 (
                   article,
@@ -520,9 +773,9 @@ export default function NewsSection({
                     }
                     featured={
                       index ===
-                      0 &&
+                        0 &&
                       activeCategory ===
-                      "Semua"
+                        "Semua"
                     }
                     onNavigate={
                       onNavigate
@@ -530,10 +783,21 @@ export default function NewsSection({
                   />
                 )
               )}
+
             </div>
           )}
 
-        <div className="flex justify-center mt-10">
+
+        {/* ===================================================
+            ALL NEWS
+        =================================================== */}
+
+        <div className="mt-12 flex flex-col items-center">
+
+          <p className="mb-3 text-xs font-medium text-gray-500">
+            Ikuti informasi terbaru kami
+          </p>
+
           <button
             type="button"
             onClick={() =>
@@ -541,16 +805,24 @@ export default function NewsSection({
                 "berita"
               )
             }
-            className="border-2 border-[#F58220] text-[#F58220] hover:bg-[#F58220] hover:text-white transition-all duration-200 px-6 py-3 rounded-xl font-semibold text-sm"
+            className="group inline-flex items-center gap-2 rounded-xl border-2 border-[#F58220] bg-white/90 px-7 py-3 text-sm font-semibold text-[#F58220] shadow-sm backdrop-blur-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#F58220] hover:text-white hover:shadow-lg"
             style={{
               fontFamily:
                 "'Plus Jakarta Sans', sans-serif",
             }}
           >
-            Semua Berita →
+            Semua Berita
+
+            <span className="transition-transform duration-200 group-hover:translate-x-1">
+              →
+            </span>
+
           </button>
+
         </div>
+
       </div>
+
     </section>
   );
 }

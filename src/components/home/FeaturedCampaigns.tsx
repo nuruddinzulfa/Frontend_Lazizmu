@@ -32,11 +32,9 @@ interface CampaignResponse {
   data: Campaign[];
 }
 
-/*
-|--------------------------------------------------------------------------
-| FORMAT RUPIAH
-|--------------------------------------------------------------------------
-*/
+/* =========================================================
+   FORMAT RUPIAH
+========================================================= */
 
 function formatRupiah(
   value: number | string | null | undefined
@@ -65,16 +63,12 @@ function formatRupiah(
     )} rb`;
   }
 
-  return `Rp ${amount.toLocaleString(
-    "id-ID"
-  )}`;
+  return `Rp ${amount.toLocaleString("id-ID")}`;
 }
 
-/*
-|--------------------------------------------------------------------------
-| THUMBNAIL URL
-|--------------------------------------------------------------------------
-*/
+/* =========================================================
+   THUMBNAIL URL
+========================================================= */
 
 function getThumbnailUrl(
   thumbnail: string | null
@@ -101,11 +95,9 @@ function getThumbnailUrl(
   )}`;
 }
 
-/*
-|--------------------------------------------------------------------------
-| CATEGORY COLOR
-|--------------------------------------------------------------------------
-*/
+/* =========================================================
+   CATEGORY STYLE
+========================================================= */
 
 function getCategoryColor(
   category: string | null
@@ -114,14 +106,14 @@ function getCategoryColor(
     category?.toLowerCase() ?? "";
 
   if (value.includes("pendidikan")) {
-    return "bg-blue-100 text-blue-700";
+    return "bg-blue-50 text-blue-700 border-blue-100";
   }
 
   if (
     value.includes("ekonomi") ||
     value.includes("umkm")
   ) {
-    return "bg-green-100 text-green-700";
+    return "bg-green-50 text-green-700 border-green-100";
   }
 
   if (
@@ -129,28 +121,26 @@ function getCategoryColor(
     value.includes("keagamaan") ||
     value.includes("masjid")
   ) {
-    return "bg-purple-100 text-purple-700";
+    return "bg-purple-50 text-purple-700 border-purple-100";
   }
 
   if (value.includes("kesehatan")) {
-    return "bg-red-100 text-red-700";
+    return "bg-red-50 text-red-700 border-red-100";
   }
 
   if (
     value.includes("kemanusiaan") ||
     value.includes("sosial")
   ) {
-    return "bg-orange-100 text-orange-700";
+    return "bg-orange-50 text-orange-700 border-orange-100";
   }
 
-  return "bg-gray-100 text-gray-700";
+  return "bg-gray-50 text-gray-700 border-gray-100";
 }
 
-/*
-|--------------------------------------------------------------------------
-| CAMPAIGN CARD
-|--------------------------------------------------------------------------
-*/
+/* =========================================================
+   CAMPAIGN CARD
+========================================================= */
 
 function CampaignCard({
   campaign,
@@ -192,20 +182,20 @@ function CampaignCard({
     "Kampanye";
 
   return (
-    <div
-      className="card-hover flex flex-col overflow-hidden rounded-2xl border border-[#F3DEC8] bg-white shadow-sm"
+    <article
+      className="group flex h-full flex-col overflow-hidden rounded-[28px] border border-[#F1D9C1] bg-white shadow-[0_10px_35px_rgba(120,70,30,0.08)] transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_20px_50px_rgba(120,70,30,0.14)]"
       style={{
         animationDelay: `${delay}ms`,
       }}
     >
       {/* IMAGE */}
 
-      <div className="relative h-52 overflow-hidden bg-orange-50">
+      <div className="relative h-56 overflow-hidden bg-[#FEF0E4]">
         {thumbnailUrl ? (
           <img
             src={thumbnailUrl}
             alt={campaign.title}
-            className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
+            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
             onError={(event) => {
               console.error(
                 "[FeaturedCampaigns] Gagal memuat gambar:",
@@ -217,9 +207,9 @@ function CampaignCard({
             }}
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center bg-[#FEF0E4]">
+          <div className="flex h-full w-full items-center justify-center">
             <div className="text-center">
-              <div className="mb-2 text-5xl">
+              <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-white text-3xl shadow-sm">
                 🤲
               </div>
 
@@ -230,13 +220,15 @@ function CampaignCard({
           </div>
         )}
 
-        <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+        {/* IMAGE OVERLAY */}
+
+        <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-black/5 to-transparent" />
 
         {/* CATEGORY */}
 
-        <div className="absolute left-3 top-3">
+        <div className="absolute left-4 top-4">
           <span
-            className={`rounded-full px-3 py-1 text-xs font-semibold ${getCategoryColor(
+            className={`inline-flex rounded-full border px-3 py-1.5 text-xs font-bold backdrop-blur-sm ${getCategoryColor(
               campaign.category
             )}`}
           >
@@ -253,14 +245,14 @@ function CampaignCard({
               (current) => !current
             )
           }
-          className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 shadow-sm transition-transform hover:scale-110"
+          className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full border border-white/70 bg-white/90 shadow-sm backdrop-blur transition-all duration-200 hover:scale-110 hover:bg-white"
           aria-label="Favoritkan campaign"
         >
           <svg
-            className={`h-4 w-4 ${
+            className={`h-5 w-5 ${
               favorited
                 ? "fill-current text-red-500"
-                : "text-gray-400"
+                : "text-gray-500"
             }`}
             fill={
               favorited
@@ -282,9 +274,9 @@ function CampaignCard({
 
       {/* CONTENT */}
 
-      <div className="flex flex-1 flex-col p-5">
+      <div className="flex flex-1 flex-col p-5 sm:p-6">
         <h3
-          className="mb-3 line-clamp-2 font-bold leading-snug text-gray-800"
+          className="mb-2 line-clamp-2 text-lg font-bold leading-snug text-gray-900 transition-colors group-hover:text-[#F58220]"
           style={{
             fontFamily:
               "'Plus Jakarta Sans', sans-serif",
@@ -293,73 +285,87 @@ function CampaignCard({
           {campaign.title}
         </h3>
 
-        {/* PROGRESS */}
+        {campaign.short_description && (
+          <p className="mb-5 line-clamp-2 text-sm leading-6 text-gray-500">
+            {campaign.short_description}
+          </p>
+        )}
 
-        <div className="mb-3">
-          <div className="mb-1.5 flex justify-between text-xs text-gray-500">
-            <span>Progress</span>
+        <div className="mt-auto">
 
-            <span className="font-semibold text-[#F58220]">
+          {/* PROGRESS */}
+
+          <div className="mb-2 flex items-center justify-between text-xs">
+            <span className="font-medium text-gray-500">
+              Progress donasi
+            </span>
+
+            <span className="font-bold text-[#F58220]">
               {percentage}%
             </span>
           </div>
 
-          <div className="h-2 overflow-hidden rounded-full bg-gray-100">
+          <div className="h-2.5 overflow-hidden rounded-full bg-[#F5E9DE]">
             <div
-              className="h-full rounded-full bg-gradient-to-r from-[#F58220] to-[#D96D0A] transition-all duration-500"
+              className="h-full rounded-full bg-gradient-to-r from-[#F58220] via-[#F47716] to-[#D96808] transition-all duration-700"
               style={{
                 width: `${percentage}%`,
               }}
             />
           </div>
-        </div>
 
-        {/* AMOUNT */}
+          {/* AMOUNT */}
 
-        <div className="mb-4 flex items-end justify-between">
-          <div>
-            <div
-              className="text-base font-bold text-gray-900"
-              style={{
-                fontFamily:
-                  "'Plus Jakarta Sans', sans-serif",
-              }}
-            >
-              {formatRupiah(
-                collected
+          <div className="mt-4 flex items-end justify-between">
+
+            <div>
+              <div
+                className="text-base font-bold text-gray-900"
+                style={{
+                  fontFamily:
+                    "'Plus Jakarta Sans', sans-serif",
+                }}
+              >
+                {formatRupiah(
+                  collected
+                )}
+              </div>
+
+              {target > 0 && (
+                <div className="mt-0.5 text-xs text-gray-400">
+                  dari{" "}
+                  {formatRupiah(target)}
+                </div>
               )}
             </div>
 
-            {target > 0 && (
-              <div className="text-xs text-gray-400">
-                dari{" "}
-                {formatRupiah(target)}
-              </div>
-            )}
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#FFF1E5] text-[#F58220] transition-transform duration-300 group-hover:translate-x-1">
+              →
+            </div>
+
           </div>
+
+          {/* BUTTON */}
+
+          <button
+            type="button"
+            onClick={() =>
+              onNavigate("donasi")
+            }
+            className="btn-primary mt-5 block w-full rounded-xl py-3 text-center text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5"
+          >
+            Donasi Sekarang
+          </button>
+
         </div>
-
-        {/* ACTION */}
-
-        <button
-          type="button"
-          onClick={() =>
-            onNavigate("donasi")
-          }
-          className="btn-primary mt-auto block w-full py-2.5 text-center text-sm font-semibold"
-        >
-          Donasi Sekarang
-        </button>
       </div>
-    </div>
+    </article>
   );
 }
 
-/*
-|--------------------------------------------------------------------------
-| FEATURED CAMPAIGNS
-|--------------------------------------------------------------------------
-*/
+/* =========================================================
+   FEATURED CAMPAIGNS
+========================================================= */
 
 export default function FeaturedCampaigns({
   onNavigate,
@@ -367,10 +373,8 @@ export default function FeaturedCampaigns({
   const { inView, ref } =
     useInView();
 
-  const [
-    campaigns,
-    setCampaigns,
-  ] = useState<Campaign[]>([]);
+  const [campaigns, setCampaigns] =
+    useState<Campaign[]>([]);
 
   const [loading, setLoading] =
     useState(true);
@@ -378,11 +382,9 @@ export default function FeaturedCampaigns({
   const [error, setError] =
     useState("");
 
-  /*
-  |--------------------------------------------------------------------------
-  | FETCH CAMPAIGNS
-  |--------------------------------------------------------------------------
-  */
+  /* =======================================================
+     FETCH CAMPAIGNS
+  ======================================================= */
 
   useEffect(() => {
     const fetchCampaigns =
@@ -413,27 +415,12 @@ export default function FeaturedCampaigns({
             );
           }
 
-          /*
-          |--------------------------------------------------------------------------
-          | HANYA PUBLISHED
-          |--------------------------------------------------------------------------
-          */
-
           const published =
             data.data.filter(
               (campaign) =>
                 campaign.status ===
                 "published"
             );
-
-          /*
-          |--------------------------------------------------------------------------
-          | HANYA UNGGULAN
-          |--------------------------------------------------------------------------
-          |
-          | featured = true
-          |
-          */
 
           const featured =
             published.filter(
@@ -442,12 +429,6 @@ export default function FeaturedCampaigns({
                   true ||
                 campaign.featured === 1
             );
-
-          /*
-          |--------------------------------------------------------------------------
-          | MAKSIMAL 3 CAMPAIGN
-          |--------------------------------------------------------------------------
-          */
 
           setCampaigns(
             featured.slice(0, 3)
@@ -474,11 +455,86 @@ export default function FeaturedCampaigns({
   return (
     <section
       id="campaigns"
-      className="bg-[#FFF8F2] py-20"
+      className="relative overflow-hidden bg-gradient-to-br from-[#FFF9F4] via-[#FFF1E5] to-[#FFE1C4] py-20 sm:py-24"
     >
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
-        {/* HEADING */}
+      {/* =====================================================
+          BACKGROUND DECORATION
+      ===================================================== */}
+
+      {/* Large orange glow - left */}
+
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -left-40 -top-40 h-[430px] w-[430px] rounded-full bg-[#F58220]/15 blur-3xl"
+      />
+
+      {/* Large orange glow - right */}
+
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -right-40 top-0 h-[500px] w-[500px] rounded-full bg-[#F58220]/10 blur-3xl"
+      />
+
+      {/* Bottom glow */}
+
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute bottom-[-200px] left-[30%] h-[450px] w-[450px] rounded-full bg-[#FFAD63]/20 blur-3xl"
+      />
+
+      {/* Decorative circles */}
+
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -right-20 -top-20 h-[320px] w-[320px] rounded-full border-2 border-[#F58220]/10"
+      />
+
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute right-8 top-[-70px] h-[210px] w-[210px] rounded-full border-2 border-[#F58220]/10"
+      />
+
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -bottom-32 -left-24 h-[300px] w-[300px] rounded-full border-2 border-[#F58220]/10"
+      />
+
+      {/* Dot pattern - left */}
+
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute left-8 top-28 h-28 w-28 opacity-30"
+        style={{
+          backgroundImage:
+            "radial-gradient(#F58220 1.5px, transparent 1.5px)",
+          backgroundSize:
+            "12px 12px",
+        }}
+      />
+
+      {/* Dot pattern - right */}
+
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute bottom-24 right-12 h-24 w-24 opacity-20"
+        style={{
+          backgroundImage:
+            "radial-gradient(#F58220 1.5px, transparent 1.5px)",
+          backgroundSize:
+            "12px 12px",
+        }}
+      />
+
+      {/* =====================================================
+          CONTENT
+      ===================================================== */}
+
+      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+
+        {/* ===================================================
+            HEADING
+        =================================================== */}
 
         <div
           ref={
@@ -490,12 +546,21 @@ export default function FeaturedCampaigns({
               : "translate-y-6 opacity-0"
           }`}
         >
-          <span className="text-sm font-semibold uppercase tracking-wider text-[#F58220]">
-            Kampanye
-          </span>
+
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[#F58220]/15 bg-white/80 px-4 py-2 shadow-sm backdrop-blur-sm">
+
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#FFF0E4] text-xs font-bold text-[#F58220]">
+              ✦
+            </span>
+
+            <span className="text-xs font-bold uppercase tracking-[0.14em] text-[#F58220]">
+              Program Kebaikan
+            </span>
+
+          </div>
 
           <h2
-            className="mb-4 mt-2 text-3xl font-bold text-gray-900 sm:text-4xl"
+            className="text-3xl font-bold text-gray-900 sm:text-4xl"
             style={{
               fontFamily:
                 "'Plus Jakarta Sans', sans-serif",
@@ -504,61 +569,82 @@ export default function FeaturedCampaigns({
             Kampanye Unggulan
           </h2>
 
-          <p className="mx-auto max-w-xl text-gray-500">
-            Pilih kampanye yang
-            sesuai dengan niat
-            kebaikan Anda. Setiap
-            rupiah bernilai
-            ibadah.
+          <div className="mx-auto mt-4 h-1 w-14 rounded-full bg-gradient-to-r from-[#F58220] to-[#D96808]" />
+
+          <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-gray-600 sm:text-base">
+            Pilih kampanye yang sesuai
+            dengan niat kebaikan Anda.
+            Bersama LAZISMU, setiap
+            donasi menjadi manfaat bagi
+            mereka yang membutuhkan.
           </p>
+
         </div>
 
-        {/* LOADING */}
+        {/* ===================================================
+            LOADING
+        =================================================== */}
 
         {loading && (
-          <div className="flex flex-col items-center justify-center py-12">
-            <div className="mb-3 h-9 w-9 animate-spin rounded-full border-4 border-[#F58220] border-t-transparent" />
+          <div className="relative overflow-hidden rounded-3xl border border-[#F1D9C1] bg-white/80 py-16 text-center shadow-sm backdrop-blur-sm">
 
-            <p className="text-sm text-gray-400">
+            <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-4 border-[#F58220] border-t-transparent" />
+
+            <p className="text-sm font-medium text-gray-500">
               Mengambil kampanye...
             </p>
+
           </div>
         )}
 
-        {/* ERROR */}
+        {/* ===================================================
+            ERROR
+        =================================================== */}
 
         {!loading && error && (
-          <div className="mx-auto max-w-xl rounded-2xl border border-red-200 bg-red-50 p-5 text-center">
-            <p className="text-sm text-red-600">
+          <div className="mx-auto max-w-xl rounded-3xl border border-red-200 bg-red-50 p-7 text-center shadow-sm">
+
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100 text-xl font-bold text-red-500">
+              !
+            </div>
+
+            <p className="text-sm font-medium text-red-600">
               {error}
             </p>
+
           </div>
         )}
 
-        {/* EMPTY */}
+        {/* ===================================================
+            EMPTY
+        =================================================== */}
 
         {!loading &&
           !error &&
           campaigns.length === 0 && (
-            <div className="mx-auto max-w-xl rounded-2xl border border-[#F3DEC8] bg-white p-8 text-center">
-              <div className="mb-3 text-4xl">
+            <div className="mx-auto max-w-xl rounded-3xl border border-[#F1D9C1] bg-white/90 p-10 text-center shadow-sm backdrop-blur-sm">
+
+              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[#FFF0E4] text-3xl">
                 🤲
               </div>
 
-              <p className="mb-1 font-semibold text-gray-700">
+              <p className="mb-2 font-bold text-gray-800">
                 Belum ada kampanye
                 unggulan
               </p>
 
-              <p className="text-sm text-gray-400">
+              <p className="text-sm leading-6 text-gray-400">
                 Tandai campaign sebagai
-                unggulan melalui
-                dashboard admin.
+                unggulan melalui dashboard
+                admin.
               </p>
+
             </div>
           )}
 
-        {/* CAMPAIGN CARDS */}
+        {/* ===================================================
+            CAMPAIGN CARDS
+        =================================================== */}
 
         {!loading &&
           !error &&
@@ -594,23 +680,37 @@ export default function FeaturedCampaigns({
             </div>
           )}
 
-        {/* ALL CAMPAIGNS */}
+        {/* ===================================================
+            ALL CAMPAIGNS
+        =================================================== */}
 
-        <div className="mt-10 text-center">
+        <div className="mt-12 flex flex-col items-center">
+
+          <p className="mb-3 text-xs font-medium text-gray-500">
+            Temukan lebih banyak
+            program kebaikan
+          </p>
+
           <button
             type="button"
             onClick={() =>
               onNavigate("program")
             }
-            className="rounded-xl border-2 border-[#F58220] px-8 py-3 text-sm font-semibold text-[#F58220] transition-all duration-200 hover:bg-[#F58220] hover:text-white"
+            className="group inline-flex items-center gap-2 rounded-xl border-2 border-[#F58220] bg-white/90 px-7 py-3 text-sm font-semibold text-[#F58220] shadow-sm backdrop-blur-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#F58220] hover:text-white hover:shadow-lg"
             style={{
               fontFamily:
                 "'Plus Jakarta Sans', sans-serif",
             }}
           >
-            Lihat Semua Kampanye →
+            Lihat Semua Kampanye
+
+            <span className="transition-transform duration-200 group-hover:translate-x-1">
+              →
+            </span>
           </button>
+
         </div>
+
       </div>
     </section>
   );

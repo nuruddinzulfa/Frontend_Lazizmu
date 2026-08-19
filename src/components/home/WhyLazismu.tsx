@@ -19,8 +19,6 @@ const reasons = [
     ),
     title: 'Amanah & Terpercaya',
     desc: 'Pengelolaan zakat, infak, sedekah, dan dana sosial dilakukan dengan mengedepankan amanah, profesionalitas, dan tanggung jawab.',
-    color: 'text-blue-500',
-    bg: 'bg-blue-50',
   },
   {
     icon: (
@@ -46,8 +44,6 @@ const reasons = [
     ),
     title: 'Transparan',
     desc: 'Informasi program dan laporan lembaga dapat disampaikan kepada masyarakat sebagai bagian dari komitmen terhadap keterbukaan dan akuntabilitas.',
-    color: 'text-[#F58220]',
-    bg: 'bg-orange-50',
   },
   {
     icon: (
@@ -67,8 +63,6 @@ const reasons = [
     ),
     title: 'Responsif',
     desc: 'Program dirancang untuk merespons kebutuhan masyarakat melalui berbagai bidang pelayanan dan pemberdayaan.',
-    color: 'text-yellow-500',
-    bg: 'bg-yellow-50',
   },
   {
     icon: (
@@ -88,8 +82,6 @@ const reasons = [
     ),
     title: 'Berorientasi Pemberdayaan',
     desc: 'Penyaluran dana tidak hanya berfokus pada bantuan, tetapi juga diarahkan untuk mendukung kemandirian dan kesejahteraan masyarakat.',
-    color: 'text-green-500',
-    bg: 'bg-green-50',
   },
   {
     icon: (
@@ -109,8 +101,6 @@ const reasons = [
     ),
     title: 'Donasi Lebih Mudah',
     desc: 'Website LAZISMU Pemalang membantu masyarakat melihat program dan melakukan donasi secara lebih mudah melalui layanan digital.',
-    color: 'text-purple-500',
-    bg: 'bg-purple-50',
   },
   {
     icon: (
@@ -130,8 +120,6 @@ const reasons = [
     ),
     title: 'Berlandaskan Nilai Islam',
     desc: 'Pengelolaan dan pendayagunaan dana dilaksanakan dengan memperhatikan nilai-nilai Islam dan kemaslahatan masyarakat.',
-    color: 'text-rose-500',
-    bg: 'bg-rose-50',
   },
 ]
 
@@ -139,72 +127,180 @@ export default function WhyLazismu() {
   const { inView, ref } = useInView()
 
   return (
-    <section className="py-20 bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="relative overflow-hidden bg-gradient-to-br from-[#FFF9F4] via-[#FFF1E5] to-[#FFE4CC] py-20 sm:py-24">
+
+      {/* =====================================================
+          BACKGROUND DECORATION
+      ===================================================== */}
+
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -left-40 -top-40 h-[430px] w-[430px] rounded-full bg-[#F58220]/10 blur-3xl"
+      />
+
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -right-40 bottom-[-120px] h-[500px] w-[500px] rounded-full bg-[#F58220]/10 blur-3xl"
+      />
+
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -right-20 -top-20 h-[300px] w-[300px] rounded-full border-2 border-[#F58220]/10"
+      />
+
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute right-8 top-[-60px] h-[190px] w-[190px] rounded-full border-2 border-[#F58220]/10"
+      />
+
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute left-10 top-36 h-24 w-24 opacity-25"
+        style={{
+          backgroundImage:
+            'radial-gradient(#F58220 1.5px, transparent 1.5px)',
+          backgroundSize: '12px 12px',
+        }}
+      />
+
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute bottom-24 right-12 h-24 w-24 opacity-20"
+        style={{
+          backgroundImage:
+            'radial-gradient(#F58220 1.5px, transparent 1.5px)',
+          backgroundSize: '12px 12px',
+        }}
+      />
+
+      {/* =====================================================
+          CONTENT
+      ===================================================== */}
+
+      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+
+        {/* ===================================================
+            HEADING
+        =================================================== */}
+
         <div
-          ref={ref as React.RefObject<HTMLDivElement>}
-          className={`text-center mb-14 transition-all duration-700 ${
+          ref={
+            ref as React.RefObject<HTMLDivElement>
+          }
+          className={`mx-auto mb-14 max-w-2xl text-center transition-all duration-700 ${
             inView
-              ? 'opacity-100 translate-y-0'
-              : 'opacity-0 translate-y-6'
+              ? 'translate-y-0 opacity-100'
+              : 'translate-y-6 opacity-0'
           }`}
         >
-          <span className="text-[#F58220] text-sm font-semibold uppercase tracking-wider">
-            Mengapa Kami
-          </span>
+
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[#F58220]/15 bg-white/80 px-4 py-2 shadow-sm backdrop-blur-sm">
+
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#FFF0E4] text-xs font-bold text-[#F58220]">
+              ✦
+            </span>
+
+            <span className="text-xs font-bold uppercase tracking-[0.14em] text-[#F58220]">
+              Mengapa Kami
+            </span>
+
+          </div>
 
           <h2
-            className="text-3xl sm:text-4xl font-bold text-gray-900 mt-2 mb-4"
+            className="text-3xl font-bold leading-tight text-gray-900 sm:text-4xl"
             style={{
               fontFamily:
                 "'Plus Jakarta Sans', sans-serif",
             }}
           >
-            Kenapa Pilih LAZISMU Pemalang?
+            Kenapa Pilih LAZISMU
+            Pemalang?
           </h2>
 
-          <p className="text-gray-500 max-w-xl mx-auto">
+          <div className="mx-auto mt-4 h-1 w-14 rounded-full bg-gradient-to-r from-[#F58220] to-[#D96808]" />
+
+          <p className="mt-5 text-sm leading-7 text-gray-600 sm:text-base">
             Kami berkomitmen mengelola dana umat
             secara amanah, profesional, transparan,
             dan berorientasi pada pemberdayaan
             masyarakat.
           </p>
+
         </div>
+
+
+        {/* ===================================================
+            REASONS
+        =================================================== */}
 
         <div
-          className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 transition-all duration-700 delay-200 ${
+          className={`grid grid-cols-1 gap-6 transition-all duration-700 delay-200 sm:grid-cols-2 lg:grid-cols-3 ${
             inView
-              ? 'opacity-100 translate-y-0'
-              : 'opacity-0 translate-y-8'
+              ? 'translate-y-0 opacity-100'
+              : 'translate-y-8 opacity-0'
           }`}
         >
-          {reasons.map((reason) => (
-            <div
-              key={reason.title}
-              className="group p-7 rounded-2xl bg-[#FFF8F2] border border-[#F3DEC8] hover:border-[#F58220] hover:shadow-lg transition-all duration-300"
-            >
+
+          {reasons.map(
+            (reason, index) => (
               <div
-                className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-5 ${reason.bg} ${reason.color} transition-all duration-300 group-hover:scale-110`}
+                key={reason.title}
+                className="group relative overflow-hidden rounded-[26px] border border-[#F1D9C1] bg-white/90 p-7 shadow-[0_8px_30px_rgba(120,70,30,0.06)] backdrop-blur-sm transition-all duration-300 hover:-translate-y-2 hover:border-[#F58220]/40 hover:shadow-[0_18px_45px_rgba(120,70,30,0.12)]"
               >
-                {reason.icon}
+
+                {/* CARD GLOW */}
+
+                <div
+                  aria-hidden="true"
+                  className="pointer-events-none absolute -right-12 -top-12 h-32 w-32 rounded-full bg-[#F58220]/5 blur-2xl transition-all duration-300 group-hover:bg-[#F58220]/10"
+                />
+
+                {/* NUMBER */}
+
+                <div className="absolute right-5 top-5 text-5xl font-black text-[#F58220]/[0.05]">
+                  {String(
+                    index + 1
+                  ).padStart(2, '0')}
+                </div>
+
+
+                {/* ICON */}
+
+                <div className="relative mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[#FFF0E4] to-[#FFE4CC] text-[#F58220] shadow-sm transition-all duration-300 group-hover:scale-110 group-hover:rotate-2 group-hover:shadow-md">
+                  {reason.icon}
+                </div>
+
+
+                {/* TITLE */}
+
+                <h3
+                  className="relative mb-3 text-base font-bold text-gray-800"
+                  style={{
+                    fontFamily:
+                      "'Plus Jakarta Sans', sans-serif",
+                  }}
+                >
+                  {reason.title}
+                </h3>
+
+
+                {/* DESCRIPTION */}
+
+                <p className="relative text-sm leading-7 text-gray-500">
+                  {reason.desc}
+                </p>
+
+
+                {/* BOTTOM ACCENT */}
+
+                <div className="mt-6 h-1 w-8 rounded-full bg-[#F58220]/30 transition-all duration-300 group-hover:w-16 group-hover:bg-[#F58220]" />
+
               </div>
+            )
+          )}
 
-              <h3
-                className="font-bold text-gray-800 mb-2"
-                style={{
-                  fontFamily:
-                    "'Plus Jakarta Sans', sans-serif",
-                }}
-              >
-                {reason.title}
-              </h3>
-
-              <p className="text-gray-500 text-sm leading-relaxed">
-                {reason.desc}
-              </p>
-            </div>
-          ))}
         </div>
+
       </div>
     </section>
   )

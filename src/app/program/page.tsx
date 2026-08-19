@@ -834,7 +834,7 @@ export default function ProgramPage({
 
       {/* FILTER */}
 
-      <section className="mx-auto max-w-7xl px-4 pb-4 sm:px-6 lg:px-8">
+      {/* <section className="mx-auto max-w-7xl px-4 pb-4 sm:px-6 lg:px-8">
 
         <div className="flex flex-wrap gap-3">
 
@@ -857,7 +857,7 @@ export default function ProgramPage({
 
         </div>
 
-      </section>
+      </section> */}
       {/* CAMPAIGN */}
 
       <section className="mx-auto max-w-7xl px-4 pb-20 sm:px-6 lg:px-8">

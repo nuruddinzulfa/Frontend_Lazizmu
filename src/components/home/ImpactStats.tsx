@@ -15,17 +15,29 @@ interface StatItem extends ImpactStat {
   iconElement: React.ReactNode
 }
 
+/*
+|--------------------------------------------------------------------------
+| ICON
+|--------------------------------------------------------------------------
+*/
+
 function getIcon(icon: string | null) {
   switch (icon) {
     case 'map-pin':
       return (
-        <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg
+          className="h-7 w-7"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
             strokeWidth={1.8}
             d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
           />
+
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -37,7 +49,12 @@ function getIcon(icon: string | null) {
 
     case 'clipboard':
       return (
-        <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg
+          className="h-7 w-7"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -50,7 +67,12 @@ function getIcon(icon: string | null) {
     case 'users':
     default:
       return (
-        <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg
+          className="h-7 w-7"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -62,10 +84,24 @@ function getIcon(icon: string | null) {
   }
 }
 
-function StatCounter({ item }: { item: StatItem }) {
+/*
+|--------------------------------------------------------------------------
+| COUNTER
+|--------------------------------------------------------------------------
+*/
+
+function StatCounter({
+  item,
+}: {
+  item: StatItem
+}) {
   const [count, setCount] = useState(0)
-  const ref = useRef<HTMLDivElement>(null)
-  const started = useRef(false)
+
+  const ref =
+    useRef<HTMLDivElement>(null)
+
+  const started =
+    useRef(false)
 
   useEffect(() => {
     const element = ref.current
@@ -74,167 +110,319 @@ function StatCounter({ item }: { item: StatItem }) {
       return
     }
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (!entry.isIntersecting || started.current) {
-          return
-        }
-
-        started.current = true
-
-        const duration = 1800
-        const start = performance.now()
-
-        const tick = (now: number) => {
-          const elapsed = now - start
-          const progress = Math.min(elapsed / duration, 1)
-
-          const eased = 1 - Math.pow(1 - progress, 3)
-
-          setCount(Math.round(item.value * eased))
-
-          if (progress < 1) {
-            requestAnimationFrame(tick)
+    const observer =
+      new IntersectionObserver(
+        ([entry]) => {
+          if (
+            !entry.isIntersecting ||
+            started.current
+          ) {
+            return
           }
-        }
 
-        requestAnimationFrame(tick)
-      },
-      {
-        threshold: 0.4,
-      }
-    )
+          started.current = true
+
+          const duration = 1800
+          const start =
+            performance.now()
+
+          const tick = (
+            now: number
+          ) => {
+            const elapsed =
+              now - start
+
+            const progress =
+              Math.min(
+                elapsed / duration,
+                1
+              )
+
+            const eased =
+              1 -
+              Math.pow(
+                1 - progress,
+                3
+              )
+
+            setCount(
+              Math.round(
+                item.value * eased
+              )
+            )
+
+            if (progress < 1) {
+              requestAnimationFrame(
+                tick
+              )
+            }
+          }
+
+          requestAnimationFrame(
+            tick
+          )
+        },
+        {
+          threshold: 0.4,
+        }
+      )
 
     observer.observe(element)
 
-    return () => observer.disconnect()
+    return () =>
+      observer.disconnect()
   }, [item.value])
 
   return (
     <div
       ref={ref}
-      className="flex flex-col items-center text-center group"
+      className="group flex flex-col items-center text-center"
     >
-      <div className="w-16 h-16 rounded-2xl bg-[#F58220]/10 text-[#F58220] flex items-center justify-center mb-4 group-hover:bg-[#F58220] group-hover:text-white transition-all duration-300">
-        {item.iconElement}
+
+      {/* ICON */}
+
+      <div className="relative mb-5">
+
+        <div
+          aria-hidden="true"
+          className="absolute -inset-2 rounded-2xl bg-white/10 blur-md transition-all duration-300 group-hover:bg-white/20"
+        />
+
+        <div className="relative flex h-16 w-16 items-center justify-center rounded-2xl border border-white/20 bg-white/15 text-white shadow-lg backdrop-blur-sm transition-all duration-300 group-hover:scale-110 group-hover:bg-white group-hover:text-[#F58220]">
+          {item.iconElement}
+        </div>
+
       </div>
 
+
+      {/* NUMBER */}
+
       <div
-        className="text-4xl font-bold text-gray-900 mb-1"
+        className="mb-1 text-4xl font-bold tracking-tight text-white sm:text-5xl"
         style={{
-          fontFamily: "'Plus Jakarta Sans', sans-serif",
+          fontFamily:
+            "'Plus Jakarta Sans', sans-serif",
         }}
       >
-        {count.toLocaleString('id-ID')}
+        {count.toLocaleString(
+          'id-ID'
+        )}
 
         {item.suffix && (
-          <span className="text-[#F58220]">
+          <span className="ml-1 text-[#FFE2C5]">
             {item.suffix}
           </span>
         )}
       </div>
 
+
+      {/* LABEL */}
+
       <div
-        className="font-semibold text-gray-700 text-sm"
+        className="text-sm font-bold text-white"
         style={{
-          fontFamily: "'Plus Jakarta Sans', sans-serif",
+          fontFamily:
+            "'Plus Jakarta Sans', sans-serif",
         }}
       >
         {item.label}
       </div>
 
+
+      {/* SUBLABEL */}
+
       {item.sublabel && (
-        <div className="text-gray-400 text-xs mt-0.5">
+        <div className="mt-1 text-xs text-white/65">
           {item.sublabel}
         </div>
       )}
+
     </div>
   )
 }
 
+/*
+|--------------------------------------------------------------------------
+| COMPONENT
+|--------------------------------------------------------------------------
+*/
+
 export default function ImpactStats() {
-  const [stats, setStats] = useState<StatItem[]>([])
-  const [loading, setLoading] = useState(true)
+  const [stats, setStats] =
+    useState<StatItem[]>([])
+
+  const [loading, setLoading] =
+    useState(true)
+
+  /*
+  |--------------------------------------------------------------------------
+  | FETCH
+  |--------------------------------------------------------------------------
+  */
 
   useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const response = await fetch(
-          `${API_URL}/impact-stats`
-        )
+    const fetchStats =
+      async () => {
+        try {
+          const response =
+            await fetch(
+              `${API_URL}/impact-stats`
+            )
 
-        if (!response.ok) {
-          throw new Error(
-            'Gagal mengambil data impact statistics'
+          if (!response.ok) {
+            throw new Error(
+              'Gagal mengambil data impact statistics'
+            )
+          }
+
+          const result =
+            await response.json()
+
+          const data: ImpactStat[] =
+            Array.isArray(result)
+              ? result
+              : Array.isArray(
+                  result?.data
+                )
+                ? result.data
+                : []
+
+          const formatted =
+            data
+              .sort(
+                (a, b) =>
+                  (a.sort_order ??
+                    0) -
+                  (b.sort_order ??
+                    0)
+              )
+              .map((item) => ({
+                ...item,
+                value:
+                  Number(
+                    item.value
+                  ) || 0,
+                iconElement:
+                  getIcon(
+                    item.icon
+                  ),
+              }))
+
+          setStats(formatted)
+        } catch (error) {
+          console.error(
+            'Error fetching impact statistics:',
+            error
           )
+
+          setStats([])
+        } finally {
+          setLoading(false)
         }
-
-        const result = await response.json()
-
-        const data: ImpactStat[] = Array.isArray(result)
-          ? result
-          : Array.isArray(result?.data)
-            ? result.data
-            : []
-
-        const formatted = data
-          .sort(
-            (a, b) =>
-              (a.sort_order ?? 0) -
-              (b.sort_order ?? 0)
-          )
-          .map((item) => ({
-            ...item,
-            value: Number(item.value) || 0,
-            iconElement: getIcon(item.icon),
-          }))
-
-        setStats(formatted)
-      } catch (error) {
-        console.error(
-          'Error fetching impact statistics:',
-          error
-        )
-
-        setStats([])
-      } finally {
-        setLoading(false)
       }
-    }
 
     fetchStats()
   }, [])
 
-  if (!loading && stats.length === 0) {
+  /*
+  |--------------------------------------------------------------------------
+  | EMPTY
+  |--------------------------------------------------------------------------
+  */
+
+  if (
+    !loading &&
+    stats.length === 0
+  ) {
     return null
   }
 
   return (
-    <section className="py-20 bg-gradient-to-br from-[#F58220] to-[#D96D0A] relative overflow-hidden">
-      <div className="absolute inset-0 islamic-geo-bg opacity-20 pointer-events-none" />
+    <section className="relative overflow-hidden bg-gradient-to-br from-[#F58220] via-[#EE7411] to-[#D96D0A] py-20 sm:py-24">
 
-      <div className="absolute bottom-0 left-0 right-0 pointer-events-none">
-        <svg
-          viewBox="0 0 1440 60"
-          fill="none"
-          preserveAspectRatio="none"
-          className="w-full opacity-10"
-        >
-          <path
-            d="M0 60 L0 40 L200 20 L400 35 L600 10 L800 30 L1000 15 L1200 35 L1440 20 L1440 60 Z"
-            fill="white"
-          />
-        </svg>
-      </div>
+      {/* =====================================================
+          BACKGROUND GLOW
+      ===================================================== */}
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-14">
-          <span className="text-white/70 text-sm font-semibold uppercase tracking-wider">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -left-40 -top-40 h-[450px] w-[450px] rounded-full bg-white/10 blur-3xl"
+      />
+
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -right-40 bottom-[-150px] h-[500px] w-[500px] rounded-full bg-[#FFF0D9]/10 blur-3xl"
+      />
+
+      {/* =====================================================
+          CIRCLES
+      ===================================================== */}
+
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -right-20 -top-20 h-[340px] w-[340px] rounded-full border border-white/10"
+      />
+
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute right-8 top-[-50px] h-[210px] w-[210px] rounded-full border border-white/10"
+      />
+
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -bottom-32 -left-24 h-[300px] w-[300px] rounded-full border border-white/10"
+      />
+
+      {/* =====================================================
+          DOT PATTERN
+      ===================================================== */}
+
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute left-10 top-24 h-24 w-24 opacity-20"
+        style={{
+          backgroundImage:
+            'radial-gradient(white 1.5px, transparent 1.5px)',
+          backgroundSize:
+            '12px 12px',
+        }}
+      />
+
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute bottom-24 right-12 h-24 w-24 opacity-15"
+        style={{
+          backgroundImage:
+            'radial-gradient(white 1.5px, transparent 1.5px)',
+          backgroundSize:
+            '12px 12px',
+        }}
+      />
+
+      {/* =====================================================
+          CONTENT
+      ===================================================== */}
+
+      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+
+        {/* ===================================================
+            HEADER
+        =================================================== */}
+
+        <div className="mx-auto mb-14 max-w-2xl text-center">
+
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.14em] text-white backdrop-blur-sm">
+
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white/15 text-sm">
+              ✦
+            </span>
+
             Dampak Nyata
-          </span>
+
+          </div>
 
           <h2
-            className="text-3xl sm:text-4xl font-bold text-white mt-2 mb-4"
+            className="text-3xl font-bold text-white sm:text-4xl"
             style={{
               fontFamily:
                 "'Plus Jakarta Sans', sans-serif",
@@ -243,37 +431,96 @@ export default function ImpactStats() {
             Angka yang Berbicara
           </h2>
 
-          <p className="text-white/70 max-w-xl mx-auto">
-            Data dampak dan jangkauan program LAZISMU
-            Pemalang.
+          <div className="mx-auto mt-4 h-1 w-14 rounded-full bg-white/70" />
+
+          <p className="mx-auto mt-5 max-w-xl text-sm leading-7 text-white/75 sm:text-base">
+            Data dampak dan jangkauan program
+            LAZISMU Pemalang yang terus
+            bertumbuh bersama kebaikan Anda.
           </p>
+
         </div>
 
+
+        {/* ===================================================
+            STATISTICS
+        =================================================== */}
+
         {loading ? (
-          <div className="text-center text-white/70">
-            Memuat data dampak...
+          <div className="rounded-3xl border border-white/15 bg-white/10 py-12 text-center backdrop-blur-sm">
+
+            <div className="mx-auto mb-4 h-9 w-9 animate-spin rounded-full border-4 border-white/30 border-t-white" />
+
+            <p className="text-sm text-white/70">
+              Memuat data dampak...
+            </p>
+
           </div>
         ) : (
           <div
-            className={`grid gap-8 ${
+            className={`grid gap-5 ${
               stats.length === 1
-                ? 'grid-cols-1 max-w-sm mx-auto'
+                ? 'mx-auto max-w-sm grid-cols-1'
                 : stats.length === 2
-                  ? 'grid-cols-1 sm:grid-cols-2 max-w-2xl mx-auto'
+                  ? 'mx-auto max-w-2xl grid-cols-1 sm:grid-cols-2'
                   : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
             }`}
           >
-            {stats.map((stat) => (
-              <div
-                key={stat.id}
-                className="bg-white/10 backdrop-blur-sm rounded-2xl p-6"
-              >
-                <StatCounter item={stat} />
-              </div>
-            ))}
+
+            {stats.map(
+              (stat) => (
+                <div
+                  key={stat.id}
+                  className="group relative overflow-hidden rounded-[26px] border border-white/15 bg-white/10 px-6 py-8 shadow-lg backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:bg-white/[0.15] hover:shadow-xl"
+                >
+
+                  {/* CARD GLOW */}
+
+                  <div
+                    aria-hidden="true"
+                    className="pointer-events-none absolute -right-12 -top-12 h-32 w-32 rounded-full bg-white/10 blur-2xl"
+                  />
+
+                  {/* TOP ACCENT */}
+
+                  <div className="absolute left-1/2 top-0 h-1 w-10 -translate-x-1/2 rounded-b-full bg-white/60 transition-all duration-300 group-hover:w-20" />
+
+                  <div className="relative z-10">
+                    <StatCounter
+                      item={stat}
+                    />
+                  </div>
+
+                </div>
+              )
+            )}
+
           </div>
         )}
+
       </div>
+
+
+      {/* =====================================================
+          BOTTOM WAVE
+      ===================================================== */}
+
+      <div className="pointer-events-none absolute bottom-0 left-0 right-0 opacity-10">
+
+        <svg
+          viewBox="0 0 1440 70"
+          fill="none"
+          preserveAspectRatio="none"
+          className="h-14 w-full"
+        >
+          <path
+            d="M0 70V45C180 15 300 55 480 30C660 5 780 50 960 25C1140 0 1260 45 1440 20V70H0Z"
+            fill="white"
+          />
+        </svg>
+
+      </div>
+
     </section>
   )
 }

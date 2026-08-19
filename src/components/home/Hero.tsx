@@ -622,7 +622,7 @@ export default function Hero({
             >
               <div className="animate-float">
 
-                <div className="relative mx-auto max-w-sm overflow-hidden rounded-2xl shadow-2xl">
+                <div className="relative mx-auto max-w-sm overflow-visible rounded-2xl shadow-2xl">
 
                   {/* CARD */}
 
@@ -787,7 +787,7 @@ export default function Hero({
                         onClick={
                           goToPreviousUrgent
                         }
-                        className="absolute left-3 top-1/2 z-20 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-gray-700 shadow-md transition hover:scale-105"
+                        className="absolute left-[-22px] top-1/2 z-20 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-gray-700 shadow-md transition hover:scale-105"
                         aria-label="Campaign urgent sebelumnya"
                       >
                         ‹
@@ -798,7 +798,7 @@ export default function Hero({
                         onClick={
                           goToNextUrgent
                         }
-                        className="absolute right-3 top-1/2 z-20 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-gray-700 shadow-md transition hover:scale-105"
+                        className="absolute right-[-22px] top-1/2 z-20 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-gray-700 shadow-md transition hover:scale-105"
                         aria-label="Campaign urgent berikutnya"
                       >
                         ›

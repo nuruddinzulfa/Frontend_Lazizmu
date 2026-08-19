@@ -1542,7 +1542,7 @@ export default function AboutManagement() {
               {/* EMAIL + PHONE */}
               <div className="grid gap-4 md:grid-cols-2">
 
-                <div>
+                {/* <div>
                   <label className="mb-2 block text-xs font-semibold text-gray-600">
                     Email
                   </label>
@@ -1594,7 +1594,7 @@ export default function AboutManagement() {
                     placeholder="Nomor telepon"
                     className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm outline-none focus:border-[#F58220]"
                   />
-                </div>
+                </div> */}
 
               </div>
 
