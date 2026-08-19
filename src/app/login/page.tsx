@@ -85,18 +85,12 @@ export default function LoginPage({
     <div className="min-h-screen bg-[#FFF8F2] flex items-center justify-center px-4 py-24">
       <div className="w-full max-w-md bg-white border border-[#F3DEC8] rounded-2xl shadow-sm p-8">
         <div className="text-center mb-8">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#F58220] to-[#D96D0A] flex items-center justify-center mx-auto mb-3">
-            <svg
-              viewBox="0 0 40 40"
-              fill="none"
-              className="w-8 h-8"
-            >
-              <path
-                d="M20 6 L26 14 L34 14 L28 20 L31 29 L20 23 L9 29 L12 20 L6 14 L14 14 Z"
-                fill="white"
-                opacity="0.9"
-              />
-            </svg>
+          <div className="flex justify-center mb-4">
+            <img
+              src="/logo-lazismu-pemalang.png"
+              alt="LAZISMU Kabupaten Pemalang"
+              className="h-16 sm:h-20 w-auto object-contain"
+            />
           </div>
 
           <div
@@ -106,7 +100,6 @@ export default function LoginPage({
                 "'Plus Jakarta Sans', sans-serif",
             }}
           >
-            LAZISMU Pemalang
           </div>
 
           <h1

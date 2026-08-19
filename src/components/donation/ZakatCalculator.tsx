@@ -38,7 +38,8 @@ interface HartaResponse {
   success: boolean;
   message: string;
   data: {
-    period: "monthly" | "yearly";
+    period: "yearly";
+    haul_met: boolean;
     savings: number;
     precious_assets: number;
     property_vehicle: number;
@@ -161,6 +162,9 @@ export default function ZakatCalculator({
 
   const [debt, setDebt] =
     useState("");
+
+  const [haulMet, setHaulMet] =
+    useState(false);
 
   const [
     hartaResult,
@@ -362,6 +366,7 @@ export default function ZakatCalculator({
           "/zakat/harta",
           {
             period: "yearly",
+            haul_met: haulMet,
             savings:
               parseNumber(savings),
 
@@ -549,8 +554,9 @@ export default function ZakatCalculator({
         ) : (
           <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
             <p className="text-sm text-gray-500 leading-relaxed">
-              Nilai belum mencapai
-              nisab zakat.
+              {"haul_met" in result && !result.haul_met
+                ? "Harta belum memenuhi satu haul, sehingga pada kalkulator maal ini belum dihitung wajib zakat."
+                : "Nilai belum mencapai nisab zakat."}
             </p>
           </div>
         )}
@@ -595,7 +601,7 @@ export default function ZakatCalculator({
           ) : (
             <p className="text-white/80 max-w-xl mx-auto leading-relaxed">
               Nisab menggunakan harga
-              emas 24K terbaru sebesar{" "}
+              emas 24K harian sebesar{" "}
               <span className="font-semibold text-white">
                 {formatRupiah(
                   goldPrice
@@ -777,7 +783,7 @@ export default function ZakatCalculator({
                   />
 
                   <MoneyInput
-                    label="Properti / Kendaraan yang Diperhitungkan"
+                    label="Aset Dagang / Investasi yang Wajib Dizakati"
                     value={
                       propertyVehicle
                     }
@@ -803,6 +809,25 @@ export default function ZakatCalculator({
                       setDebt
                     )}
                   />
+
+                  <label className="flex items-start gap-3 rounded-xl border border-[#F3DEC8] bg-[#FFF8F2] p-4">
+                    <input
+                      type="checkbox"
+                      checked={haulMet}
+                      onChange={(event) =>
+                        setHaulMet(
+                          event.target.checked
+                        )
+                      }
+                      className="mt-1 h-4 w-4 accent-[#F58220]"
+                    />
+
+                    <span className="text-sm leading-relaxed text-gray-600">
+                      Saya memastikan harta yang dihitung telah dimiliki selama
+                      satu haul (sekitar satu tahun Hijriah), kecuali terdapat
+                      ketentuan khusus pada jenis harta tertentu.
+                    </span>
+                  </label>
                 </div>
 
                 {hartaError && (
@@ -842,22 +867,120 @@ export default function ZakatCalculator({
         {/* INFO */}
 
         {tab === "info" && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <InfoCard
-              icon="💼"
-              title="Zakat Profesi"
-              nisab="85 gram emas"
-              kadar="2,5%"
-              description="Zakat atas penghasilan dari pekerjaan, gaji, honorarium, maupun penghasilan lainnya."
-            />
+          <div className="space-y-6">
+            <div className="rounded-2xl border border-[#F3DEC8] bg-white p-6 shadow-sm">
+              <h2
+                className="text-2xl font-bold text-gray-900"
+                style={{
+                  fontFamily:
+                    "'Plus Jakarta Sans', sans-serif",
+                }}
+              >
+                Panduan Zakat Sesuai Syariat
+              </h2>
 
-            <InfoCard
-              icon="💰"
-              title="Zakat Maal"
-              nisab="85 gram emas"
-              kadar="2,5%"
-              description="Zakat atas harta yang telah mencapai nisab dan memenuhi ketentuan haul."
-            />
+              <p className="mt-3 text-sm leading-relaxed text-gray-600">
+                Kalkulator ini menggunakan pedoman umum zakat penghasilan
+                dan zakat maal yang mengacu pada Fatwa MUI Nomor 3 Tahun 2003
+                serta panduan BAZNAS. Nilai nisab dihitung berdasarkan
+                85 gram emas dan kadar zakat sebesar 2,5%.
+              </p>
+
+              <div className="mt-4 rounded-xl bg-[#FFF8F2] p-4 text-sm leading-relaxed text-gray-600">
+                Harga emas pada sistem diperbarui maksimal satu kali per hari.
+                Karena harga emas dapat berubah, nilai nisab dalam rupiah juga
+                dapat berubah dari hari ke hari.
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              <InfoCard
+                icon="💼"
+                title="Zakat Penghasilan"
+                nisab="Senilai 85 gram emas per tahun"
+                kadar="2,5%"
+                description="Berlaku atas penghasilan halal seperti gaji, honorarium, upah, jasa, dan penghasilan profesional lainnya. Jika penghasilan bersih dalam satu tahun mencapai nisab, zakat wajib dikeluarkan. Pembayaran dapat dilakukan saat menerima penghasilan apabila sudah mencapai nisab, atau dihitung secara kumulatif selama satu tahun."
+              />
+
+              <InfoCard
+                icon="💰"
+                title="Zakat Maal / Harta"
+                nisab="Senilai 85 gram emas"
+                kadar="2,5%"
+                description="Untuk uang, tabungan, emas, dan harta sejenis yang telah mencapai nisab dan dimiliki selama satu haul. Harta pribadi yang digunakan untuk kebutuhan sehari-hari, seperti rumah tinggal atau kendaraan pribadi, tidak otomatis menjadi objek zakat dalam kalkulator ini."
+              />
+            </div>
+
+            <div className="rounded-2xl border border-[#F3DEC8] bg-white p-6">
+              <h3 className="font-bold text-gray-900">
+                Cara Menghitung Zakat Penghasilan
+              </h3>
+
+              <div className="mt-4 space-y-3 text-sm leading-relaxed text-gray-600">
+                <p>
+                  1. Jumlahkan penghasilan halal, termasuk penghasilan tetap
+                  dan penghasilan lain.
+                </p>
+                <p>
+                  2. Kurangi kebutuhan pokok atau kewajiban yang memang
+                  diperhitungkan untuk memperoleh penghasilan bersih.
+                </p>
+                <p>
+                  3. Bandingkan penghasilan bersih dengan nisab senilai
+                  85 gram emas dalam satu tahun.
+                </p>
+                <p>
+                  4. Jika mencapai nisab, zakat yang dikeluarkan adalah
+                  2,5% dari penghasilan bersih yang dihitung.
+                </p>
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-[#F3DEC8] bg-white p-6">
+              <h3 className="font-bold text-gray-900">
+                Cara Menghitung Zakat Maal
+              </h3>
+
+              <div className="mt-4 space-y-3 text-sm leading-relaxed text-gray-600">
+                <p>
+                  1. Hitung harta yang memang termasuk objek zakat, seperti
+                  uang tunai, tabungan, emas/logam mulia, aset dagang, dan
+                  aset lain yang wajib dizakati.
+                </p>
+                <p>
+                  2. Kurangi utang yang benar-benar jatuh tempo dan menjadi
+                  kewajiban pembayaran.
+                </p>
+                <p>
+                  3. Pastikan harta telah memenuhi satu haul untuk jenis harta
+                  yang mensyaratkannya.
+                </p>
+                <p>
+                  4. Jika harta bersih mencapai nisab senilai 85 gram emas,
+                  zakatnya adalah 2,5% dari harta bersih.
+                </p>
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5">
+              <h3 className="font-bold text-amber-800">
+                Catatan Penting
+              </h3>
+
+              <p className="mt-2 text-sm leading-relaxed text-amber-800/80">
+                Kalkulator ini adalah alat bantu untuk zakat penghasilan dan
+                zakat maal umum. Zakat pertanian, peternakan, hasil tambang,
+                rikaz, perdagangan dengan kondisi khusus, serta kasus harta
+                yang kompleks memiliki ketentuan tersendiri. Untuk kondisi
+                khusus, silakan berkonsultasi dengan amil LAZISMU atau pihak
+                yang memahami fikih zakat.
+              </p>
+            </div>
+
+            <div className="text-xs leading-relaxed text-gray-400">
+              Rujukan: Fatwa MUI Nomor 3 Tahun 2003 tentang Zakat Penghasilan
+              dan panduan zakat BAZNAS.
+            </div>
           </div>
         )}
       </div>
