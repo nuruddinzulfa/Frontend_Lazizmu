@@ -16,9 +16,9 @@ export interface News {
   thumbnail: string | null;
 
   category:
-    | "Kegiatan"
-    | "Pengumuman"
-    | "Laporan";
+  | "Kegiatan"
+  | "Pengumuman"
+  | "Laporan";
 
   status: "draft" | "published";
 
@@ -38,9 +38,9 @@ export interface NewsPayload {
   content: string;
 
   category:
-    | "Kegiatan"
-    | "Pengumuman"
-    | "Laporan";
+  | "Kegiatan"
+  | "Pengumuman"
+  | "Laporan";
 
   status: "draft" | "published";
 
@@ -175,7 +175,7 @@ export async function getNews(): Promise<News[]> {
   if (!response.ok) {
     throw new Error(
       data.message ||
-        "Gagal mengambil daftar berita."
+      "Gagal mengambil daftar berita."
     );
   }
 
@@ -206,7 +206,7 @@ export async function getPublicNewsBySlug(
   if (!response.ok) {
     throw new Error(
       data.message ||
-        "Berita tidak ditemukan."
+      "Berita tidak ditemukan."
     );
   }
 
@@ -270,7 +270,7 @@ export async function getAdminNews(): Promise<
   if (!response.ok) {
     throw new Error(
       data.message ||
-        "Gagal mengambil daftar berita admin."
+      "Gagal mengambil daftar berita admin."
     );
   }
 
@@ -304,7 +304,7 @@ export async function getAdminNewsById(
   if (!response.ok) {
     throw new Error(
       data.message ||
-        "Gagal mengambil detail berita admin."
+      "Gagal mengambil detail berita admin."
     );
   }
 
@@ -379,7 +379,7 @@ export async function createNews(
   if (!response.ok) {
     throw new Error(
       data.message ||
-        "Gagal membuat berita."
+      "Gagal membuat berita."
     );
   }
 
@@ -455,7 +455,7 @@ export async function updateNews(
   if (!response.ok) {
     throw new Error(
       data.message ||
-        "Gagal memperbarui berita."
+      "Gagal memperbarui berita."
     );
   }
 
@@ -497,7 +497,7 @@ export async function deleteNews(
   if (!response.ok) {
     throw new Error(
       data.message ||
-        "Gagal menghapus berita."
+      "Gagal menghapus berita."
     );
   }
 }
