@@ -23,9 +23,7 @@ export default function LoginPage({
     setError("");
 
     if (!email.trim() || !password) {
-      setError(
-        "Email dan kata sandi wajib diisi."
-      );
+      setError("Email dan kata sandi wajib diisi.");
       return;
     }
 
@@ -93,16 +91,6 @@ export default function LoginPage({
               className="h-16 w-auto object-contain"
             />
           </div>
-
-          {/* <div
-            className="text-lg font-bold text-gray-900"
-            style={{
-              fontFamily:
-                "'Plus Jakarta Sans', sans-serif",
-            }}
-          >
-            LAZISMU Pemalang
-          </div> */}
 
           <h1
             className="text-2xl font-bold text-gray-900 mt-4"
