@@ -30,7 +30,6 @@ const roleMenus: Record<AdminRole, string[]> = {
     'publikasi',
     'tentang-kami',
     'users',
-    'pengaturan',
   ],
 
   'Admin Konten': [

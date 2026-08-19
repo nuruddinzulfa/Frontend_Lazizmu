@@ -100,7 +100,7 @@ export default function AboutPage() {
           [...memberData].sort(
             (a, b) =>
               a.sort_order -
-                b.sort_order ||
+              b.sort_order ||
               a.id - b.id
           )
         )
@@ -186,13 +186,16 @@ export default function AboutPage() {
           <div className="flex items-center gap-5">
 
             {logoUrl && (
-              <div className="hidden h-20 w-20 items-center justify-center rounded-2xl bg-white p-3 sm:flex">
-                <img
-                  src={logoUrl}
-                  alt={organizationName}
-                  className="h-full w-full object-contain"
-                />
-              </div>
+              <img
+                src={logoUrl}
+                alt={profile?.name || 'Logo organisasi'}
+                className="
+      w-full h-full
+      object-contain
+      p-10
+      bg-white
+    "
+              />
             )}
 
             <div>
@@ -497,7 +500,7 @@ export default function AboutPage() {
                     ) => {
                       if (
                         event.key ===
-                          'Enter' ||
+                        'Enter' ||
                         event.key === ' '
                       ) {
                         event.preventDefault()
@@ -556,18 +559,16 @@ export default function AboutPage() {
                     {/* ARROW */}
 
                     <div
-                      className={`mx-auto flex h-5 w-5 items-center justify-center rounded-full border-2 border-[#F3DEC8] transition-transform duration-200 ${
-                        isExpanded
+                      className={`mx-auto flex h-5 w-5 items-center justify-center rounded-full border-2 border-[#F3DEC8] transition-transform duration-200 ${isExpanded
                           ? 'rotate-180 border-[#F58220]'
                           : ''
-                      }`}
+                        }`}
                     >
                       <svg
-                        className={`h-3 w-3 ${
-                          isExpanded
+                        className={`h-3 w-3 ${isExpanded
                             ? 'text-[#F58220]'
                             : 'text-gray-400'
-                        }`}
+                          }`}
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -586,11 +587,10 @@ export default function AboutPage() {
                   {/* DETAIL */}
 
                   <div
-                    className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                      isExpanded
+                    className={`overflow-hidden transition-all duration-300 ease-in-out ${isExpanded
                         ? 'max-h-96 opacity-100'
                         : 'max-h-0 opacity-0'
-                    }`}
+                      }`}
                   >
 
                     <div className="border-t border-[#F3DEC8] bg-[#FFF8F2] px-5 py-4">

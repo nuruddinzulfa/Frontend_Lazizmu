@@ -30,10 +30,11 @@ interface Campaign {
   short_description: string | null
   description: string | null
   thumbnail: string | null
-  target_amount: string
-  collected_amount: string
-  featured: boolean
-  status: string
+  target_amount: string | number
+  collected_amount: string | number
+  featured: boolean | number
+  urgent: boolean | number
+  status: 'draft' | 'published' | 'closed'
   start_date: string | null
   end_date: string | null
 }
@@ -50,7 +51,15 @@ interface CampaignResponse {
   data: Campaign[]
 }
 
-function getMediaUrl(path: string | null): string | null {
+/*
+|--------------------------------------------------------------------------
+| MEDIA URL
+|--------------------------------------------------------------------------
+*/
+
+function getMediaUrl(
+  path: string | null
+): string | null {
   if (!path) {
     return null
   }
@@ -72,13 +81,30 @@ function getMediaUrl(path: string | null): string | null {
   return `${backendUrl}/storage/${cleanPath}`
 }
 
-function formatRupiah(value: number): string {
-  return new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    maximumFractionDigits: 0,
-  }).format(value)
+/*
+|--------------------------------------------------------------------------
+| RUPIAH
+|--------------------------------------------------------------------------
+*/
+
+function formatRupiah(
+  value: number
+): string {
+  return new Intl.NumberFormat(
+    'id-ID',
+    {
+      style: 'currency',
+      currency: 'IDR',
+      maximumFractionDigits: 0,
+    }
+  ).format(value)
 }
+
+/*
+|--------------------------------------------------------------------------
+| HERO
+|--------------------------------------------------------------------------
+*/
 
 export default function Hero({
   onNavigate,
@@ -89,18 +115,33 @@ export default function Hero({
   const [banner, setBanner] =
     useState<Banner | null>(null)
 
-  const [campaign, setCampaign] =
-    useState<Campaign | null>(null)
+  const [urgentCampaigns, setUrgentCampaigns] =
+    useState<Campaign[]>([])
+
+  const [urgentIndex, setUrgentIndex] =
+    useState(0)
+
+  /*
+  |--------------------------------------------------------------------------
+  | MOUNT ANIMATION
+  |--------------------------------------------------------------------------
+  */
 
   useEffect(() => {
-    const timer = setTimeout(
-      () => setMounted(true),
-      100
-    )
+    const timer = setTimeout(() => {
+      setMounted(true)
+    }, 100)
 
-    return () =>
+    return () => {
       clearTimeout(timer)
+    }
   }, [])
+
+  /*
+  |--------------------------------------------------------------------------
+  | LOAD BANNER + CAMPAIGNS
+  |--------------------------------------------------------------------------
+  */
 
   useEffect(() => {
     let active = true
@@ -113,13 +154,15 @@ export default function Hero({
         ] = await Promise.all([
           fetch(`${API_URL}/banners`, {
             headers: {
-              Accept: 'application/json',
+              Accept:
+                'application/json',
             },
           }),
 
           fetch(`${API_URL}/campaigns`, {
             headers: {
-              Accept: 'application/json',
+              Accept:
+                'application/json',
             },
           }),
         ])
@@ -134,12 +177,18 @@ export default function Hero({
           return
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | BANNER
+        |--------------------------------------------------------------------------
+        */
+
         if (
           bannerResponse.ok &&
           bannerResult.success &&
           bannerResult.data.length > 0
         ) {
-          const sorted = [
+          const sortedBanners = [
             ...bannerResult.data,
           ].sort(
             (a, b) =>
@@ -147,26 +196,39 @@ export default function Hero({
               b.sort_order
           )
 
-          setBanner(sorted[0])
+          setBanner(
+            sortedBanners[0]
+          )
         }
+
+        /*
+        |--------------------------------------------------------------------------
+        | URGENT CAMPAIGNS
+        |--------------------------------------------------------------------------
+        */
 
         if (
           campaignResponse.ok &&
           campaignResult.success
         ) {
-          const published =
+          const urgent =
             campaignResult.data.filter(
-              (item) =>
-                item.status ===
-                'published'
+              (campaign) =>
+                campaign.status ===
+                  'published' &&
+                Boolean(
+                  campaign.urgent
+                )
             )
 
-          const featured =
-            published.find(
-              (item) => item.featured
-            ) ?? published[0]
+          /*
+           * Maksimal 3 campaign urgent
+           */
+          setUrgentCampaigns(
+            urgent.slice(0, 3)
+          )
 
-          setCampaign(featured ?? null)
+          setUrgentIndex(0)
         }
       } catch (error) {
         console.error(
@@ -183,38 +245,102 @@ export default function Hero({
     }
   }, [])
 
+  /*
+  |--------------------------------------------------------------------------
+  | AUTO SLIDER URGENT
+  |--------------------------------------------------------------------------
+  */
+
+  useEffect(() => {
+    if (urgentCampaigns.length <= 1) {
+      return
+    }
+
+    const interval =
+      setInterval(() => {
+        setUrgentIndex(
+          (current) =>
+            (current + 1) %
+            urgentCampaigns.length
+        )
+      }, 5000)
+
+    return () => {
+      clearInterval(interval)
+    }
+  }, [urgentCampaigns.length])
+
+  /*
+  |--------------------------------------------------------------------------
+  | CURRENT URGENT
+  |--------------------------------------------------------------------------
+  */
+
+  const currentUrgent =
+    urgentCampaigns[
+      urgentIndex
+    ] ?? null
+
+  /*
+  |--------------------------------------------------------------------------
+  | MEDIA
+  |--------------------------------------------------------------------------
+  */
+
   const heroImage =
-    getMediaUrl(banner?.image ?? null)
+    getMediaUrl(
+      banner?.image ?? null
+    )
 
   const heroVideo =
-    getMediaUrl(banner?.video ?? null)
+    getMediaUrl(
+      banner?.video ?? null
+    )
 
   const campaignImage =
     getMediaUrl(
-      campaign?.thumbnail ?? null
+      currentUrgent?.thumbnail ??
+        null
     )
 
-  const collected = campaign
-    ? Number(
-        campaign.collected_amount || 0
-      )
-    : 0
+  /*
+  |--------------------------------------------------------------------------
+  | CAMPAIGN PROGRESS
+  |--------------------------------------------------------------------------
+  */
 
-  const target = campaign
-    ? Number(
-        campaign.target_amount || 0
-      )
-    : 0
+  const collected =
+    currentUrgent
+      ? Number(
+          currentUrgent.collected_amount ||
+            0
+        )
+      : 0
+
+  const target =
+    currentUrgent
+      ? Number(
+          currentUrgent.target_amount ||
+            0
+        )
+      : 0
 
   const percentage =
     target > 0
       ? Math.min(
           Math.round(
-            (collected / target) * 100
+            (collected / target) *
+              100
           ),
           100
         )
       : 0
+
+  /*
+  |--------------------------------------------------------------------------
+  | BANNER BUTTON
+  |--------------------------------------------------------------------------
+  */
 
   function handleBannerButton() {
     const url =
@@ -256,14 +382,48 @@ export default function Hero({
     window.location.href = url
   }
 
+  /*
+  |--------------------------------------------------------------------------
+  | SLIDER NAVIGATION
+  |--------------------------------------------------------------------------
+  */
+
+  const goToPreviousUrgent = () => {
+    setUrgentIndex(
+      (current) =>
+        current === 0
+          ? urgentCampaigns.length - 1
+          : current - 1
+    )
+  }
+
+  const goToNextUrgent = () => {
+    setUrgentIndex(
+      (current) =>
+        (current + 1) %
+        urgentCampaigns.length
+    )
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | RENDER
+  |--------------------------------------------------------------------------
+  */
+
   return (
     <section
       id="hero"
-      className="relative min-h-screen flex items-center overflow-hidden"
+      className="relative flex min-h-screen items-center overflow-hidden"
     >
-      {/* BACKGROUND */}
+      {/* ================================================================
+          BACKGROUND
+      ================================================================ */}
+
       <div className="absolute inset-0">
-        {banner?.media_type === 'video' && heroVideo ? (
+        {banner?.media_type ===
+          'video' &&
+        heroVideo ? (
           <video
             key={heroVideo}
             autoPlay
@@ -271,9 +431,11 @@ export default function Hero({
             loop
             playsInline
             preload="metadata"
-            className="w-full h-full object-cover"
+            className="h-full w-full object-cover"
           >
-            <source src={heroVideo} />
+            <source
+              src={heroVideo}
+            />
           </video>
         ) : heroImage ? (
           <img
@@ -282,23 +444,28 @@ export default function Hero({
               banner?.title ||
               'LAZISMU Pemalang'
             }
-            className="w-full h-full object-cover"
+            className="h-full w-full object-cover"
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-gray-900 via-gray-800 to-[#8A470E]" />
+          <div className="h-full w-full bg-gradient-to-br from-gray-900 via-gray-800 to-[#8A470E]" />
         )}
 
         <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/55 to-black/20" />
+
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+
         <div className="absolute inset-0 bg-gradient-to-br from-[#F58220]/20 via-transparent to-transparent" />
       </div>
 
-      {/* ORNAMEN */}
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] opacity-10 pointer-events-none">
+      {/* ================================================================
+          ORNAMEN
+      ================================================================ */}
+
+      <div className="pointer-events-none absolute right-0 top-0 h-[500px] w-[500px] opacity-10">
         <svg
           viewBox="0 0 200 200"
           fill="none"
-          className="w-full h-full"
+          className="h-full w-full"
         >
           <polygon
             points="100,10 190,55 190,145 100,190 10,145 10,55"
@@ -328,17 +495,23 @@ export default function Hero({
         </svg>
       </div>
 
-      {/* CONTENT */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-32 w-full">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+      {/* ================================================================
+          CONTENT
+      ================================================================ */}
 
-          {/* LEFT */}
+      <div className="relative z-10 mx-auto w-full max-w-7xl px-4 pb-32 pt-20 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
+
+          {/* ============================================================
+              LEFT CONTENT
+          ============================================================ */}
+
           <div>
             <div
-              className={`inline-flex items-center gap-3 bg-white/10 border border-white/20 px-4 py-2 rounded-full mb-6 transition-all duration-700 ${
+              className={`mb-6 inline-flex items-center gap-3 rounded-full border border-white/20 bg-white/10 px-4 py-2 transition-all duration-700 ${
                 mounted
-                  ? 'opacity-100 translate-y-0'
-                  : 'opacity-0 translate-y-4'
+                  ? 'translate-y-0 opacity-100'
+                  : 'translate-y-4 opacity-0'
               }`}
             >
               <img
@@ -347,18 +520,18 @@ export default function Hero({
                 className="h-7 w-auto object-contain"
               />
 
-              <span className="w-1.5 h-1.5 rounded-full bg-[#F58220] animate-pulse" />
+              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#F58220]" />
 
-              <span className="text-white/90 text-xs font-semibold">
+              <span className="text-xs font-semibold text-white/90">
                 Amanah & Transparan
               </span>
             </div>
 
             <h1
-              className={`text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6 transition-all duration-700 delay-100 ${
+              className={`mb-6 text-4xl font-bold leading-tight text-white transition-all duration-700 sm:text-5xl lg:text-6xl ${
                 mounted
-                  ? 'opacity-100 translate-y-0'
-                  : 'opacity-0 translate-y-6'
+                  ? 'translate-y-0 opacity-100'
+                  : 'translate-y-6 opacity-0'
               }`}
               style={{
                 fontFamily:
@@ -370,10 +543,10 @@ export default function Hero({
             </h1>
 
             <p
-              className={`text-white/80 text-lg leading-relaxed mb-8 max-w-lg transition-all duration-700 delay-200 ${
+              className={`mb-8 max-w-lg text-lg leading-relaxed text-white/80 transition-all duration-700 ${
                 mounted
-                  ? 'opacity-100 translate-y-0'
-                  : 'opacity-0 translate-y-6'
+                  ? 'translate-y-0 opacity-100'
+                  : 'translate-y-6 opacity-0'
               }`}
             >
               {banner?.subtitle ||
@@ -381,20 +554,21 @@ export default function Hero({
             </p>
 
             <div
-              className={`flex flex-wrap gap-4 mb-12 transition-all duration-700 delay-300 ${
+              className={`mb-12 flex flex-wrap gap-4 transition-all duration-700 ${
                 mounted
-                  ? 'opacity-100 translate-y-0'
-                  : 'opacity-0 translate-y-6'
+                  ? 'translate-y-0 opacity-100'
+                  : 'translate-y-6 opacity-0'
               }`}
             >
               <button
+                type="button"
                 onClick={
                   handleBannerButton
                 }
-                className="btn-primary px-7 py-3.5 text-base font-semibold inline-flex items-center gap-2"
+                className="btn-primary inline-flex items-center gap-2 px-7 py-3.5 text-base font-semibold"
               >
                 <svg
-                  className="w-5 h-5"
+                  className="h-5 w-5"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -413,12 +587,12 @@ export default function Hero({
 
               <a
                 href="#programs"
-                className="px-7 py-3.5 text-base font-semibold text-white border-2 border-white/40 rounded-xl hover:bg-white/10 transition-all duration-200 inline-flex items-center gap-2"
+                className="inline-flex items-center gap-2 rounded-xl border-2 border-white/40 px-7 py-3.5 text-base font-semibold text-white transition-all duration-200 hover:bg-white/10"
               >
                 Pelajari Program
 
                 <svg
-                  className="w-5 h-5"
+                  className="h-5 w-5"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -434,139 +608,273 @@ export default function Hero({
             </div>
           </div>
 
-          {/* FEATURED CAMPAIGN */}
-          {campaign && (
+          {/* ============================================================
+              URGENT CAMPAIGN SLIDER
+          ============================================================ */}
+
+          {currentUrgent && (
             <div
-              className={`transition-all duration-700 delay-300 ${
+              className={`transition-all duration-700 ${
                 mounted
-                  ? 'opacity-100 translate-x-0'
-                  : 'opacity-0 translate-x-8'
+                  ? 'translate-x-0 opacity-100'
+                  : 'translate-x-8 opacity-0'
               }`}
             >
               <div className="animate-float">
-                <div className="glass-card rounded-2xl overflow-hidden max-w-sm mx-auto lg:ml-auto shadow-2xl">
 
-                  {campaignImage && (
-                    <div className="h-36">
-                      <img
-                        src={campaignImage}
-                        alt={campaign.title}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  )}
+                <div className="relative mx-auto max-w-sm overflow-hidden rounded-2xl shadow-2xl">
 
-                  <div className="p-6">
-                    <div className="flex items-start gap-3 mb-5">
-                      <div className="w-10 h-10 rounded-xl bg-[#F58220] flex items-center justify-center flex-shrink-0">
-                        <svg
-                          className="w-5 h-5 text-white"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                          />
-                        </svg>
-                      </div>
+                  {/* CARD */}
 
-                      <div className="min-w-0">
-                        <div
-                          className="text-sm font-bold text-gray-800"
-                          style={{
-                            fontFamily:
-                              "'Plus Jakarta Sans', sans-serif",
-                          }}
-                        >
-                          {campaign.title}
-                        </div>
+                  <div className="glass-card">
 
-                        <div className="text-xs text-gray-500 mt-1">
-                          {campaign.featured
-                            ? 'Campaign Unggulan'
-                            : campaign.category}
-                        </div>
-                      </div>
-                    </div>
+                    {/* IMAGE */}
 
-                    {campaign.short_description && (
-                      <p className="text-xs text-gray-500 leading-relaxed mb-4">
-                        {
-                          campaign.short_description
-                        }
-                      </p>
-                    )}
-
-                    <div className="mb-5">
-                      <div className="flex justify-between text-xs text-gray-500 mb-2">
-                        <span>
-                          Terkumpul
-                        </span>
-
-                        <span className="font-semibold text-[#F58220]">
-                          {percentage}%
-                        </span>
-                      </div>
-
-                      <div className="h-2.5 bg-gray-100 rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-gradient-to-r from-[#F58220] to-[#D96D0A] rounded-full transition-all duration-1000"
-                          style={{
-                            width: `${percentage}%`,
-                          }}
+                    {campaignImage && (
+                      <div className="h-36 overflow-hidden">
+                        <img
+                          key={
+                            currentUrgent.id
+                          }
+                          src={
+                            campaignImage
+                          }
+                          alt={
+                            currentUrgent.title
+                          }
+                          className="h-full w-full object-cover transition-all duration-500"
                         />
                       </div>
+                    )}
 
-                      <div className="flex justify-between items-end gap-3 mt-2">
-                        <span
-                          className="text-sm font-bold text-gray-800"
-                          style={{
-                            fontFamily:
-                              "'Plus Jakarta Sans', sans-serif",
-                          }}
-                        >
-                          {formatRupiah(
-                            collected
-                          )}
-                        </span>
+                    {/* CONTENT */}
 
-                        <span className="text-xs text-gray-400 text-right">
-                          dari{' '}
-                          {formatRupiah(
-                            target
-                          )}
-                        </span>
+                    <div className="p-6">
+
+                      {/* LABEL */}
+
+                      <div className="mb-5 flex items-start gap-3">
+
+                        <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-red-500">
+                          <svg
+                            className="h-5 w-5 text-white"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M12 9v2m0 4h.01M10.29 3.86l-7.82 14A2 2 0 004.21 21h15.58a2 2 0 001.74-3.14l-7.82-14a2 2 0 00-3.42 0z"
+                            />
+                          </svg>
+                        </div>
+
+                        <div className="min-w-0">
+
+                          <div className="mb-1 text-[11px] font-bold uppercase tracking-wider text-red-500">
+                            Campaign Urgent
+                          </div>
+
+                          <div
+                            className="text-sm font-bold text-gray-800"
+                            style={{
+                              fontFamily:
+                                "'Plus Jakarta Sans', sans-serif",
+                            }}
+                          >
+                            {
+                              currentUrgent.title
+                            }
+                          </div>
+
+                          <div className="mt-1 text-xs text-gray-500">
+                            {
+                              currentUrgent.category
+                            }
+                          </div>
+
+                        </div>
                       </div>
-                    </div>
 
-                    <button
-                      onClick={() =>
-                        onNavigate(
-                          'donasi'
-                        )
-                      }
-                      className="btn-primary block w-full text-center py-3 text-sm font-semibold"
-                    >
-                      Donasi Sekarang
-                    </button>
+                      {/* DESCRIPTION */}
+
+                      {currentUrgent.short_description && (
+                        <p className="mb-4 line-clamp-3 text-xs leading-relaxed text-gray-500">
+                          {
+                            currentUrgent.short_description
+                          }
+                        </p>
+                      )}
+
+                      {/* PROGRESS */}
+
+                      <div className="mb-5">
+
+                        <div className="mb-2 flex justify-between text-xs text-gray-500">
+
+                          <span>
+                            Terkumpul
+                          </span>
+
+                          <span className="font-semibold text-[#F58220]">
+                            {percentage}%
+                          </span>
+
+                        </div>
+
+                        <div className="h-2.5 overflow-hidden rounded-full bg-gray-100">
+
+                          <div
+                            className="h-full rounded-full bg-gradient-to-r from-[#F58220] to-[#D96D0A] transition-all duration-700"
+                            style={{
+                              width: `${percentage}%`,
+                            }}
+                          />
+
+                        </div>
+
+                        <div className="mt-2 flex items-end justify-between gap-3">
+
+                          <span
+                            className="text-sm font-bold text-gray-800"
+                            style={{
+                              fontFamily:
+                                "'Plus Jakarta Sans', sans-serif",
+                            }}
+                          >
+                            {formatRupiah(
+                              collected
+                            )}
+                          </span>
+
+                          <span className="text-right text-xs text-gray-400">
+                            dari{' '}
+                            {formatRupiah(
+                              target
+                            )}
+                          </span>
+
+                        </div>
+                      </div>
+
+                      {/* DONATE */}
+
+                      <button
+                        type="button"
+                        onClick={() =>
+                          onNavigate(
+                            'donasi'
+                          )
+                        }
+                        className="btn-primary block w-full py-3 text-center text-sm font-semibold"
+                      >
+                        Donasi Sekarang
+                      </button>
+                    </div>
                   </div>
+
+                  {/* ======================================================
+                      SLIDER CONTROLS
+                  ====================================================== */}
+
+                  {urgentCampaigns.length >
+                    1 && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={
+                          goToPreviousUrgent
+                        }
+                        className="absolute left-3 top-1/2 z-20 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-gray-700 shadow-md transition hover:scale-105"
+                        aria-label="Campaign urgent sebelumnya"
+                      >
+                        ‹
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={
+                          goToNextUrgent
+                        }
+                        className="absolute right-3 top-1/2 z-20 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-gray-700 shadow-md transition hover:scale-105"
+                        aria-label="Campaign urgent berikutnya"
+                      >
+                        ›
+                      </button>
+                    </>
+                  )}
                 </div>
+
+                {/* ========================================================
+                    DOT INDICATOR
+                ======================================================== */}
+
+                {urgentCampaigns.length >
+                  1 && (
+                  <div className="mt-4 flex justify-center gap-2">
+
+                    {urgentCampaigns.map(
+                      (
+                        urgent,
+                        index
+                      ) => (
+                        <button
+                          key={
+                            urgent.id
+                          }
+                          type="button"
+                          onClick={() =>
+                            setUrgentIndex(
+                              index
+                            )
+                          }
+                          aria-label={`Tampilkan campaign urgent ${index + 1}`}
+                          className={`h-2 rounded-full transition-all duration-300 ${
+                            index ===
+                            urgentIndex
+                              ? 'w-7 bg-[#F58220]'
+                              : 'w-2 bg-white/60'
+                          }`}
+                        />
+                      )
+                    )}
+                  </div>
+                )}
+
+                {/* JUMLAH URGENT */}
+
+                {urgentCampaigns.length >
+                  1 && (
+                  <p className="mt-2 text-center text-xs text-white/60">
+                    {urgentIndex + 1} dari{' '}
+                    {
+                      urgentCampaigns.length
+                    }{' '}
+                    campaign urgent
+                  </p>
+                )}
               </div>
             </div>
           )}
         </div>
       </div>
 
-      {/* SCROLL */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/50 text-xs">
-        <span>Scroll</span>
+      {/* ================================================================
+          SCROLL
+      ================================================================ */}
 
-        <div className="w-5 h-8 rounded-full border-2 border-white/30 flex items-start justify-center pt-1.5">
-          <div className="w-1 h-2 rounded-full bg-white/60 animate-bounce" />
+      <div className="absolute bottom-8 left-1/2 flex -translate-x-1/2 flex-col items-center gap-2 text-xs text-white/50">
+
+        <span>
+          Scroll
+        </span>
+
+        <div className="flex h-8 w-5 items-start justify-center rounded-full border-2 border-white/30 pt-1.5">
+
+          <div className="h-2 w-1 animate-bounce rounded-full bg-white/60" />
+
         </div>
       </div>
     </section>
