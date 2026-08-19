@@ -152,3 +152,101 @@ h1, h2, h3, h4, h5, h6 {
   overflow: hidden;
   line-height: 0;
 }
+
+
+/* ============================================================
+   TIPTAP RICH TEXT EDITOR
+   ============================================================ */
+
+/* Bullet List */
+.ProseMirror ul {
+  list-style-type: disc !important;
+  padding-left: 1.5rem !important;
+  margin-top: 0.5rem !important;
+  margin-bottom: 0.5rem !important;
+}
+
+/* Numbered List */
+.ProseMirror ol {
+  list-style-type: decimal !important;
+  padding-left: 1.5rem !important;
+  margin-top: 0.5rem !important;
+  margin-bottom: 0.5rem !important;
+}
+
+/* List Item */
+.ProseMirror li {
+  display: list-item !important;
+}
+
+/* Bullet marker */
+.ProseMirror ul li::marker {
+  color: #374151;
+}
+
+/* Number marker */
+.ProseMirror ol li::marker {
+  color: #374151;
+}
+
+/* Nested bullet list */
+.ProseMirror ul ul {
+  list-style-type: circle !important;
+}
+
+/* Nested numbered list */
+.ProseMirror ol ol {
+  list-style-type: lower-alpha !important;
+}
+
+/* Blockquote */
+.ProseMirror blockquote {
+  border-left: 4px solid #F58220 !important;
+  padding-left: 1rem !important;
+  margin: 1rem 0 !important;
+  color: #6B7280 !important;
+  font-style: italic;
+}
+
+/* Paragraph */
+.ProseMirror p {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Heading */
+.ProseMirror h1 {
+  font-size: 2rem;
+  line-height: 2.25rem;
+  font-weight: 700;
+  margin-top: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.ProseMirror h2 {
+  font-size: 1.5rem;
+  line-height: 2rem;
+  font-weight: 700;
+  margin-top: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.ProseMirror h3 {
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+  font-weight: 700;
+  margin-top: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Link */
+.ProseMirror a {
+  color: #F58220;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* Editor focus */
+.ProseMirror:focus {
+  outline: none;
+}

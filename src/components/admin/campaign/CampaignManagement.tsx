@@ -5,6 +5,7 @@ import {
   useMemo,
   useState,
 } from 'react'
+import RichTextEditor from '../../RichTextEditor'
 
 import {
   getAdminCampaigns,
@@ -898,49 +899,41 @@ export default function CampaignManagement() {
 
             {/* Short Description */}
 
-            <div className="md:col-span-2">
-              <label className="mb-1.5 block text-xs font-semibold text-gray-600">
-                Deskripsi Singkat
-              </label>
+<div className="md:col-span-2">
+  <label className="mb-1.5 block text-xs font-semibold text-gray-600">
+    Deskripsi Singkat
+  </label>
 
-              <textarea
-                value={
-                  form.short_description
-                }
-                onChange={(e) =>
-                  updateForm(
-                    'short_description',
-                    e.target.value
-                  )
-                }
-                rows={3}
-                placeholder="Ringkasan singkat campaign..."
-                className="w-full resize-none rounded-xl border border-gray-200 px-4 py-2.5 text-sm outline-none focus:border-[#F58220]"
-              />
-            </div>
+  <RichTextEditor
+    value={form.short_description}
+    onChange={(value) =>
+      updateForm(
+        'short_description',
+        value
+      )
+    }
+    placeholder="Ringkasan singkat campaign..."
+  />
+</div>
 
             {/* Description */}
 
-            <div className="md:col-span-2">
-              <label className="mb-1.5 block text-xs font-semibold text-gray-600">
-                Deskripsi Campaign
-              </label>
+<div className="md:col-span-2">
+  <label className="mb-1.5 block text-xs font-semibold text-gray-600">
+    Deskripsi Campaign
+  </label>
 
-              <textarea
-                value={
-                  form.description
-                }
-                onChange={(e) =>
-                  updateForm(
-                    'description',
-                    e.target.value
-                  )
-                }
-                rows={7}
-                placeholder="Jelaskan campaign secara lengkap..."
-                className="w-full resize-y rounded-xl border border-gray-200 px-4 py-2.5 text-sm outline-none focus:border-[#F58220]"
-              />
-            </div>
+  <RichTextEditor
+    value={form.description}
+    onChange={(value) =>
+      updateForm(
+        'description',
+        value
+      )
+    }
+    placeholder="Jelaskan campaign secara lengkap..."
+  />
+</div>
 
             {/* Thumbnail */}
 

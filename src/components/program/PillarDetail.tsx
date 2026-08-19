@@ -12,49 +12,370 @@ interface PillarDetailProps {
   onOpenCampaign: (id: number) => void
 }
 
+/* ============================================================
+   DATA PILAR
+============================================================ */
+
 const pillarDescriptions: Record<
   string,
   {
     description: string
-    icon: string
   }
 > = {
   Pendidikan: {
-    icon: '📚',
     description:
       'Program pemberdayaan masyarakat melalui pendidikan untuk membuka akses belajar dan meningkatkan kualitas generasi masa depan.',
   },
 
   Kesehatan: {
-    icon: '🏥',
     description:
       'Program kesehatan untuk membantu masyarakat memperoleh layanan kesehatan yang layak dan meningkatkan kualitas hidup.',
   },
 
   Ekonomi: {
-    icon: '💼',
     description:
       'Program pemberdayaan ekonomi untuk membantu masyarakat menjadi lebih mandiri dan meningkatkan kesejahteraan.',
   },
 
   'Sosial Dakwah': {
-    icon: '🤲',
     description:
       'Program sosial dan dakwah untuk memperkuat kepedulian, nilai keislaman, serta kebermanfaatan bagi masyarakat.',
   },
 
   Kemanusiaan: {
-    icon: '❤️',
     description:
       'Program kemanusiaan untuk membantu masyarakat yang membutuhkan, terutama dalam kondisi darurat dan bencana.',
   },
 
   Lingkungan: {
-    icon: '🌱',
     description:
       'Program kepedulian lingkungan untuk menciptakan lingkungan yang sehat, bersih, dan berkelanjutan.',
   },
 }
+
+/* ============================================================
+   WARNA ICON PILAR
+============================================================ */
+
+const pillarColors: Record<string, string> = {
+  Pendidikan: '#F58220',
+  Kesehatan: '#E94224',
+  Ekonomi: '#D21F26',
+  'Sosial Dakwah': '#F9B233',
+  Kemanusiaan: '#94C11F',
+  Lingkungan: '#C8D52D',
+}
+
+/* ============================================================
+   ICON PILAR
+============================================================ */
+
+function PillarIcon({
+  name,
+  className = 'h-8 w-8',
+}: {
+  name: string
+  className?: string
+}) {
+  switch (name) {
+    /* --------------------------------------------------------
+       PENDIDIKAN
+    -------------------------------------------------------- */
+    case 'Pendidikan':
+      return (
+        <svg
+          viewBox="0 0 64 64"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          className={className}
+        >
+          <path
+            d="M8 21L32 12L56 21L32 30L8 21Z"
+            fill="white"
+          />
+
+          <path
+            d="M14 25V38C14 40 15.5 42 18 43L32 49L46 43C48.5 42 50 40 50 38V25L32 32L14 25Z"
+            fill="white"
+          />
+
+          <path
+            d="M32 30V48"
+            stroke="#F58220"
+            strokeWidth="2"
+            strokeLinecap="round"
+          />
+
+          <path
+            d="M51 22V34"
+            stroke="white"
+            strokeWidth="3"
+            strokeLinecap="round"
+          />
+
+          <circle
+            cx="51"
+            cy="36"
+            r="2"
+            fill="white"
+          />
+        </svg>
+      )
+
+    /* --------------------------------------------------------
+       KESEHATAN
+    -------------------------------------------------------- */
+    case 'Kesehatan':
+      return (
+        <svg
+          viewBox="0 0 64 64"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          className={className}
+        >
+          <path
+            d="M32 51C30.8 49.9 13 35.2 13 23.5C13 16.8 17.7 12 24 12C27.8 12 30.6 14 32 17C33.4 14 36.2 12 40 12C46.3 12 51 16.8 51 23.5C51 35.2 33.2 49.9 32 51Z"
+            fill="white"
+          />
+
+          <path
+            d="M17 31H25L29 23L34 39L39 29L42 31H48"
+            stroke="#E94224"
+            strokeWidth="3"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      )
+
+    /* --------------------------------------------------------
+       EKONOMI
+    -------------------------------------------------------- */
+    case 'Ekonomi':
+      return (
+        <svg
+          viewBox="0 0 64 64"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          className={className}
+        >
+          <path
+            d="M10 48H55"
+            stroke="white"
+            strokeWidth="4"
+            strokeLinecap="round"
+          />
+
+          <path
+            d="M14 44L27 33L35 38L52 20"
+            stroke="white"
+            strokeWidth="5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+
+          <path
+            d="M44 20H52V28"
+            stroke="white"
+            strokeWidth="5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+
+          <path
+            d="M16 43V36"
+            stroke="white"
+            strokeWidth="5"
+            strokeLinecap="round"
+          />
+
+          <path
+            d="M28 43V30"
+            stroke="white"
+            strokeWidth="5"
+            strokeLinecap="round"
+          />
+
+          <path
+            d="M40 43V34"
+            stroke="white"
+            strokeWidth="5"
+            strokeLinecap="round"
+          />
+        </svg>
+      )
+
+    /* --------------------------------------------------------
+       SOSIAL DAKWAH
+    -------------------------------------------------------- */
+    case 'Sosial Dakwah':
+      return (
+        <svg
+          viewBox="0 0 64 64"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          className={className}
+        >
+          <path
+            d="M17 31C18.5 21 24 15 32 15C40 15 45.5 21 47 31H17Z"
+            fill="white"
+          />
+
+          <path
+            d="M31 8C27 9 25 12 26 15C27 18 30 19 33 18C29 17 28 14 29 12C30 10 32 9 34 9C33 8 32 8 31 8Z"
+            fill="white"
+          />
+
+          <path
+            d="M13 30H20V48H13V30Z"
+            fill="white"
+          />
+
+          <path
+            d="M44 30H51V48H44V30Z"
+            fill="white"
+          />
+
+          <path
+            d="M19 30H45V48H19V30Z"
+            fill="white"
+          />
+
+          <path
+            d="M28 48V39C28 36.8 29.8 35 32 35C34.2 35 36 36.8 36 39V48H28Z"
+            fill="#F9B233"
+          />
+
+          <path
+            d="M9 48H55V53H9V48Z"
+            fill="white"
+          />
+        </svg>
+      )
+
+    /* --------------------------------------------------------
+       KEMANUSIAAN
+    -------------------------------------------------------- */
+    case 'Kemanusiaan':
+      return (
+        <svg
+          viewBox="0 0 64 64"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          className={className}
+        >
+          <circle
+            cx="32"
+            cy="18"
+            r="6"
+            fill="white"
+          />
+
+          <circle
+            cx="18"
+            cy="23"
+            r="5"
+            fill="white"
+          />
+
+          <circle
+            cx="46"
+            cy="23"
+            r="5"
+            fill="white"
+          />
+
+          <path
+            d="M23 41C23 33.3 27 28 32 28C37 28 41 33.3 41 41V47H23V41Z"
+            fill="white"
+          />
+
+          <path
+            d="M10 43C10 36.5 13.2 32 18 32C20.4 32 22.4 33 24 35C21.8 38 21 41.5 21 46H10V43Z"
+            fill="white"
+          />
+
+          <path
+            d="M54 43C54 36.5 50.8 32 46 32C43.6 32 41.6 33 40 35C42.2 38 43 41.5 43 46H54V43Z"
+            fill="white"
+          />
+
+          <path
+            d="M14 48C18 44 24 43 32 43C40 43 46 44 50 48"
+            stroke="white"
+            strokeWidth="4"
+            strokeLinecap="round"
+          />
+        </svg>
+      )
+
+    /* --------------------------------------------------------
+       LINGKUNGAN
+    -------------------------------------------------------- */
+    case 'Lingkungan':
+      return (
+        <svg
+          viewBox="0 0 64 64"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          className={className}
+        >
+          <circle
+            cx="32"
+            cy="34"
+            r="17"
+            stroke="white"
+            strokeWidth="4"
+          />
+
+          <path
+            d="M15 34H49"
+            stroke="white"
+            strokeWidth="3"
+            strokeLinecap="round"
+          />
+
+          <path
+            d="M32 17C27 22 25 28 25 34C25 40 27 46 32 51"
+            stroke="white"
+            strokeWidth="3"
+            strokeLinecap="round"
+          />
+
+          <path
+            d="M32 17C37 22 39 28 39 34C39 40 37 46 32 51"
+            stroke="white"
+            strokeWidth="3"
+            strokeLinecap="round"
+          />
+
+          <path
+            d="M32 17V7"
+            stroke="white"
+            strokeWidth="3"
+            strokeLinecap="round"
+          />
+
+          <path
+            d="M32 12C25 12 21 8 21 4C27 4 31 7 32 12Z"
+            fill="white"
+          />
+
+          <path
+            d="M32 12C39 12 43 8 43 4C37 4 33 7 32 12Z"
+            fill="white"
+          />
+        </svg>
+      )
+
+    default:
+      return null
+  }
+}
+
+/* ============================================================
+   HELPER THUMBNAIL
+============================================================ */
 
 function getThumbnailUrl(
   thumbnail: string | null
@@ -70,6 +391,10 @@ function getThumbnailUrl(
   return `http://127.0.0.1:8000/storage/${thumbnail}`
 }
 
+/* ============================================================
+   FORMAT RUPIAH
+============================================================ */
+
 function formatRupiah(
   value: number | string
 ): string {
@@ -78,6 +403,10 @@ function formatRupiah(
   )}`
 }
 
+/* ============================================================
+   PROGRESS
+============================================================ */
+
 function getProgress(
   collected: number | string,
   target: number | string
@@ -85,10 +414,7 @@ function getProgress(
   const collectedAmount = Number(collected)
   const targetAmount = Number(target)
 
-  if (
-    !targetAmount ||
-    targetAmount <= 0
-  ) {
+  if (!targetAmount || targetAmount <= 0) {
     return 0
   }
 
@@ -99,6 +425,10 @@ function getProgress(
     )
   )
 }
+
+/* ============================================================
+   COMPONENT
+============================================================ */
 
 export default function PillarDetail({
   category,
@@ -113,6 +443,10 @@ export default function PillarDetail({
 
   const [error, setError] =
     useState('')
+
+  /* ============================================================
+     LOAD CAMPAIGNS
+  ============================================================ */
 
   useEffect(() => {
     const loadCampaigns = async () => {
@@ -143,13 +477,22 @@ export default function PillarDetail({
     loadCampaigns()
   }, [])
 
-  const pillar = pillarDescriptions[
-    category
-  ] ?? {
-    icon: '📌',
-    description:
-      'Program pemberdayaan masyarakat LAZISMU.',
-  }
+  /* ============================================================
+     DATA PILAR
+  ============================================================ */
+
+  const pillar =
+    pillarDescriptions[category] ?? {
+      description:
+        'Program pemberdayaan masyarakat LAZISMU.',
+    }
+
+  const pillarColor =
+    pillarColors[category] ?? '#F58220'
+
+  /* ============================================================
+     FILTER CAMPAIGN SESUAI PILAR
+  ============================================================ */
 
   const filteredCampaigns =
     useMemo(() => {
@@ -165,16 +508,21 @@ export default function PillarDetail({
       )
     }, [campaigns, category])
 
+  /* ============================================================
+     RENDER
+  ============================================================ */
+
   return (
     <div className="min-h-screen bg-[#FFF8F2]">
 
-      {/* ============================================================
+      {/* ======================================================
           HEADER
-      ============================================================ */}
+      ====================================================== */}
 
       <section className="bg-gradient-to-br from-[#F58220] to-[#D96D0A] pt-32 pb-14 text-white">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
+          {/* BACK */}
           <button
             type="button"
             onClick={onBack}
@@ -183,12 +531,23 @@ export default function PillarDetail({
             ← Kembali ke Program
           </button>
 
+          {/* TITLE */}
           <div className="flex items-center gap-4">
 
-            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/15 text-3xl">
-              {pillar.icon}
+            {/* ICON PILAR */}
+            <div
+              className="flex h-16 w-16 items-center justify-center rounded-2xl shadow-lg"
+              style={{
+                backgroundColor: pillarColor,
+              }}
+            >
+              <PillarIcon
+                name={category}
+                className="h-9 w-9"
+              />
             </div>
 
+            {/* TITLE */}
             <div>
               <p className="mb-1 text-sm font-medium opacity-80">
                 PILAR PROGRAM
@@ -204,9 +563,9 @@ export default function PillarDetail({
                 {category}
               </h1>
             </div>
-
           </div>
 
+          {/* DESCRIPTION */}
           <p className="mt-5 max-w-2xl text-sm leading-relaxed text-white/90 sm:text-base">
             {pillar.description}
           </p>
@@ -214,13 +573,15 @@ export default function PillarDetail({
         </div>
       </section>
 
-      {/* ============================================================
+      {/* ======================================================
           CAMPAIGN
-      ============================================================ */}
+      ====================================================== */}
 
       <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
 
+        {/* HEADER CAMPAIGN */}
         <div className="mb-8">
+
           <span className="inline-flex rounded-full bg-[#FEF0E4] px-3 py-1 text-xs font-semibold text-[#F58220]">
             CAMPAIGN
           </span>
@@ -241,37 +602,56 @@ export default function PillarDetail({
           </p>
         </div>
 
-        {/* Loading */}
+        {/* ==================================================
+            LOADING
+        ================================================== */}
 
         {loading && (
           <div className="rounded-2xl border border-[#F3DEC8] bg-white p-12 text-center">
+
             <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-[#F58220] border-t-transparent" />
 
             <p className="text-sm text-gray-500">
               Memuat campaign...
             </p>
+
           </div>
         )}
 
-        {/* Error */}
+        {/* ==================================================
+            ERROR
+        ================================================== */}
 
         {!loading && error && (
           <div className="rounded-2xl border border-red-200 bg-red-50 p-6 text-center">
+
             <p className="text-sm text-red-600">
               {error}
             </p>
+
           </div>
         )}
 
-        {/* Empty */}
+        {/* ==================================================
+            EMPTY
+        ================================================== */}
 
         {!loading &&
           !error &&
           filteredCampaigns.length === 0 && (
             <div className="rounded-2xl border border-[#F3DEC8] bg-white p-12 text-center">
 
-              <div className="mb-4 text-4xl">
-                📭
+              {/* ICON */}
+              <div
+                className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl"
+                style={{
+                  backgroundColor: pillarColor,
+                }}
+              >
+                <PillarIcon
+                  name={category}
+                  className="h-9 w-9"
+                />
               </div>
 
               <h3 className="font-semibold text-gray-800">
@@ -286,7 +666,9 @@ export default function PillarDetail({
             </div>
           )}
 
-        {/* Campaign Grid */}
+        {/* ==================================================
+            CAMPAIGN GRID
+        ================================================== */}
 
         {!loading &&
           !error &&
@@ -312,7 +694,9 @@ export default function PillarDetail({
                       className="overflow-hidden rounded-2xl border border-[#F3DEC8] bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
                     >
 
-                      {/* Thumbnail */}
+                      {/* ==================================================
+                          THUMBNAIL
+                      ================================================== */}
 
                       <button
                         type="button"
@@ -323,6 +707,7 @@ export default function PillarDetail({
                         }
                         className="block w-full text-left"
                       >
+
                         <div className="relative h-48 overflow-hidden bg-[#FFF1E4]">
 
                           {thumbnail ? (
@@ -334,24 +719,36 @@ export default function PillarDetail({
                               className="h-full w-full object-cover transition duration-300 hover:scale-105"
                             />
                           ) : (
-                            <div className="flex h-full items-center justify-center">
-                              <span className="text-4xl">
-                                {pillar.icon}
-                              </span>
+                            <div
+                              className="flex h-full items-center justify-center"
+                              style={{
+                                backgroundColor:
+                                  pillarColor,
+                              }}
+                            >
+                              <PillarIcon
+                                name={category}
+                                className="h-16 w-16"
+                              />
                             </div>
                           )}
 
+                          {/* CATEGORY */}
                           <span className="absolute left-4 top-4 rounded-full bg-white px-3 py-1 text-xs font-semibold text-[#F58220] shadow-sm">
                             {campaign.category}
                           </span>
 
                         </div>
+
                       </button>
 
-                      {/* Content */}
+                      {/* ==================================================
+                          CONTENT
+                      ================================================== */}
 
                       <div className="p-5">
 
+                        {/* TITLE */}
                         <button
                           type="button"
                           onClick={() =>
@@ -372,17 +769,21 @@ export default function PillarDetail({
                           </h3>
                         </button>
 
+                        {/* DESCRIPTION */}
                         <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-gray-500">
                           {
                             campaign.short_description
                           }
                         </p>
 
-                        {/* Progress */}
+                        {/* ==================================================
+                            PROGRESS
+                        ================================================== */}
 
                         <div className="mt-5">
 
                           <div className="mb-2 flex items-center justify-between text-xs">
+
                             <span className="text-gray-500">
                               Terkumpul
                             </span>
@@ -390,6 +791,7 @@ export default function PillarDetail({
                             <span className="font-semibold text-[#F58220]">
                               {progress}%
                             </span>
+
                           </div>
 
                           <div className="h-2 overflow-hidden rounded-full bg-gray-100">
@@ -422,7 +824,9 @@ export default function PillarDetail({
 
                         </div>
 
-                        {/* Button */}
+                        {/* ==================================================
+                            BUTTON
+                        ================================================== */}
 
                         <button
                           type="button"

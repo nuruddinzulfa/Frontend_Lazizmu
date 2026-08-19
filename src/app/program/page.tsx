@@ -57,40 +57,295 @@ interface CampaignResponse {
         data: Campaign[]
       }
 }
+function PillarIcon({
+  name,
+  className = 'h-8 w-8',
+}: {
+  name: string
+  className?: string
+}) {
+  switch (name) {
+    case 'Pendidikan':
+      return (
+        <svg
+          viewBox="0 0 64 64"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          className={className}
+        >
+          <path
+            d="M8 21L32 12L56 21L32 30L8 21Z"
+            fill="white"
+          />
+          <path
+            d="M14 25V38C14 40 15.5 42 18 43L32 49L46 43C48.5 42 50 40 50 38V25L32 32L14 25Z"
+            fill="white"
+          />
+          <path
+            d="M32 30V48"
+            stroke="#F58220"
+            strokeWidth="2"
+            strokeLinecap="round"
+          />
+          <path
+            d="M51 22V34"
+            stroke="white"
+            strokeWidth="3"
+            strokeLinecap="round"
+          />
+          <circle
+            cx="51"
+            cy="36"
+            r="2"
+            fill="white"
+          />
+        </svg>
+      )
+
+    case 'Kesehatan':
+      return (
+        <svg
+          viewBox="0 0 64 64"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          className={className}
+        >
+          <path
+            d="M32 51C30.8 49.9 13 35.2 13 23.5C13 16.8 17.7 12 24 12C27.8 12 30.6 14 32 17C33.4 14 36.2 12 40 12C46.3 12 51 16.8 51 23.5C51 35.2 33.2 49.9 32 51Z"
+            fill="white"
+          />
+          <path
+            d="M17 31H25L29 23L34 39L39 29L42 31H48"
+            stroke="#E94224"
+            strokeWidth="3"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      )
+
+    case 'Ekonomi':
+      return (
+        <svg
+          viewBox="0 0 64 64"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          className={className}
+        >
+          <path
+            d="M10 48H55"
+            stroke="white"
+            strokeWidth="4"
+            strokeLinecap="round"
+          />
+          <path
+            d="M14 44L27 33L35 38L52 20"
+            stroke="white"
+            strokeWidth="5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M44 20H52V28"
+            stroke="white"
+            strokeWidth="5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M16 43V36"
+            stroke="white"
+            strokeWidth="5"
+            strokeLinecap="round"
+          />
+          <path
+            d="M28 43V30"
+            stroke="white"
+            strokeWidth="5"
+            strokeLinecap="round"
+          />
+          <path
+            d="M40 43V34"
+            stroke="white"
+            strokeWidth="5"
+            strokeLinecap="round"
+          />
+        </svg>
+      )
+
+    case 'Sosial Dakwah':
+      return (
+        <svg
+          viewBox="0 0 64 64"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          className={className}
+        >
+          <path
+            d="M17 31C18.5 21 24 15 32 15C40 15 45.5 21 47 31H17Z"
+            fill="white"
+          />
+          <path
+            d="M31 8C27 9 25 12 26 15C27 18 30 19 33 18C29 17 28 14 29 12C30 10 32 9 34 9C33 8 32 8 31 8Z"
+            fill="white"
+          />
+          <path
+            d="M13 30H20V48H13V30Z"
+            fill="white"
+          />
+          <path
+            d="M44 30H51V48H44V30Z"
+            fill="white"
+          />
+          <path
+            d="M19 30H45V48H19V30Z"
+            fill="white"
+          />
+          <path
+            d="M28 48V39C28 36.8 29.8 35 32 35C34.2 35 36 36.8 36 39V48H28Z"
+            fill="#F9B233"
+          />
+          <path
+            d="M9 48H55V53H9V48Z"
+            fill="white"
+          />
+        </svg>
+      )
+
+    case 'Kemanusiaan':
+      return (
+        <svg
+          viewBox="0 0 64 64"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          className={className}
+        >
+          <circle
+            cx="32"
+            cy="18"
+            r="6"
+            fill="white"
+          />
+          <circle
+            cx="18"
+            cy="23"
+            r="5"
+            fill="white"
+          />
+          <circle
+            cx="46"
+            cy="23"
+            r="5"
+            fill="white"
+          />
+          <path
+            d="M23 41C23 33.3 27 28 32 28C37 28 41 33.3 41 41V47H23V41Z"
+            fill="white"
+          />
+          <path
+            d="M10 43C10 36.5 13.2 32 18 32C20.4 32 22.4 33 24 35C21.8 38 21 41.5 21 46H10V43Z"
+            fill="white"
+          />
+          <path
+            d="M54 43C54 36.5 50.8 32 46 32C43.6 32 41.6 33 40 35C42.2 38 43 41.5 43 46H54V43Z"
+            fill="white"
+          />
+          <path
+            d="M14 48C18 44 24 43 32 43C40 43 46 44 50 48"
+            stroke="white"
+            strokeWidth="4"
+            strokeLinecap="round"
+          />
+        </svg>
+      )
+
+    case 'Lingkungan':
+      return (
+        <svg
+          viewBox="0 0 64 64"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          className={className}
+        >
+          <circle
+            cx="32"
+            cy="34"
+            r="17"
+            stroke="white"
+            strokeWidth="4"
+          />
+          <path
+            d="M15 34H49"
+            stroke="white"
+            strokeWidth="3"
+            strokeLinecap="round"
+          />
+          <path
+            d="M32 17C27 22 25 28 25 34C25 40 27 46 32 51"
+            stroke="white"
+            strokeWidth="3"
+            strokeLinecap="round"
+          />
+          <path
+            d="M32 17C37 22 39 28 39 34C39 40 37 46 32 51"
+            stroke="white"
+            strokeWidth="3"
+            strokeLinecap="round"
+          />
+          <path
+            d="M32 17V7"
+            stroke="white"
+            strokeWidth="3"
+            strokeLinecap="round"
+          />
+          <path
+            d="M32 12C25 12 21 8 21 4C27 4 31 7 32 12Z"
+            fill="white"
+          />
+          <path
+            d="M32 12C39 12 43 8 43 4C37 4 33 7 32 12Z"
+            fill="white"
+          />
+        </svg>
+      )
+
+    default:
+      return null
+  }
+}
 
 const pillars = [
   {
-    icon: '📚',
     name: 'Pendidikan',
+    color: '#F58220',
     desc: 'Pendidikan adalah kunci utama untuk membuka pintu masa depan yang cerah. LAZISMU terus berupaya memberikan akses pendidikan berkualitas bagi seluruh lapisan masyarakat, terutama mereka yang kurang beruntung.',
   },
   {
-    icon: '🏥',
     name: 'Kesehatan',
+    color: '#E94224',
     desc: 'Kesehatan menjadi aset yang tak ternilai. LAZISMU hadir dengan komitmen untuk membantu masyarakat memperoleh akses layanan kesehatan yang layak dan mewujudkan masyarakat yang sehat dan sejahtera.',
   },
   {
-    icon: '💼',
     name: 'Ekonomi',
+    color: '#D21F26',
     desc: 'Melalui Pilar Ekonomi, LAZISMU berkomitmen memberdayakan masyarakat, khususnya mereka yang berada di garis kemiskinan, agar mampu meningkatkan taraf hidup dan kemandirian ekonomi.',
   },
   {
-    icon: '🤲',
     name: 'Sosial Dakwah',
+    color: '#F9B233',
     desc: 'Pilar Sosial Dakwah berfokus pada penguatan kehidupan sosial dan dakwah dengan menebarkan kebaikan, kepedulian, serta membangun masyarakat yang lebih baik.',
   },
   {
-    icon: '🫂',
     name: 'Kemanusiaan',
+    color: '#94C11F',
     desc: 'LAZISMU senantiasa hadir di tengah masyarakat untuk memberikan bantuan dan dukungan. Pilar Kemanusiaan menjadi wujud nyata komitmen untuk meringankan beban sesama.',
   },
   {
-    icon: '🌱',
     name: 'Lingkungan',
+    color: '#C8D52D',
     desc: 'Pilar Lingkungan berfokus pada kepedulian terhadap kelestarian alam serta kontribusi positif bagi lingkungan dan generasi yang akan datang.',
   },
 ]
-
 const filters = [
   'Semua',
   'Pendidikan',
@@ -121,10 +376,11 @@ function getProgramCategory(program: Program) {
 function getCategoryColor(
   category?: string | null
 ) {
-  const value = category?.toLowerCase() ?? ''
+  const value =
+    category?.toLowerCase() ?? ''
 
   if (value.includes('pendidikan')) {
-    return 'bg-blue-100 text-blue-700'
+    return 'bg-orange-100 text-orange-700'
   }
 
   if (value.includes('kesehatan')) {
@@ -132,60 +388,25 @@ function getCategoryColor(
   }
 
   if (value.includes('ekonomi')) {
-    return 'bg-green-100 text-green-700'
+    return 'bg-red-100 text-red-800'
   }
 
   if (
     value.includes('sosial') ||
     value.includes('dakwah')
   ) {
-    return 'bg-purple-100 text-purple-700'
+    return 'bg-yellow-100 text-yellow-700'
   }
 
   if (value.includes('kemanusiaan')) {
-    return 'bg-orange-100 text-orange-700'
+    return 'bg-lime-100 text-lime-700'
   }
 
   if (value.includes('lingkungan')) {
-    return 'bg-emerald-100 text-emerald-700'
+    return 'bg-lime-200 text-lime-800'
   }
 
   return 'bg-gray-100 text-gray-700'
-}
-
-function getProgramIcon(
-  category?: string | null
-) {
-  const value = category?.toLowerCase() ?? ''
-
-  if (value.includes('pendidikan')) {
-    return '📚'
-  }
-
-  if (value.includes('kesehatan')) {
-    return '🏥'
-  }
-
-  if (value.includes('ekonomi')) {
-    return '💼'
-  }
-
-  if (
-    value.includes('sosial') ||
-    value.includes('dakwah')
-  ) {
-    return '🕌'
-  }
-
-  if (value.includes('kemanusiaan')) {
-    return '🤝'
-  }
-
-  if (value.includes('lingkungan')) {
-    return '🌱'
-  }
-
-  return '🤲'
 }
 
 function formatRupiah(
@@ -529,11 +750,17 @@ export default function ProgramPage({
 
               <div className="flex items-start justify-between">
 
-                <div className="inline-flex h-14 w-14 items-center justify-center rounded-xl bg-[#FEF0E4] text-2xl transition-colors duration-200 group-hover:bg-[#F58220]">
-                  <span className="transition-transform duration-200 group-hover:scale-110">
-                    {pillar.icon}
-                  </span>
-                </div>
+<div
+  className="flex h-14 w-14 items-center justify-center rounded-xl shadow-sm transition-transform duration-200 group-hover:scale-105"
+  style={{
+    backgroundColor: pillar.color,
+  }}
+>
+  <PillarIcon
+    name={pillar.name}
+    className="h-9 w-9"
+  />
+</div>
 
                 <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#FFF8F2] text-[#F58220] transition-all group-hover:bg-[#F58220] group-hover:text-white">
 
@@ -631,135 +858,6 @@ export default function ProgramPage({
         </div>
 
       </section>
-
-      {/* PROGRAM */}
-
-      <section className="mx-auto max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
-
-        <div className="mb-8 mt-8">
-
-          <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-[#F58220] px-4 py-1.5 text-xs font-bold uppercase tracking-wide text-white">
-            Program
-          </div>
-
-          <h2
-            className="text-3xl font-bold text-gray-900"
-            style={{
-              fontFamily:
-                "'Plus Jakarta Sans', sans-serif",
-            }}
-          >
-            Program Unggulan
-          </h2>
-
-          <p className="mt-2 max-w-2xl text-sm text-gray-500">
-            Program pemberdayaan LAZISMU
-            Pemalang yang dijalankan sesuai
-            pilar pelayanan masyarakat.
-          </p>
-
-        </div>
-
-        {filteredPrograms.length === 0 ? (
-          <div className="rounded-2xl border border-[#F3DEC8] bg-white p-8 text-center">
-            <p className="text-sm text-gray-500">
-              Belum ada program untuk
-              kategori ini.
-            </p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-
-            {filteredPrograms.map(
-              (program) => {
-                const category =
-                  getProgramCategory(
-                    program
-                  )
-
-                const imageUrl =
-                  getImageUrl(
-                    program.thumbnail
-                  )
-
-                return (
-                  <div
-                    key={program.id}
-                    className="group flex flex-col overflow-hidden rounded-2xl border border-[#F3DEC8] bg-white shadow-sm transition-all hover:shadow-md"
-                  >
-
-                    <div className="relative h-48 overflow-hidden bg-[#FEF0E4]">
-
-                      {imageUrl ? (
-                        <img
-                          src={imageUrl}
-                          alt={
-                            program.title
-                          }
-                          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                        />
-                      ) : (
-                        <div className="flex h-full w-full flex-col items-center justify-center bg-gradient-to-br from-[#FEF0E4] to-[#FFF8F2]">
-
-                          <div className="mb-3 text-5xl">
-                            {getProgramIcon(
-                              category
-                            )}
-                          </div>
-
-                          <span className="text-xs font-semibold text-[#F58220]">
-                            LAZISMU Pemalang
-                          </span>
-
-                        </div>
-                      )}
-
-                      <span
-                        className={`absolute left-3 top-3 rounded-full px-3 py-1.5 text-xs font-semibold ${getCategoryColor(
-                          category
-                        )}`}
-                      >
-                        {category}
-                      </span>
-
-                    </div>
-
-                    <div className="flex flex-1 flex-col p-5">
-
-                      <h3
-                        className="mb-3 font-bold text-gray-900"
-                        style={{
-                          fontFamily:
-                            "'Plus Jakarta Sans', sans-serif",
-                        }}
-                      >
-                        {program.title}
-                      </h3>
-
-                      <p className="flex-1 text-sm leading-relaxed text-gray-500">
-                        {program.excerpt ||
-                          'Informasi program LAZISMU Pemalang.'}
-                      </p>
-
-                      {program.published_at && (
-                        <div className="mt-5 border-t border-[#F3DEC8] pt-4 text-xs text-gray-400">
-                          Program dipublikasikan
-                          oleh LAZISMU Pemalang
-                        </div>
-                      )}
-
-                    </div>
-
-                  </div>
-                )
-              }
-            )}
-
-          </div>
-        )}
-
-      </section>
-
       {/* CAMPAIGN */}
 
       <section className="mx-auto max-w-7xl px-4 pb-20 sm:px-6 lg:px-8">
@@ -853,30 +951,40 @@ export default function ProgramPage({
                           className="h-full w-full object-cover"
                         />
                       ) : (
-                        <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#FEF0E4] to-[#FFF8F2]">
+                       <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#FEF0E4] to-[#FFF8F2]">
 
-                          <div className="text-center">
+  <div className="flex flex-col items-center">
 
-                            <div className="mb-2 text-5xl">
-                              🤲
-                            </div>
+    <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-[#F58220]">
+      <PillarIcon
+        name={category}
+        className="h-12 w-12"
+      />
+    </div>
 
-                            <div className="text-xs font-semibold text-[#F58220]">
-                              LAZISMU Pemalang
-                            </div>
+    <div className="mt-3 text-xs font-semibold text-[#F58220]">
+      LAZISMU Pemalang
+    </div>
 
-                          </div>
+  </div>
 
-                        </div>
+</div>
                       )}
 
                       <span
-                        className={`absolute left-3 top-3 rounded-full px-2.5 py-1 text-xs font-semibold ${getCategoryColor(
-                          category
-                        )}`}
-                      >
-                        {category}
-                      </span>
+  className={`absolute left-3 top-3 flex items-center gap-2 rounded-full px-2.5 py-1.5 text-xs font-semibold ${getCategoryColor(
+    category
+  )}`}
+>
+  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white/70">
+    <PillarIcon
+      name={category}
+      className="h-3.5 w-3.5"
+    />
+  </span>
+
+  {category}
+</span>
 
                     </div>
 

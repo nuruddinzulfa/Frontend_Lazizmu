@@ -2,6 +2,8 @@
 
 import API_URL from "@/lib/api"
 import { useEffect, useMemo, useState } from 'react'
+import RichTextEditor from '../../RichTextEditor'
+
 
 type BannerStatus = 'active' | 'inactive'
 type BannerMediaType = 'image' | 'video'
@@ -441,19 +443,19 @@ export default function BannerManagement() {
       setError('')
       setSuccess('')
 
-      const formData = new FormData()
+    const formData = new FormData()
 
-      formData.append('title', form.title.trim())
-      formData.append('subtitle', form.subtitle.trim())
-      formData.append('button_text', form.button_text.trim())
-      formData.append('button_url', form.button_url.trim())
-      formData.append('media_type', form.media_type)
-      formData.append('status', form.status)
+formData.append('title', form.title.trim())
+formData.append('subtitle', form.subtitle)
+formData.append('button_text', form.button_text.trim())
+formData.append('button_url', form.button_url.trim())
+formData.append('media_type', form.media_type)
+formData.append('status', form.status)
 
-      formData.append(
-        'sort_order',
-        String(Number(form.sort_order || 0))
-      )
+formData.append(
+  'sort_order',
+  String(Number(form.sort_order || 0))
+)
 
       if (
         form.media_type === 'image' &&
@@ -952,93 +954,94 @@ export default function BannerManagement() {
             </div>
 
             <div className="space-y-5 p-6">
-              <div>
-                <label className="mb-2 block text-sm font-semibold text-gray-700">
-                  Judul Banner
-                </label>
 
-                <input
-                  type="text"
-                  value={form.title}
-                  onChange={(e) =>
-                    setForm((current) => ({
-                      ...current,
-                      title: e.target.value,
-                    }))
-                  }
-                  placeholder="Masukkan judul banner"
-                  className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-[#F58220] focus:ring-1 focus:ring-[#F58220]"
-                />
-              </div>
+  {/* JUDUL */}
 
-              <div>
-                <label className="mb-2 block text-sm font-semibold text-gray-700">
-                  Subtitle
-                </label>
+  <div>
+    <label className="mb-2 block text-sm font-semibold text-gray-700">
+      Judul Banner
+    </label>
 
-                <textarea
-                  value={form.subtitle}
-                  onChange={(e) =>
-                    setForm((current) => ({
-                      ...current,
-                      subtitle: e.target.value,
-                    }))
-                  }
-                  rows={3}
-                  placeholder="Subtitle atau deskripsi singkat banner..."
-                  className="w-full resize-none rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-[#F58220] focus:ring-1 focus:ring-[#F58220]"
-                />
-              </div>
+    <input
+      type="text"
+      value={form.title}
+      onChange={(e) =>
+        setForm((current) => ({
+          ...current,
+          title: e.target.value,
+        }))
+      }
+      placeholder="Masukkan judul banner"
+      className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-[#F58220] focus:ring-1 focus:ring-[#F58220]"
+    />
+  </div>
 
-              {/* MEDIA TYPE */}
-              <div>
-                <label className="mb-2 block text-sm font-semibold text-gray-700">
-                  Tipe Media
-                </label>
+  {/* SUBTITLE - RICH TEXT */}
 
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      changeMediaType('image')
-                    }
-                    className={`rounded-xl border p-4 text-left transition ${
-                      form.media_type === 'image'
-                        ? 'border-[#F58220] bg-orange-50'
-                        : 'border-gray-200 bg-white hover:border-orange-200'
-                    }`}
-                  >
-                    <p className="text-sm font-semibold text-gray-900">
-                      Gambar
-                    </p>
+  <div>
+    <label className="mb-2 block text-sm font-semibold text-gray-700">
+      Subtitle
+    </label>
 
-                    <p className="mt-1 text-xs text-gray-500">
-                      Hero menggunakan JPG, PNG, WEBP, atau AVIF.
-                    </p>
-                  </button>
+   <RichTextEditor
+  value={form.subtitle}
+  onChange={(value: string) =>
+    setForm((current) => ({
+      ...current,
+      subtitle: value,
+    }))
+  }
+  placeholder="Tulis subtitle atau deskripsi singkat banner..."
+/>
+  </div>
 
-                  <button
-                    type="button"
-                    onClick={() =>
-                      changeMediaType('video')
-                    }
-                    className={`rounded-xl border p-4 text-left transition ${
-                      form.media_type === 'video'
-                        ? 'border-[#F58220] bg-orange-50'
-                        : 'border-gray-200 bg-white hover:border-orange-200'
-                    }`}
-                  >
-                    <p className="text-sm font-semibold text-gray-900">
-                      Video
-                    </p>
+  {/* MEDIA TYPE */}
 
-                    <p className="mt-1 text-xs text-gray-500">
-                      Hero menggunakan MP4 atau WEBM dan akan diloop.
-                    </p>
-                  </button>
-                </div>
-              </div>
+  <div>
+    <label className="mb-2 block text-sm font-semibold text-gray-700">
+      Tipe Media
+    </label>
 
+    <div className="grid gap-3 sm:grid-cols-2">
+
+      <button
+        type="button"
+        onClick={() => changeMediaType('image')}
+        className={`rounded-xl border p-4 text-left transition ${
+          form.media_type === 'image'
+            ? 'border-[#F58220] bg-orange-50'
+            : 'border-gray-200 bg-white hover:border-orange-200'
+        }`}
+      >
+        <p className="text-sm font-semibold text-gray-900">
+          Gambar
+        </p>
+
+        <p className="mt-1 text-xs text-gray-500">
+          Hero menggunakan JPG, PNG, WEBP, atau AVIF.
+        </p>
+      </button>
+
+      <button
+        type="button"
+        onClick={() => changeMediaType('video')}
+        className={`rounded-xl border p-4 text-left transition ${
+          form.media_type === 'video'
+            ? 'border-[#F58220] bg-orange-50'
+            : 'border-gray-200 bg-white hover:border-orange-200'
+        }`}
+      >
+        <p className="text-sm font-semibold text-gray-900">
+          Video
+        </p>
+
+        <p className="mt-1 text-xs text-gray-500">
+          Hero menggunakan MP4 atau WEBM dan akan diloop.
+        </p>
+      </button>
+
+    </div>
+  </div>
               {/* MEDIA UPLOAD */}
               {form.media_type === 'image' ? (
                 <div>
