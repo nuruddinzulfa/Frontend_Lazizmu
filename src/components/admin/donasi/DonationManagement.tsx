@@ -124,6 +124,9 @@ export default function DonationManagement() {
   const [error, setError] =
     useState('')
 
+  const [selectedTransaction, setSelectedTransaction] =
+    useState<TransactionRow | null>(null)
+
   const loadTransactions = async () => {
     try {
       setLoading(true)
@@ -397,8 +400,7 @@ export default function DonationManagement() {
 
           <p className="mt-1 text-sm text-gray-500">
             Kelola seluruh donasi dan transaksi
-            zakat yang masuk ke LAZISMU Kabupaten
-            Pemalang.
+            zakat yang masuk ke LAZISMU Pemalang.
           </p>
         </div>
 
@@ -634,7 +636,7 @@ export default function DonationManagement() {
                 </th>
 
                 <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                  Order ID
+                  Aksi
                 </th>
               </tr>
             </thead>
@@ -723,10 +725,18 @@ export default function DonationManagement() {
                           </span>
                         </td>
 
-                        <td className="px-5 py-3.5 font-mono text-xs text-gray-500">
-                          {
-                            transaction.orderId
-                          }
+                        <td className="px-5 py-3.5">
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setSelectedTransaction(
+                                transaction
+                              )
+                            }
+                            className="rounded-lg px-3 py-1.5 text-xs font-semibold text-[#F58220] transition hover:bg-orange-50"
+                          >
+                            Detail
+                          </button>
                         </td>
                       </tr>
                     )
@@ -800,6 +810,251 @@ export default function DonationManagement() {
 
       </div>
 
+      {selectedTransaction && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 px-4 py-6">
+          <div className="w-full max-w-lg overflow-hidden rounded-3xl bg-white shadow-2xl">
+            <div className="flex items-center justify-between border-b border-gray-100 px-6 py-5">
+              <div>
+                <h3 className="text-lg font-bold text-gray-900">
+                  Detail Transaksi
+                </h3>
+
+                <p className="mt-1 text-xs text-gray-400">
+                  Informasi lengkap transaksi
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() =>
+                  setSelectedTransaction(null)
+                }
+                className="flex h-9 w-9 items-center justify-center rounded-full text-xl text-gray-400 transition hover:bg-gray-100 hover:text-gray-700"
+                aria-label="Tutup"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="max-h-[70vh] overflow-y-auto px-6 py-5">
+              <div className="mb-5 flex items-center justify-between gap-3 rounded-2xl bg-[#FFF8F2] px-4 py-3">
+                <div>
+                  <p className="text-xs text-gray-400">
+                    Jenis Transaksi
+                  </p>
+
+                  <p className="mt-1 font-semibold text-gray-900">
+                    {selectedTransaction.type}
+                  </p>
+                </div>
+
+                <span
+                  className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                    getStatusLabel(
+                      selectedTransaction.paymentStatus
+                    ) === 'Berhasil'
+                      ? 'bg-green-100 text-green-700'
+                      : getStatusLabel(
+                            selectedTransaction.paymentStatus
+                          ) === 'Pending'
+                        ? 'bg-yellow-100 text-yellow-700'
+                        : 'bg-red-100 text-red-700'
+                  }`}
+                >
+                  {getStatusLabel(
+                    selectedTransaction.paymentStatus
+                  )}
+                </span>
+              </div>
+
+              <div className="space-y-4 text-sm">
+                <DetailRow
+                  label={
+                    selectedTransaction.type === 'Zakat'
+                      ? 'Nama Muzaki'
+                      : 'Nama Donatur'
+                  }
+                  value={selectedTransaction.name}
+                />
+
+                <DetailRow
+                  label={
+                    selectedTransaction.type === 'Zakat'
+                      ? 'Jenis Zakat'
+                      : 'Program'
+                  }
+                  value={
+                    selectedTransaction.programOrType
+                  }
+                />
+
+                <DetailRow
+                  label="Nominal"
+                  value={formatRupiah(
+                    selectedTransaction.amount
+                  )}
+                />
+
+                <DetailRow
+                  label="Order ID"
+                  value={selectedTransaction.orderId}
+                  mono
+                />
+
+                <DetailRow
+                  label="Tanggal Transaksi"
+                  value={formatDate(
+                    selectedTransaction.createdAt
+                  )}
+                />
+
+                {selectedTransaction.type === 'Donasi' &&
+                  selectedTransaction.rawDonation && (
+                    <>
+                      <DetailRow
+                        label="Email"
+                        value={
+                          selectedTransaction.rawDonation.email ||
+                          '-'
+                        }
+                      />
+
+                      <DetailRow
+                        label="WhatsApp"
+                        value={
+                          selectedTransaction.rawDonation.phone ||
+                          '-'
+                        }
+                      />
+
+                      <DetailRow
+                        label="Metode Pembayaran"
+                        value={
+                          selectedTransaction.rawDonation
+                            .payment_method || '-'
+                        }
+                      />
+
+                      <DetailRow
+                        label="Transaction ID"
+                        value={
+                          selectedTransaction.rawDonation
+                            .transaction_id || '-'
+                        }
+                        mono
+                      />
+
+                      <DetailRow
+                        label="Pesan"
+                        value={
+                          selectedTransaction.rawDonation.message ||
+                          '-'
+                        }
+                      />
+
+                      <DetailRow
+                        label="Anonim"
+                        value={
+                          selectedTransaction.rawDonation.anonymous
+                            ? 'Ya'
+                            : 'Tidak'
+                        }
+                      />
+                    </>
+                  )}
+
+                {selectedTransaction.type === 'Zakat' &&
+                  selectedTransaction.rawZakat && (
+                    <>
+                      <DetailRow
+                        label="Email"
+                        value={
+                          selectedTransaction.rawZakat.email ||
+                          '-'
+                        }
+                      />
+
+                      <DetailRow
+                        label="WhatsApp"
+                        value={
+                          selectedTransaction.rawZakat.phone ||
+                          '-'
+                        }
+                      />
+
+                      <DetailRow
+                        label="Metode Pembayaran"
+                        value={
+                          selectedTransaction.rawZakat
+                            .payment_method || '-'
+                        }
+                      />
+
+                      <DetailRow
+                        label="Transaction ID"
+                        value={
+                          selectedTransaction.rawZakat
+                            .transaction_id || '-'
+                        }
+                        mono
+                      />
+
+                      <DetailRow
+                        label="Waktu Pembayaran"
+                        value={
+                          selectedTransaction.rawZakat.paid_at
+                            ? new Date(
+                                selectedTransaction.rawZakat.paid_at
+                              ).toLocaleString('id-ID')
+                            : '-'
+                        }
+                      />
+                    </>
+                  )}
+              </div>
+            </div>
+
+            <div className="border-t border-gray-100 px-6 py-4">
+              <button
+                type="button"
+                onClick={() =>
+                  setSelectedTransaction(null)
+                }
+                className="w-full rounded-xl bg-[#F58220] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#E87516]"
+              >
+                Tutup
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+    </div>
+  )
+}
+
+function DetailRow({
+  label,
+  value,
+  mono = false,
+}: {
+  label: string
+  value: string
+  mono?: boolean
+}) {
+  return (
+    <div className="flex items-start justify-between gap-5 border-b border-gray-50 pb-3">
+      <span className="shrink-0 text-gray-400">
+        {label}
+      </span>
+
+      <span
+        className={`max-w-[65%] break-words text-right font-medium text-gray-800 ${
+          mono ? 'font-mono text-xs' : ''
+        }`}
+      >
+        {value}
+      </span>
     </div>
   )
 }
