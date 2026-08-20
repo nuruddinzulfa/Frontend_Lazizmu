@@ -1035,15 +1035,15 @@ export default function DonationForm({
             <p className="text-gray-600 leading-relaxed mb-6">
               {isZakatTransaction ? (
                 <>
-                  Terima kasih telah menunaikan zakat melalui{" "}
+                  Terima kasih telah mempercayakan penunaian zakat melalui{" "}
                   <strong className="text-[#F58220]">
-                    LAZISMU Kabupaten Pemalang
+                    LAZISMU Pemalang
                   </strong>
                   .
                 </>
               ) : (
                 <>
-                  Terima kasih telah menunaikan kebaikan melalui{" "}
+                  Terima kasih atas kebaikan yang telah Anda titipkan melalui{" "}
                   <strong className="text-[#F58220]">
                     LAZISMU Pemalang
                   </strong>
@@ -1054,8 +1054,8 @@ export default function DonationForm({
 
             <p className="text-gray-500 text-sm leading-relaxed mb-7">
               {isZakatTransaction
-                ? "Pembayaran zakat Anda telah berhasil diterima. Semoga Allah menerima zakat Anda, menyucikan harta, dan memberikan keberkahan."
-                : "Pembayaran Anda telah berhasil diterima. Semoga setiap kebaikan yang ditunaikan menjadi amal yang bermanfaat dan membawa keberkahan."}
+                ? "Zakat Anda telah berhasil diterima. Semoga Allah memberikan pahala atas zakat, infak, dan shodaqoh yang ditunaikan, memberikan keberkahan pada harta yang disimpan, dan menjadikannya sebagai pembersih (dosa)."
+                : "Donasi Anda telah berhasil diterima. Semoga Allah memberikan pahala atas zakat, infak, dan shodaqoh yang ditunaikan, memberikan keberkahan pada harta yang disimpan, dan menjadikannya sebagai pembersih (dosa)."}
             </p>
 
             <div className="bg-[#FFF8F2] border border-[#F3DEC8] rounded-2xl p-5 mb-6 text-left space-y-4">
@@ -1146,8 +1146,8 @@ export default function DonationForm({
 
                   <p className="text-xs sm:text-sm text-green-700 leading-relaxed">
                     {isZakatTransaction
-                      ? "Konfirmasi pembayaran zakat akan dikirim melalui WhatsApp sesuai nomor yang Anda masukkan saat melakukan pembayaran."
-                      : "Konfirmasi pembayaran akan dikirim melalui WhatsApp sesuai nomor yang Anda masukkan saat berdonasi."}
+                      ? "Konfirmasi transaksi zakat akan dikirim melalui WhatsApp ke nomor yang Anda masukkan saat melakukan pembayaran."
+                      : "Konfirmasi transaksi donasi akan dikirim melalui WhatsApp ke nomor yang Anda masukkan saat berdonasi."}
                   </p>
                 </div>
 
