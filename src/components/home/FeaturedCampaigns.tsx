@@ -58,9 +58,7 @@ function formatRupiah(
   }
 
   if (amount >= 1_000) {
-    return `Rp ${Math.round(
-      amount / 1_000
-    )} rb`;
+    return `Rp ${Math.round(amount / 1_000)} rb`;
   }
 
   return `Rp ${amount.toLocaleString("id-ID")}`;
@@ -84,10 +82,7 @@ function getThumbnailUrl(
     return thumbnail;
   }
 
-  const baseUrl = API_URL.replace(
-    /\/api\/?$/,
-    ""
-  );
+  const baseUrl = API_URL.replace(/\/api\/?$/, "");
 
   return `${baseUrl}/storage/${thumbnail.replace(
     /^\/+/,
@@ -102,8 +97,7 @@ function getThumbnailUrl(
 function getCategoryColor(
   category: string | null
 ): string {
-  const value =
-    category?.toLowerCase() ?? "";
+  const value = category?.toLowerCase() ?? "";
 
   if (value.includes("pendidikan")) {
     return "bg-blue-50 text-blue-700 border-blue-100";
@@ -145,14 +139,11 @@ function getCategoryColor(
 function CampaignCard({
   campaign,
   delay,
-  onNavigate,
 }: {
   campaign: Campaign;
   delay: number;
-  onNavigate: (page: NavPage) => void;
 }) {
-  const [favorited, setFavorited] =
-    useState(false);
+  const [favorited, setFavorited] = useState(false);
 
   const collected = Number(
     campaign.collected_amount ?? 0
@@ -172,14 +163,39 @@ function CampaignCard({
         )
       : 0;
 
-  const thumbnailUrl =
-    getThumbnailUrl(
-      campaign.thumbnail
-    );
+  const thumbnailUrl = getThumbnailUrl(
+    campaign.thumbnail
+  );
 
   const category =
-    campaign.category?.trim() ||
-    "Campaign";
+    campaign.category?.trim() || "Campaign";
+
+  /*
+  |--------------------------------------------------------------------------
+  | DONASI CAMPAIGN
+  |--------------------------------------------------------------------------
+  |
+  | Jangan gunakan:
+  |
+  | onNavigate("donasi")
+  |
+  | karena itu hanya membuka halaman donasi tanpa mengetahui
+  | campaign mana yang dipilih.
+  |
+  | Kita kirim ID campaign melalui query parameter.
+  |
+  | Contoh:
+  |
+  | /donasi?campaign=5
+  |
+  | DonationForm kemudian akan membaca campaign tersebut
+  | dan langsung masuk ke Step 2.
+  |
+  */
+
+  const handleDonate = () => {
+    window.location.href = `/donasi?campaign=${campaign.id}`;
+  };
 
   return (
     <article
@@ -241,9 +257,7 @@ function CampaignCard({
         <button
           type="button"
           onClick={() =>
-            setFavorited(
-              (current) => !current
-            )
+            setFavorited((current) => !current)
           }
           className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full border border-white/70 bg-white/90 shadow-sm backdrop-blur transition-all duration-200 hover:scale-110 hover:bg-white"
           aria-label="Favoritkan campaign"
@@ -292,7 +306,6 @@ function CampaignCard({
         )}
 
         <div className="mt-auto">
-
           {/* PROGRESS */}
 
           <div className="mb-2 flex items-center justify-between text-xs">
@@ -317,7 +330,6 @@ function CampaignCard({
           {/* AMOUNT */}
 
           <div className="mt-4 flex items-end justify-between">
-
             <div>
               <div
                 className="text-base font-bold text-gray-900"
@@ -326,15 +338,12 @@ function CampaignCard({
                     "'Plus Jakarta Sans', sans-serif",
                 }}
               >
-                {formatRupiah(
-                  collected
-                )}
+                {formatRupiah(collected)}
               </div>
 
               {target > 0 && (
                 <div className="mt-0.5 text-xs text-gray-400">
-                  dari{" "}
-                  {formatRupiah(target)}
+                  dari {formatRupiah(target)}
                 </div>
               )}
             </div>
@@ -342,21 +351,17 @@ function CampaignCard({
             <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#FFF1E5] text-[#F58220] transition-transform duration-300 group-hover:translate-x-1">
               →
             </div>
-
           </div>
 
           {/* BUTTON */}
 
           <button
             type="button"
-            onClick={() =>
-              onNavigate("donasi")
-            }
+            onClick={handleDonate}
             className="btn-primary mt-5 block w-full rounded-xl py-3 text-center text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5"
           >
             Donasi Sekarang
           </button>
-
         </div>
       </div>
     </article>
@@ -370,8 +375,7 @@ function CampaignCard({
 export default function FeaturedCampaigns({
   onNavigate,
 }: FeaturedCampaignsProps) {
-  const { inView, ref } =
-    useInView();
+  const { inView, ref } = useInView();
 
   const [campaigns, setCampaigns] =
     useState<Campaign[]>([]);
@@ -379,75 +383,70 @@ export default function FeaturedCampaigns({
   const [loading, setLoading] =
     useState(true);
 
-  const [error, setError] =
-    useState("");
+  const [error, setError] = useState("");
 
   /* =======================================================
      FETCH CAMPAIGNS
   ======================================================= */
 
   useEffect(() => {
-    const fetchCampaigns =
-      async () => {
-        try {
-          setLoading(true);
-          setError("");
+    const fetchCampaigns = async () => {
+      try {
+        setLoading(true);
+        setError("");
 
-          const response =
-            await fetch(
-              `${API_URL}/campaigns`,
-              {
-                method: "GET",
-                headers: {
-                  Accept:
-                    "application/json",
-                },
-              }
-            );
-
-          const data: CampaignResponse =
-            await response.json();
-
-          if (!response.ok) {
-            throw new Error(
-              data.message ||
-                "Gagal mengambil campaign."
-            );
+        const response = await fetch(
+          `${API_URL}/campaigns`,
+          {
+            method: "GET",
+            headers: {
+              Accept: "application/json",
+            },
           }
+        );
 
-          const published =
-            data.data.filter(
-              (campaign) =>
-                campaign.status ===
-                "published"
-            );
+        const data: CampaignResponse =
+          await response.json();
 
-          const featured =
-            published.filter(
-              (campaign) =>
-                campaign.featured ===
-                  true ||
-                campaign.featured === 1
-            );
-
-          setCampaigns(
-            featured.slice(0, 3)
+        if (!response.ok) {
+          throw new Error(
+            data.message ||
+              "Gagal mengambil campaign."
           );
-        } catch (error) {
-          console.error(
-            "FEATURED CAMPAIGN ERROR:",
-            error
-          );
-
-          setError(
-            error instanceof Error
-              ? error.message
-              : "Gagal mengambil campaign."
-          );
-        } finally {
-          setLoading(false);
         }
-      };
+
+        const published =
+          data.data.filter(
+            (campaign) =>
+              campaign.status ===
+              "published"
+          );
+
+        const featured =
+          published.filter(
+            (campaign) =>
+              campaign.featured === true ||
+              campaign.featured === 1
+          );
+
+        setCampaigns(
+          featured.slice(0, 3)
+        );
+      } catch (error) {
+        console.error(
+          "FEATURED CAMPAIGN ERROR:",
+          error
+        );
+
+        setError(
+          error instanceof Error
+            ? error.message
+            : "Gagal mengambil campaign."
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
 
     fetchCampaigns();
   }, []);
@@ -457,33 +456,24 @@ export default function FeaturedCampaigns({
       id="campaigns"
       className="relative overflow-hidden bg-gradient-to-br from-[#FFF9F4] via-[#FFF1E5] to-[#FFE1C4] py-20 sm:py-24"
     >
-
       {/* =====================================================
           BACKGROUND DECORATION
       ===================================================== */}
-
-      {/* Large orange glow - left */}
 
       <div
         aria-hidden="true"
         className="pointer-events-none absolute -left-40 -top-40 h-[430px] w-[430px] rounded-full bg-[#F58220]/15 blur-3xl"
       />
 
-      {/* Large orange glow - right */}
-
       <div
         aria-hidden="true"
         className="pointer-events-none absolute -right-40 top-0 h-[500px] w-[500px] rounded-full bg-[#F58220]/10 blur-3xl"
       />
 
-      {/* Bottom glow */}
-
       <div
         aria-hidden="true"
         className="pointer-events-none absolute bottom-[-200px] left-[30%] h-[450px] w-[450px] rounded-full bg-[#FFAD63]/20 blur-3xl"
       />
-
-      {/* Decorative circles */}
 
       <div
         aria-hidden="true"
@@ -500,20 +490,15 @@ export default function FeaturedCampaigns({
         className="pointer-events-none absolute -bottom-32 -left-24 h-[300px] w-[300px] rounded-full border-2 border-[#F58220]/10"
       />
 
-      {/* Dot pattern - left */}
-
       <div
         aria-hidden="true"
         className="pointer-events-none absolute left-8 top-28 h-28 w-28 opacity-30"
         style={{
           backgroundImage:
             "radial-gradient(#F58220 1.5px, transparent 1.5px)",
-          backgroundSize:
-            "12px 12px",
+          backgroundSize: "12px 12px",
         }}
       />
-
-      {/* Dot pattern - right */}
 
       <div
         aria-hidden="true"
@@ -521,8 +506,7 @@ export default function FeaturedCampaigns({
         style={{
           backgroundImage:
             "radial-gradient(#F58220 1.5px, transparent 1.5px)",
-          backgroundSize:
-            "12px 12px",
+          backgroundSize: "12px 12px",
         }}
       />
 
@@ -531,7 +515,6 @@ export default function FeaturedCampaigns({
       ===================================================== */}
 
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-
         {/* ===================================================
             HEADING
         =================================================== */}
@@ -546,9 +529,7 @@ export default function FeaturedCampaigns({
               : "translate-y-6 opacity-0"
           }`}
         >
-
           <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[#F58220]/15 bg-white/80 px-4 py-2 shadow-sm backdrop-blur-sm">
-
             <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#FFF0E4] text-xs font-bold text-[#F58220]">
               ✦
             </span>
@@ -556,7 +537,6 @@ export default function FeaturedCampaigns({
             <span className="text-xs font-bold uppercase tracking-[0.14em] text-[#F58220]">
               Program Kebaikan
             </span>
-
           </div>
 
           <h2
@@ -578,7 +558,6 @@ export default function FeaturedCampaigns({
             donasi menjadi manfaat bagi
             mereka yang membutuhkan.
           </p>
-
         </div>
 
         {/* ===================================================
@@ -587,13 +566,11 @@ export default function FeaturedCampaigns({
 
         {loading && (
           <div className="relative overflow-hidden rounded-3xl border border-[#F1D9C1] bg-white/80 py-16 text-center shadow-sm backdrop-blur-sm">
-
             <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-4 border-[#F58220] border-t-transparent" />
 
             <p className="text-sm font-medium text-gray-500">
               Mengambil campaign...
             </p>
-
           </div>
         )}
 
@@ -603,7 +580,6 @@ export default function FeaturedCampaigns({
 
         {!loading && error && (
           <div className="mx-auto max-w-xl rounded-3xl border border-red-200 bg-red-50 p-7 text-center shadow-sm">
-
             <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100 text-xl font-bold text-red-500">
               !
             </div>
@@ -611,7 +587,6 @@ export default function FeaturedCampaigns({
             <p className="text-sm font-medium text-red-600">
               {error}
             </p>
-
           </div>
         )}
 
@@ -623,7 +598,6 @@ export default function FeaturedCampaigns({
           !error &&
           campaigns.length === 0 && (
             <div className="mx-auto max-w-xl rounded-3xl border border-[#F1D9C1] bg-white/90 p-10 text-center shadow-sm backdrop-blur-sm">
-
               <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[#FFF0E4] text-3xl">
                 🤲
               </div>
@@ -638,7 +612,6 @@ export default function FeaturedCampaigns({
                 unggulan melalui dashboard
                 admin.
               </p>
-
             </div>
           )}
 
@@ -657,23 +630,11 @@ export default function FeaturedCampaigns({
               }`}
             >
               {campaigns.map(
-                (
-                  campaign,
-                  index
-                ) => (
+                (campaign, index) => (
                   <CampaignCard
-                    key={
-                      campaign.id
-                    }
-                    campaign={
-                      campaign
-                    }
-                    delay={
-                      index * 100
-                    }
-                    onNavigate={
-                      onNavigate
-                    }
+                    key={campaign.id}
+                    campaign={campaign}
+                    delay={index * 100}
                   />
                 )
               )}
@@ -685,7 +646,6 @@ export default function FeaturedCampaigns({
         =================================================== */}
 
         <div className="mt-12 flex flex-col items-center">
-
           <p className="mb-3 text-xs font-medium text-gray-500">
             Temukan lebih banyak
             program kebaikan
@@ -708,9 +668,7 @@ export default function FeaturedCampaigns({
               →
             </span>
           </button>
-
         </div>
-
       </div>
     </section>
   );

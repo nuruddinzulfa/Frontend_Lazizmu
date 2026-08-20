@@ -1,6 +1,5 @@
 import {
   useEffect,
-  
   useState,
 } from 'react'
 
@@ -121,6 +120,35 @@ export default function App() {
 
   /*
   |--------------------------------------------------------------------------
+  | SELECTED CAMPAIGN
+  |--------------------------------------------------------------------------
+  */
+
+  const [
+    selectedCampaignId,
+    setSelectedCampaignId,
+  ] = useState<number | null>(null)
+
+  /*
+  |--------------------------------------------------------------------------
+  | DONATION STEP
+  |--------------------------------------------------------------------------
+  |
+  | Step 1:
+  | User masuk dari tombol Donasi biasa.
+  |
+  | Step 2:
+  | User masuk dari campaign tertentu.
+  |
+  */
+
+type DonationStep = 1 | 2 | 3
+
+const [donationStep, setDonationStep] =
+  useState<DonationStep>(1)
+
+  /*
+  |--------------------------------------------------------------------------
   | NEWS / ARTICLE STATE
   |--------------------------------------------------------------------------
   */
@@ -220,16 +248,78 @@ export default function App() {
 
     /*
     |--------------------------------------------------------------------------
-    | DONASI / MIDTRANS RETURN
+    | DONASI
     |--------------------------------------------------------------------------
     */
 
     if (pathname === '/donasi') {
+      const params =
+        new URLSearchParams(search)
+
+      const campaignParam =
+        params.get('campaign')
+
+      const stepParam =
+        params.get('step')
+
+      const parsedCampaignId =
+        campaignParam
+          ? Number(campaignParam)
+          : null
+
+      /*
+      |--------------------------------------------------------------------------
+      | STEP
+      |--------------------------------------------------------------------------
+      |
+      | Hanya step 2 yang dianggap valid
+      | untuk direct campaign donation.
+      |
+      */
+
+      const parsedStep =
+        stepParam === '2'
+          ? 2
+          : 1
+
+      /*
+      |--------------------------------------------------------------------------
+      | VALIDASI CAMPAIGN
+      |--------------------------------------------------------------------------
+      */
+
+      const validCampaignId =
+        parsedCampaignId !== null &&
+        Number.isFinite(
+          parsedCampaignId
+        ) &&
+        parsedCampaignId > 0
+          ? parsedCampaignId
+          : null
+
+      setSelectedCampaignId(
+        validCampaignId
+      )
+
+      setDonationStep(
+        validCampaignId !== null
+          ? parsedStep
+          : 1
+      )
+
       setPage('donasi')
 
       window.history.replaceState(
         {
           page: 'donasi',
+
+          campaignId:
+            validCampaignId,
+
+          donationStep:
+            validCampaignId !== null
+              ? parsedStep
+              : 1,
         },
         '',
         `/donasi${search}${hash}`
@@ -427,7 +517,29 @@ export default function App() {
         return
       }
 
+      /*
+      |--------------------------------------------------------------------------
+      | NORMAL PAGE
+      |--------------------------------------------------------------------------
+      */
+
       setPage(pathPage)
+
+      /*
+      |--------------------------------------------------------------------------
+      | RESET DONATION STATE
+      |--------------------------------------------------------------------------
+      */
+
+      if (
+        pathPage !== 'donasi'
+      ) {
+        setZakatAmount(null)
+        setZakatType(null)
+        setSelectedProgram(null)
+        setSelectedCampaignId(null)
+        setDonationStep(1)
+      }
 
       /*
       |--------------------------------------------------------------------------
@@ -447,6 +559,7 @@ export default function App() {
       window.history.replaceState(
         {
           page: pathPage,
+
           sectionId:
             hash
               ? hash.replace(/^#/, '')
@@ -478,7 +591,7 @@ export default function App() {
 
   /*
   |--------------------------------------------------------------------------
-  | SCROLL TO SECTION AFTER PAGE RENDER
+  | SCROLL TO SECTION
   |--------------------------------------------------------------------------
   */
 
@@ -492,7 +605,8 @@ export default function App() {
     }
 
     let cancelled = false
-    let timeoutId: number | undefined
+    let timeoutId:
+      number | undefined
 
     const scrollToSection = () => {
       if (cancelled) {
@@ -505,10 +619,11 @@ export default function App() {
         )
 
       if (!element) {
-        timeoutId = window.setTimeout(
-          scrollToSection,
-          100
-        )
+        timeoutId =
+          window.setTimeout(
+            scrollToSection,
+            100
+          )
 
         return
       }
@@ -516,11 +631,13 @@ export default function App() {
       const navbarOffset = 88
 
       const elementTop =
-        element.getBoundingClientRect().top +
+        element.getBoundingClientRect()
+          .top +
         window.scrollY
 
       const targetTop = Math.max(
-        elementTop - navbarOffset,
+        elementTop -
+          navbarOffset,
         0
       )
 
@@ -532,16 +649,11 @@ export default function App() {
       setPendingSectionId(null)
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Tunggu halaman About selesai render
-    |--------------------------------------------------------------------------
-    */
-
-    timeoutId = window.setTimeout(
-      scrollToSection,
-      300
-    )
+    timeoutId =
+      window.setTimeout(
+        scrollToSection,
+        300
+      )
 
     return () => {
       cancelled = true
@@ -559,36 +671,52 @@ export default function App() {
 
   /*
   |--------------------------------------------------------------------------
+  | SAVE SCROLL
+  |--------------------------------------------------------------------------
+  */
+
+  const saveCurrentScrollPosition =
+    () => {
+      const currentState =
+        window.history.state || {}
+
+      window.history.replaceState(
+        {
+          ...currentState,
+
+          scrollY:
+            window.scrollY,
+        },
+        '',
+        window.location.href
+      )
+    }
+
+  /*
+  |--------------------------------------------------------------------------
   | GENERAL NAVIGATION
   |--------------------------------------------------------------------------
   */
-  const saveCurrentScrollPosition = () => {
-  const currentState =
-    window.history.state || {}
 
-  window.history.replaceState(
-    {
-      ...currentState,
-      scrollY: window.scrollY,
-    },
-    '',
-    window.location.href
-  )
-}
   const handleNavigate = (
     targetPage: NavPage,
     sectionId?: string
   ) => {
     saveCurrentScrollPosition()
+
     /*
     |--------------------------------------------------------------------------
-    | Dashboard membutuhkan login
+    | DASHBOARD
     |--------------------------------------------------------------------------
     */
 
-    if (targetPage === 'dashboard') {
+    if (
+      targetPage === 'dashboard'
+    ) {
       const token =
-        localStorage.getItem('token')
+        localStorage.getItem(
+          'token'
+        )
 
       if (!token) {
         setPage('login')
@@ -617,19 +745,23 @@ export default function App() {
 
     /*
     |--------------------------------------------------------------------------
-    | Reset donation state
+    | RESET DONATION STATE
     |--------------------------------------------------------------------------
     */
 
-    if (targetPage !== 'donasi') {
+    if (
+      targetPage !== 'donasi'
+    ) {
       setZakatAmount(null)
       setZakatType(null)
       setSelectedProgram(null)
+      setSelectedCampaignId(null)
+      setDonationStep(1)
     }
 
     /*
     |--------------------------------------------------------------------------
-    | Reset content
+    | RESET CONTENT
     |--------------------------------------------------------------------------
     */
 
@@ -637,41 +769,47 @@ export default function App() {
 
     /*
     |--------------------------------------------------------------------------
-    | Reset pillar
+    | RESET PILAR
     |--------------------------------------------------------------------------
     */
 
     if (
-      targetPage !== 'pilar-detail'
+      targetPage !==
+      'pilar-detail'
     ) {
       setCurrentPillar(null)
     }
 
     /*
     |--------------------------------------------------------------------------
-    | Reset campaign
+    | RESET CAMPAIGN
     |--------------------------------------------------------------------------
     */
 
     if (
-      targetPage !== 'campaign' &&
-      targetPage !== 'campaign-detail'
+      targetPage !==
+        'campaign' &&
+      targetPage !==
+        'campaign-detail'
     ) {
-      setCurrentCampaignId(null)
+      setCurrentCampaignId(
+        null
+      )
     }
 
     /*
     |--------------------------------------------------------------------------
-    | Simpan target section
+    | SECTION
     |--------------------------------------------------------------------------
     */
 
     setPendingSectionId(
       sectionId ?? null
     )
+
     /*
     |--------------------------------------------------------------------------
-    | Reset scroll SEBELUM pindah halaman
+    | SCROLL
     |--------------------------------------------------------------------------
     */
 
@@ -681,9 +819,10 @@ export default function App() {
         behavior: 'auto',
       })
     }
+
     /*
     |--------------------------------------------------------------------------
-    | Set page
+    | PAGE
     |--------------------------------------------------------------------------
     */
 
@@ -691,22 +830,43 @@ export default function App() {
 
     /*
     |--------------------------------------------------------------------------
-    | Browser history
+    | HISTORY
     |--------------------------------------------------------------------------
     */
 
     const path =
-      getPathForPage(targetPage)
+      getPathForPage(
+        targetPage
+      )
 
-    const targetUrl = sectionId
-      ? `${path}#${sectionId}`
-      : path
+    const targetUrl =
+      sectionId
+        ? `${path}#${sectionId}`
+        : path
 
     window.history.pushState(
       {
         page: targetPage,
+
         sectionId:
           sectionId ?? null,
+
+        /*
+        |--------------------------------------------------------------------------
+        | Simpan state donation
+        |--------------------------------------------------------------------------
+        */
+
+        ...(targetPage ===
+        'donasi'
+          ? {
+              campaignId:
+                selectedCampaignId,
+
+              donationStep:
+                donationStep,
+            }
+          : {}),
       },
       '',
       targetUrl
@@ -714,7 +874,7 @@ export default function App() {
 
     /*
     |--------------------------------------------------------------------------
-    | Jika tidak ada section, scroll ke atas.
+    | SCROLL TOP
     |--------------------------------------------------------------------------
     */
 
@@ -736,14 +896,16 @@ export default function App() {
     category: string
   ) => {
     saveCurrentScrollPosition()
-    setCurrentPillar(category)
 
+    setCurrentPillar(category)
     setCurrentCampaignId(null)
     setCurrentContent(null)
 
     setZakatAmount(null)
     setZakatType(null)
     setSelectedProgram(null)
+    setSelectedCampaignId(null)
+    setDonationStep(1)
 
     setPendingSectionId(null)
 
@@ -757,7 +919,8 @@ export default function App() {
 
     window.history.pushState(
       {
-        page: 'pilar-detail',
+        page:
+          'pilar-detail',
         category,
       },
       '',
@@ -778,23 +941,31 @@ export default function App() {
 
   const handlePayZakat = (
     amount: number,
-    type: 'profesi' | 'maal'
+    type:
+      | 'profesi'
+      | 'maal'
   ) => {
     saveCurrentScrollPosition()
+
     setZakatAmount(amount)
     setZakatType(type)
 
     setCurrentContent(null)
     setCurrentPillar(null)
     setCurrentCampaignId(null)
-    setSelectedProgram(null)
-    setPendingSectionId(null)
 
+    setSelectedProgram(null)
+    setSelectedCampaignId(null)
+
+    setDonationStep(1)
+
+    setPendingSectionId(null)
     setPage('donasi')
 
     window.history.pushState(
       {
         page: 'donasi',
+        donationStep: 1,
       },
       '',
       '/donasi'
@@ -812,36 +983,48 @@ export default function App() {
   |--------------------------------------------------------------------------
   */
 
-  const handleNavigateToDonasiWithProgram = (
-    program: string
-  ) => {
-    saveCurrentScrollPosition()
-    setSelectedProgram(program)
+  const handleNavigateToDonasiWithProgram =
+    (
+      program: string
+    ) => {
+      saveCurrentScrollPosition()
 
-    setZakatAmount(null)
-    setZakatType(null)
+      setSelectedProgram(
+        program
+      )
 
-    setCurrentContent(null)
-    setCurrentPillar(null)
-    setCurrentCampaignId(null)
-    setPendingSectionId(null)
+      setSelectedCampaignId(
+        null
+      )
 
-    setPage('donasi')
+      setDonationStep(1)
 
-    window.history.pushState(
-      {
-        page: 'donasi',
-        program,
-      },
-      '',
-      '/donasi'
-    )
+      setZakatAmount(null)
+      setZakatType(null)
 
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth',
-    })
-  }
+      setCurrentContent(null)
+      setCurrentPillar(null)
+      setCurrentCampaignId(null)
+
+      setPendingSectionId(null)
+
+      setPage('donasi')
+
+      window.history.pushState(
+        {
+          page: 'donasi',
+          program,
+          donationStep: 1,
+        },
+        '',
+        '/donasi'
+      )
+
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth',
+      })
+    }
 
   /*
   |--------------------------------------------------------------------------
@@ -850,25 +1033,31 @@ export default function App() {
   */
 
   const handleOpenContent = (
-    type: 'berita' | 'artikel',
+    type:
+      | 'berita'
+      | 'artikel',
     id: number
   ) => {
     saveCurrentScrollPosition()
+
     const content = {
       type,
       id,
     }
 
     setCurrentContent(content)
-
     setCurrentPillar(null)
     setCurrentCampaignId(null)
 
     setZakatAmount(null)
     setZakatType(null)
-    setSelectedProgram(null)
-    setPendingSectionId(null)
 
+    setSelectedProgram(null)
+    setSelectedCampaignId(null)
+
+    setDonationStep(1)
+
+    setPendingSectionId(null)
     setPage('baca')
 
     window.history.pushState(
@@ -896,6 +1085,7 @@ export default function App() {
     id: number
   ) => {
     saveCurrentScrollPosition()
+
     setCurrentCampaignId(id)
 
     setCurrentPillar(null)
@@ -903,14 +1093,20 @@ export default function App() {
 
     setZakatAmount(null)
     setZakatType(null)
+
     setSelectedProgram(null)
+    setSelectedCampaignId(null)
+
+    setDonationStep(1)
+
     setPendingSectionId(null)
 
     setPage('campaign-detail')
 
     window.history.pushState(
       {
-        page: 'campaign-detail',
+        page:
+          'campaign-detail',
         campaignId: id,
       },
       '',
@@ -933,7 +1129,9 @@ export default function App() {
     const restoreSession =
       async () => {
         const token =
-          localStorage.getItem('token')
+          localStorage.getItem(
+            'token'
+          )
 
         if (!token) {
           localStorage.removeItem(
@@ -985,7 +1183,9 @@ export default function App() {
 
           localStorage.setItem(
             'user',
-            JSON.stringify(user)
+            JSON.stringify(
+              user
+            )
           )
 
           const shouldOpenDashboard =
@@ -996,10 +1196,12 @@ export default function App() {
           if (
             shouldOpenDashboard &&
             window.location.pathname !==
-            '/donasi'
+              '/donasi'
           ) {
             setPage('dashboard')
-            setPendingSectionId(null)
+            setPendingSectionId(
+              null
+            )
           }
         } catch (error) {
           console.error(
@@ -1024,7 +1226,9 @@ export default function App() {
             '/donasi'
           ) {
             setPage('login')
-            setPendingSectionId(null)
+            setPendingSectionId(
+              null
+            )
           }
         } finally {
           setAuthLoading(false)
@@ -1041,219 +1245,268 @@ export default function App() {
   */
 
   useEffect(() => {
-  const handlePopState = (
-    event: PopStateEvent
-  ) => {
-    const state = event.state
+    const handlePopState = (
+      event: PopStateEvent
+    ) => {
+      const state =
+        event.state
 
-    /*
-    |--------------------------------------------------------------------------
-    | Jika tidak ada history state
-    |--------------------------------------------------------------------------
-    */
+      /*
+      |--------------------------------------------------------------------------
+      | NO HISTORY STATE
+      |--------------------------------------------------------------------------
+      */
 
-    if (!state?.page) {
-      setPage('home')
+      if (!state?.page) {
+        setPage('home')
 
-      setCurrentContent(null)
-      setCurrentPillar(null)
-      setCurrentCampaignId(null)
+        setCurrentContent(null)
+        setCurrentPillar(null)
+        setCurrentCampaignId(null)
 
-      setZakatAmount(null)
-      setZakatType(null)
-      setSelectedProgram(null)
-      setPendingSectionId(null)
+        setZakatAmount(null)
+        setZakatType(null)
 
-      window.scrollTo({
-        top: 0,
-        behavior: 'auto',
-      })
+        setSelectedProgram(null)
+        setSelectedCampaignId(null)
 
-      return
-    }
+        setDonationStep(1)
 
-    const targetPage =
-      state.page as NavPage
+        setPendingSectionId(null)
 
-    /*
-    |--------------------------------------------------------------------------
-    | Dashboard protection
-    |--------------------------------------------------------------------------
-    */
+        window.scrollTo({
+          top: 0,
+          behavior: 'auto',
+        })
 
-    if (
-      targetPage === 'dashboard' &&
-      !localStorage.getItem('token')
-    ) {
-      setPage('login')
-      setPendingSectionId(null)
+        return
+      }
 
-      window.scrollTo({
-        top: 0,
-        behavior: 'auto',
-      })
+      const targetPage =
+        state.page as NavPage
 
-      return
-    }
+      /*
+      |--------------------------------------------------------------------------
+      | DASHBOARD PROTECTION
+      |--------------------------------------------------------------------------
+      */
 
-    /*
-    |--------------------------------------------------------------------------
-    | PAGE
-    |--------------------------------------------------------------------------
-    */
+      if (
+        targetPage ===
+          'dashboard' &&
+        !localStorage.getItem(
+          'token'
+        )
+      ) {
+        setPage('login')
+        setPendingSectionId(null)
 
-    setPage(targetPage)
+        window.scrollTo({
+          top: 0,
+          behavior: 'auto',
+        })
 
-    /*
-    |--------------------------------------------------------------------------
-    | SECTION
-    |--------------------------------------------------------------------------
-    */
+        return
+      }
 
-    const sectionId =
-      state.sectionId ?? null
+      /*
+      |--------------------------------------------------------------------------
+      | PAGE
+      |--------------------------------------------------------------------------
+      */
 
-    setPendingSectionId(sectionId)
+      setPage(targetPage)
 
-    /*
-    |--------------------------------------------------------------------------
-    | CONTENT
-    |--------------------------------------------------------------------------
-    */
+      /*
+      |--------------------------------------------------------------------------
+      | SECTION
+      |--------------------------------------------------------------------------
+      */
 
-    if (
-      targetPage === 'baca' &&
-      state.content
-    ) {
-      setCurrentContent(state.content)
-    } else {
-      setCurrentContent(null)
-    }
+      const sectionId =
+        state.sectionId ??
+        null
 
-    /*
-    |--------------------------------------------------------------------------
-    | PILAR
-    |--------------------------------------------------------------------------
-    */
-
-    if (
-      targetPage === 'pilar-detail'
-    ) {
-      setCurrentPillar(
-        state.category ?? null
+      setPendingSectionId(
+        sectionId
       )
-    } else {
-      setCurrentPillar(null)
-    }
 
-    /*
-    |--------------------------------------------------------------------------
-    | CAMPAIGN
-    |--------------------------------------------------------------------------
-    */
+      /*
+      |--------------------------------------------------------------------------
+      | CONTENT
+      |--------------------------------------------------------------------------
+      */
 
-    if (
-      targetPage === 'campaign-detail'
-    ) {
-      const campaignId =
-        Number(state.campaignId)
+      if (
+        targetPage ===
+          'baca' &&
+        state.content
+      ) {
+        setCurrentContent(
+          state.content
+        )
+      } else {
+        setCurrentContent(
+          null
+        )
+      }
 
-      setCurrentCampaignId(
-        Number.isNaN(campaignId)
-          ? null
-          : campaignId
+      /*
+      |--------------------------------------------------------------------------
+      | PILAR
+      |--------------------------------------------------------------------------
+      */
+
+      if (
+        targetPage ===
+        'pilar-detail'
+      ) {
+        setCurrentPillar(
+          state.category ??
+            null
+        )
+      } else {
+        setCurrentPillar(
+          null
+        )
+      }
+
+      /*
+      |--------------------------------------------------------------------------
+      | CAMPAIGN
+      |--------------------------------------------------------------------------
+      */
+
+      if (
+        targetPage ===
+        'campaign-detail'
+      ) {
+        const campaignId =
+          Number(
+            state.campaignId
+          )
+
+        setCurrentCampaignId(
+          Number.isNaN(
+            campaignId
+          )
+            ? null
+            : campaignId
+        )
+      } else {
+        setCurrentCampaignId(
+          null
+        )
+      }
+
+      /*
+      |--------------------------------------------------------------------------
+      | DONATION
+      |--------------------------------------------------------------------------
+      */
+
+      if (
+        targetPage ===
+        'donasi'
+      ) {
+        const campaignId =
+          Number(
+            state.campaignId
+          )
+
+        const validCampaignId =
+          !Number.isNaN(
+            campaignId
+          ) &&
+          campaignId > 0
+            ? campaignId
+            : null
+
+        setSelectedCampaignId(
+          validCampaignId
+        )
+
+        setDonationStep(
+          validCampaignId !== null
+            ? state.donationStep ===
+                2
+              ? 2
+              : 1
+            : 1
+        )
+      } else {
+        setZakatAmount(null)
+        setZakatType(null)
+        setSelectedProgram(null)
+        setSelectedCampaignId(null)
+        setDonationStep(1)
+      }
+
+      /*
+      |--------------------------------------------------------------------------
+      | RESTORE SCROLL
+      |--------------------------------------------------------------------------
+      */
+
+      const savedScrollY =
+        typeof state.scrollY ===
+        'number'
+          ? state.scrollY
+          : 0
+
+      if (sectionId) {
+        return
+      }
+
+      window.setTimeout(
+        () => {
+          window.scrollTo({
+            top: savedScrollY,
+            behavior: 'auto',
+          })
+        },
+        100
       )
-    } else {
-      setCurrentCampaignId(null)
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | DONATION
-    |--------------------------------------------------------------------------
-    */
-
-    if (
-      targetPage !== 'donasi'
-    ) {
-      setZakatAmount(null)
-      setZakatType(null)
-      setSelectedProgram(null)
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | RESTORE SCROLL POSITION
-    |--------------------------------------------------------------------------
-    */
-
-    const savedScrollY =
-      typeof state.scrollY === 'number'
-        ? state.scrollY
-        : 0
-
-    /*
-    |--------------------------------------------------------------------------
-    | Jika kembali ke section tertentu
-    |--------------------------------------------------------------------------
-    */
-
-    if (sectionId) {
-      return
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Tunggu halaman selesai render
-    |--------------------------------------------------------------------------
-    */
-
-    window.setTimeout(() => {
-      window.scrollTo({
-        top: savedScrollY,
-        behavior: 'auto',
-      })
-    }, 100)
-  }
-
-  window.addEventListener(
-    'popstate',
-    handlePopState
-  )
-
-  return () => {
-    window.removeEventListener(
+    window.addEventListener(
       'popstate',
       handlePopState
     )
-  }
-}, [])
 
-/*
-|--------------------------------------------------------------------------
-| BROWSER SCROLL RESTORATION
-|--------------------------------------------------------------------------
-*/
+    return () => {
+      window.removeEventListener(
+        'popstate',
+        handlePopState
+      )
+    }
+  }, [])
 
-useEffect(() => {
-  if (
-    'scrollRestoration' in
-    window.history
-  ) {
-    window.history.scrollRestoration =
-      'manual'
-  }
+  /*
+  |--------------------------------------------------------------------------
+  | BROWSER SCROLL RESTORATION
+  |--------------------------------------------------------------------------
+  */
 
-  return () => {
+  useEffect(() => {
     if (
       'scrollRestoration' in
       window.history
     ) {
       window.history.scrollRestoration =
-        'auto'
+        'manual'
     }
-  }
-}, [])
+
+    return () => {
+      if (
+        'scrollRestoration' in
+        window.history
+      ) {
+        window.history.scrollRestoration =
+          'auto'
+      }
+    }
+  }, [])
 
   /*
   |--------------------------------------------------------------------------
@@ -1285,7 +1538,9 @@ useEffect(() => {
   ]
 
   const showFooter =
-    !noFooterPages.includes(page)
+    !noFooterPages.includes(
+      page
+    )
 
   /*
   |--------------------------------------------------------------------------
@@ -1302,13 +1557,19 @@ useEffect(() => {
       */
 
       case 'home':
-  return (
-    <HomePage
-      onNavigate={handleNavigate}
-      onOpenPillar={handleOpenPillar}
-      onOpenContent={handleOpenContent}
-    />
-  )
+        return (
+          <HomePage
+            onNavigate={
+              handleNavigate
+            }
+            onOpenPillar={
+              handleOpenPillar
+            }
+            onOpenContent={
+              handleOpenContent
+            }
+          />
+        )
 
       /*
       |--------------------------------------------------------------------------
@@ -1345,6 +1606,13 @@ useEffect(() => {
             initialProgram={
               selectedProgram ??
               undefined
+            }
+            initialCampaignId={
+              selectedCampaignId ??
+              undefined
+            }
+            initialStep={
+              donationStep
             }
           />
         )
@@ -1639,9 +1907,12 @@ useEffect(() => {
       }}
     >
 
-      {page !== 'dashboard' && (
+      {page !==
+        'dashboard' && (
         <Navbar
-          currentPage={page}
+          currentPage={
+            page
+          }
           onNavigate={
             handleNavigate
           }
@@ -1658,7 +1929,8 @@ useEffect(() => {
         />
       )}
 
-      {page !== 'dashboard' && (
+      {page !==
+        'dashboard' && (
         <FloatingElements />
       )}
 

@@ -32,7 +32,10 @@ const getThumbnailUrl = (
     return null
   }
 
-  if (thumbnail.startsWith('http')) {
+  if (
+    thumbnail.startsWith('http://') ||
+    thumbnail.startsWith('https://')
+  ) {
     return thumbnail
   }
 
@@ -137,6 +140,21 @@ export default function CampaignDetail({
       campaign.thumbnail
     )
 
+  /*
+  |--------------------------------------------------------------------------
+  | DONASI LANGSUNG CAMPAIGN
+  |--------------------------------------------------------------------------
+  |
+  | Campaign ID dikirim ke halaman /donasi.
+  |
+  | Contoh:
+  | /donasi?campaign=12
+  |
+  | DonationForm kemudian membaca parameter
+  | tersebut dan langsung membuka Step 2.
+  |--------------------------------------------------------------------------
+  */
+
   const handleDonate = () => {
     window.location.href =
       `/donasi?campaign=${campaign.id}`
@@ -208,9 +226,7 @@ export default function CampaignDetail({
             {/* Short description */}
 
             <p className="mt-4 text-base leading-relaxed text-gray-500">
-              {
-                campaign.short_description
-              }
+              {campaign.short_description}
             </p>
 
             {/* Description */}
@@ -222,9 +238,7 @@ export default function CampaignDetail({
               </h2>
 
               <div className="whitespace-pre-line text-sm leading-7 text-gray-600">
-                {
-                  campaign.description
-                }
+                {campaign.description}
               </div>
 
             </div>
@@ -249,9 +263,7 @@ export default function CampaignDetail({
                   </p>
 
                   <p className="mt-1 text-xl font-bold text-[#F58220]">
-                    {fmt(
-                      collected
-                    )}
+                    {fmt(collected)}
                   </p>
                 </div>
 

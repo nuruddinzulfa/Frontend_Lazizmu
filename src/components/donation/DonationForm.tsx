@@ -1,190 +1,302 @@
-import { useEffect, useMemo, useState } from "react";
-import { api } from "@/services/api";
-import API_URL from "@/lib/api";
+'use client'
 
-interface DonasiPageProps {
-  initialZakatAmount?: number;
-  initialZakatType?: "profesi" | "maal";
-  initialProgram?: string;
-}
+import {
+  type ChangeEvent,
+  type FormEvent,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react'
 
-interface Campaign {
-  id: number;
-  title: string;
-  slug: string;
-  description?: string | null;
-  image?: string | null;
-  target_amount?: number | string | null;
-  collected_amount?: number | string | null;
-  donor_count?: number | null;
-  category?: string | null;
-  status?: string;
-}
-
-interface CampaignResponse {
-  success: boolean;
-  message?: string;
-  data:
-    | Campaign[]
-    | {
-        data: Campaign[];
-      };
-}
-
-interface DonationResponse {
-  success: boolean;
-  message: string;
-  data: {
-    donation: {
-      id: number;
-      campaign_id: number;
-      order_id: string;
-      donor_name: string;
-      amount: number;
-      anonymous: boolean;
-      payment_status: string;
-      created_at: string;
-    };
-
-    campaign?: {
-      id: number;
-      title: string;
-      slug: string;
-    };
-
-    snap_token?: string;
-    redirect_url?: string;
-  };
-}
-
-interface ZakatTransactionResponse {
-  success: boolean;
-  message: string;
-  data: {
-    transaction: {
-      id: number;
-      zakat_type: "profesi" | "maal";
-      order_id: string;
-      payer_name: string;
-      amount: number;
-      payment_status: string;
-      created_at: string;
-    };
-    snap_token?: string;
-    redirect_url?: string;
-  };
-}
-
-interface StoredDonation {
-  donationId?: number;
-  transactionId?: number;
-  orderId?: string;
-  campaignId?: number;
-  amount?: number;
-  donorName?: string;
-  campaignTitle?: string;
-  transactionType?: "donation" | "zakat";
-  zakatType?: "profesi" | "maal";
-}
+import { api } from '@/services/api'
+import API_URL from '@/lib/api'
 
 /*
 |--------------------------------------------------------------------------
-| FORMAT RUPIAH
+| TYPES
+|--------------------------------------------------------------------------
+*/
+
+interface DonasiPageProps {
+  initialZakatAmount?: number
+  initialZakatType?: 'profesi' | 'maal'
+  initialProgram?: string
+
+  /**
+   * Campaign yang dikirim langsung dari Hero / Campaign Detail.
+   *
+   * Jika ada nilai ini, user langsung masuk Step 2.
+   */
+  initialCampaignId?: number | null
+
+  /**
+   * Step awal dari halaman sebelumnya.
+   *
+   * Default:
+   * - campaign ada -> Step 2
+   * - campaign tidak ada -> Step 1
+   */
+  initialStep?: DonationStep
+}
+
+interface Campaign {
+  id: number
+  title: string
+  slug: string
+  description?: string | null
+  image?: string | null
+  thumbnail?: string | null
+  target_amount?: number | string | null
+  collected_amount?: number | string | null
+  donor_count?: number | null
+  category?: string | null
+  status?: string
+}
+
+interface CampaignResponse {
+  success: boolean
+  message?: string
+  data:
+    | Campaign[]
+    | {
+        data: Campaign[]
+      }
+}
+
+interface DonationResponse {
+  success: boolean
+  message: string
+  data: {
+    donation: {
+      id: number
+      campaign_id: number
+      order_id: string
+      donor_name: string
+      amount: number
+      anonymous: boolean
+      payment_status: string
+      created_at: string
+    }
+
+    campaign?: {
+      id: number
+      title: string
+      slug: string
+    }
+
+    snap_token?: string
+    redirect_url?: string
+  }
+}
+
+interface ZakatTransactionResponse {
+  success: boolean
+  message: string
+  data: {
+    transaction: {
+      id: number
+      zakat_type: 'profesi' | 'maal'
+      order_id: string
+      payer_name: string
+      amount: number
+      payment_status: string
+      created_at: string
+    }
+
+    snap_token?: string
+    redirect_url?: string
+  }
+}
+
+interface StoredDonation {
+  donationId?: number
+  transactionId?: number
+  orderId?: string
+  campaignId?: number
+  amount?: number
+  donorName?: string
+  campaignTitle?: string
+  transactionType?: 'donation' | 'zakat'
+  zakatType?: 'profesi' | 'maal'
+}
+
+type DonationStep = 1 | 2 | 3
+
+/*
+|--------------------------------------------------------------------------
+| HELPERS
 |--------------------------------------------------------------------------
 */
 
 function formatRupiah(
-  value: number | string | null | undefined
+  value: number | string | null | undefined,
 ) {
-  const number = Number(value ?? 0);
+  const number = Number(value ?? 0)
 
-  return new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
+  return new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
     maximumFractionDigits: 0,
-  }).format(Number.isFinite(number) ? number : 0);
+  }).format(
+    Number.isFinite(number)
+      ? number
+      : 0,
+  )
 }
 
-/*
-|--------------------------------------------------------------------------
-| FORMAT INPUT NOMINAL
-|--------------------------------------------------------------------------
-*/
-
-function formatNumberInput(value: string) {
-  const clean = value.replace(/\D/g, "");
+function formatNumberInput(
+  value: string,
+) {
+  const clean = value.replace(
+    /\D/g,
+    '',
+  )
 
   if (!clean) {
-    return "";
+    return ''
   }
 
-  return Number(clean).toLocaleString("id-ID");
+  return Number(clean).toLocaleString(
+    'id-ID',
+  )
 }
 
-/*
-|--------------------------------------------------------------------------
-| PARSE NOMINAL
-|--------------------------------------------------------------------------
-*/
+function parseNumber(
+  value: string,
+) {
+  const clean = value
+    .replace(/\./g, '')
+    .replace(/[^\d]/g, '')
 
-function parseNumber(value: string) {
-  const number = Number(
-    value
-      .replace(/\./g, "")
-      .replace(/[^\d]/g, "")
-  );
+  const number = Number(clean)
 
-  return Number.isFinite(number) ? number : 0;
+  return Number.isFinite(number)
+    ? number
+    : 0
 }
 
-/*
-|--------------------------------------------------------------------------
-| NORMALIZE PHONE
-|--------------------------------------------------------------------------
-*/
+function normalizePhone(
+  phone: string,
+) {
+  let clean = phone.replace(
+    /\D/g,
+    '',
+  )
 
-function normalizePhone(phone: string) {
-  let clean = phone.replace(/\D/g, "");
-
-  if (clean.startsWith("62")) {
-    return clean;
+  if (clean.startsWith('62')) {
+    return clean
   }
 
-  if (clean.startsWith("0")) {
-    clean = clean.substring(1);
+  if (clean.startsWith('0')) {
+    clean = clean.substring(1)
   }
 
-  return `62${clean}`;
+  return `62${clean}`
 }
-
-/*
-|--------------------------------------------------------------------------
-| CAMPAIGN IMAGE URL
-|--------------------------------------------------------------------------
-*/
 
 function getCampaignImageUrl(
-  image: string | null | undefined
+  image: string | null | undefined,
 ): string | null {
   if (!image) {
-    return null;
+    return null
   }
 
   if (
-    image.startsWith("http://") ||
-    image.startsWith("https://")
+    image.startsWith('http://') ||
+    image.startsWith('https://')
   ) {
-    return image;
+    return image
   }
 
   const cleanImage = image
-    .replace(/^\/+/, "")
-    .replace(/^storage\//, "");
+    .replace(/^\/+/, '')
+    .replace(/^storage\//, '')
 
   const backendUrl =
-    API_URL.replace(/\/api\/?$/, "");
+    API_URL.replace(
+      /\/api\/?$/,
+      '',
+    )
 
-  return `${backendUrl}/storage/${cleanImage}`;
+  return `${backendUrl}/storage/${cleanImage}`
+}
+
+function getCampaignIdFromUrl() {
+  if (
+    typeof window ===
+    'undefined'
+  ) {
+    return null
+  }
+
+  const params =
+    new URLSearchParams(
+      window.location.search,
+    )
+
+  const rawCampaign =
+    params.get('campaign')
+
+  if (!rawCampaign) {
+    return null
+  }
+
+  const value =
+    Number(rawCampaign)
+
+  if (
+    !Number.isFinite(value) ||
+    value <= 0
+  ) {
+    return null
+  }
+
+  return value
+}
+
+function getStepFromUrl(): DonationStep {
+  if (
+    typeof window ===
+    'undefined'
+  ) {
+    return 1
+  }
+
+  const params =
+    new URLSearchParams(
+      window.location.search,
+    )
+
+  const rawStep =
+    Number(params.get('step'))
+
+  if (rawStep === 3) {
+    return 3
+  }
+
+  if (rawStep === 2) {
+    return 2
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | JIKA ADA CAMPAIGN
+  |--------------------------------------------------------------------------
+  |
+  | Campaign berarti user datang dari tombol
+  | "Donasi Sekarang".
+  |
+  | Maka langsung Step 2.
+  |--------------------------------------------------------------------------
+  */
+
+  if (
+    getCampaignIdFromUrl()
+  ) {
+    return 2
+  }
+
+  return 1
 }
 
 /*
@@ -197,111 +309,129 @@ export default function DonationForm({
   initialZakatAmount,
   initialZakatType,
   initialProgram,
+  initialCampaignId = null,
+  initialStep,
 }: DonasiPageProps) {
+  /*
+  |--------------------------------------------------------------------------
+  | ZAKAT
+  |--------------------------------------------------------------------------
+  */
+
   const isZakat =
     Boolean(
       initialZakatAmount &&
-        initialZakatAmount > 0
-    );
+        initialZakatAmount > 0,
+    )
 
   const zakatType =
-    initialZakatType ?? "profesi";
-  /*
-  |--------------------------------------------------------------------------
-  | MIDTRANS REDIRECT
-  |--------------------------------------------------------------------------
-  */
-
-  const queryParams = useMemo(
-    () =>
-      new URLSearchParams(
-        window.location.search
-      ),
-    []
-  );
-
-  const transactionStatus =
-    queryParams.get(
-      "transaction_status"
-    );
-
-  const statusCode =
-    queryParams.get("status_code");
-
-  const returnedOrderId =
-    queryParams.get("order_id");
-
-  const isPaymentSuccess =
-    transactionStatus === "settlement" ||
-    transactionStatus === "capture";
-
-  const isPaymentPending =
-    transactionStatus === "pending";
-
-  const isPaymentFailed =
-    transactionStatus === "deny" ||
-    transactionStatus === "cancel" ||
-    transactionStatus === "expire" ||
-    transactionStatus === "failure";
+    initialZakatType ??
+    'profesi'
 
   /*
   |--------------------------------------------------------------------------
-  | LAST DONATION
+  | URL CAMPAIGN
   |--------------------------------------------------------------------------
   */
 
-  const lastDonation =
-    useMemo<StoredDonation | null>(() => {
-      try {
-        const stored =
-          sessionStorage.getItem(
-            "lastDonation"
-          );
-
-        if (!stored) {
-          return null;
-        }
-
-        return JSON.parse(
-          stored
-        ) as StoredDonation;
-      } catch {
-        return null;
-      }
-    }, []);
-
-  const isZakatTransaction =
-    lastDonation?.transactionType === "zakat" ||
-    lastDonation?.orderId?.startsWith("ZKT-") ||
-    returnedOrderId?.startsWith("ZKT-") ||
-    isZakat;
-
+  const urlCampaignId =
+    getCampaignIdFromUrl()
 
   /*
   |--------------------------------------------------------------------------
-  | CAMPAIGN
+  | FINAL CAMPAIGN ID
+  |--------------------------------------------------------------------------
+  |
+  | Prioritas:
+  |
+  | 1. initialCampaignId
+  | 2. campaign dari URL
+  |
   |--------------------------------------------------------------------------
   */
 
-  const [campaigns, setCampaigns] =
-    useState<Campaign[]>([]);
+  const resolvedInitialCampaignId =
+    initialCampaignId ??
+    urlCampaignId
+
+  /*
+  |--------------------------------------------------------------------------
+  | INITIAL STEP
+  |--------------------------------------------------------------------------
+  |
+  | Prioritas:
+  |
+  | 1. initialStep
+  | 2. step dari URL
+  | 3. campaign -> Step 2
+  | 4. default -> Step 1
+  |--------------------------------------------------------------------------
+  */
+
+  const resolvedInitialStep =
+    initialStep ??
+    (
+      resolvedInitialCampaignId
+        ? getStepFromUrl()
+        : 1
+    )
+
+  /*
+  |--------------------------------------------------------------------------
+  | CAMPAIGNS
+  |--------------------------------------------------------------------------
+  */
+
+  const [
+    campaigns,
+    setCampaigns,
+  ] = useState<Campaign[]>([])
 
   const [
     campaignLoading,
     setCampaignLoading,
-  ] = useState(!isZakat);
+  ] = useState(
+    !isZakat,
+  )
 
   const [
     campaignError,
     setCampaignError,
-  ] = useState("");
+  ] = useState('')
+
+  /*
+  |--------------------------------------------------------------------------
+  | SELECTED CAMPAIGN
+  |--------------------------------------------------------------------------
+  */
 
   const [
     campaignId,
     setCampaignId,
-  ] = useState<number | null>(
-    null
-  );
+  ] = useState<
+    number | null
+  >(
+    resolvedInitialCampaignId,
+  )
+
+  /*
+  |--------------------------------------------------------------------------
+  | STEP
+  |--------------------------------------------------------------------------
+  */
+
+  const [
+    step,
+    setStep,
+  ] = useState<DonationStep>(
+    () => {
+      if (isZakat) {
+        return 2
+      }
+
+      return resolvedInitialStep
+    },
+  )
 
   /*
   |--------------------------------------------------------------------------
@@ -309,19 +439,25 @@ export default function DonationForm({
   |--------------------------------------------------------------------------
   */
 
-  const [name, setName] =
-    useState("");
+  const [
+    name,
+    setName,
+  ] = useState('')
 
   const [
     isAnonymous,
     setIsAnonymous,
-  ] = useState(false);
+  ] = useState(false)
 
-  const [phone, setPhone] =
-    useState("");
+  const [
+    phone,
+    setPhone,
+  ] = useState('')
 
-  const [email, setEmail] =
-    useState("");
+  const [
+    email,
+    setEmail,
+  ] = useState('')
 
   /*
   |--------------------------------------------------------------------------
@@ -332,41 +468,75 @@ export default function DonationForm({
   const [
     selectedAmount,
     setSelectedAmount,
-  ] = useState<number | null>(
+  ] = useState<
+    number | null
+  >(
     initialZakatAmount &&
       initialZakatAmount > 0
       ? initialZakatAmount
-      : null
-  );
+      : null,
+  )
 
   const [
     customAmount,
     setCustomAmount,
-  ] = useState("");
+  ] = useState('')
 
   /*
   |--------------------------------------------------------------------------
-  | PROCESS
+  | PAYMENT
   |--------------------------------------------------------------------------
   */
 
-  const [step, setStep] =
-    useState<1 | 2 | 3>(
-      initialZakatAmount &&
-        initialZakatAmount > 0
-        ? 2
-        : 1
-    );
+  const [
+    transactionStatus,
+    setTransactionStatus,
+  ] = useState<
+    string | null
+  >(null)
+
+  const [
+    statusCode,
+    setStatusCode,
+  ] = useState<
+    string | null
+  >(null)
+
+  const [
+    returnedOrderId,
+    setReturnedOrderId,
+  ] = useState<
+    string | null
+  >(null)
+
+  const [
+    lastDonation,
+    setLastDonation,
+  ] = useState<
+    StoredDonation | null
+  >(null)
+
+  /*
+  |--------------------------------------------------------------------------
+  | SUBMIT
+  |--------------------------------------------------------------------------
+  */
 
   const [
     isSubmitting,
     setIsSubmitting,
-  ] = useState(false);
+  ] = useState(false)
 
   const [
     submitError,
     setSubmitError,
-  ] = useState("");
+  ] = useState('')
+
+  /*
+  |--------------------------------------------------------------------------
+  | PRESET
+  |--------------------------------------------------------------------------
+  */
 
   const presets = [
     10_000,
@@ -375,215 +545,445 @@ export default function DonationForm({
     100_000,
     250_000,
     500_000,
-  ];
+  ]
+
+  /*
+  |--------------------------------------------------------------------------
+  | AMOUNT
+  |--------------------------------------------------------------------------
+  */
 
   const amount =
     selectedAmount !== null
       ? selectedAmount
       : parseNumber(
-          customAmount
-        );
+          customAmount,
+        )
+
+  /*
+  |--------------------------------------------------------------------------
+  | SELECTED CAMPAIGN
+  |--------------------------------------------------------------------------
+  */
 
   const selectedCampaign =
-    useMemo(
-      () =>
+    useMemo(() => {
+      return (
         campaigns.find(
           (campaign) =>
             campaign.id ===
-            campaignId
-        ) ?? null,
-      [campaigns, campaignId]
-    );
+            campaignId,
+        ) ?? null
+      )
+    }, [
+      campaigns,
+      campaignId,
+    ])
+
+  /*
+  |--------------------------------------------------------------------------
+  | DISPLAY NAME
+  |--------------------------------------------------------------------------
+  */
 
   const displayName =
     isZakat
       ? name.trim()
       : isAnonymous
-      ? "Hamba Allah"
-      : name.trim();
+        ? 'Hamba Allah'
+        : name.trim()
 
   /*
   |--------------------------------------------------------------------------
-  | FETCH CAMPAIGN
+  | PAYMENT STATUS
+  |--------------------------------------------------------------------------
+  */
+
+  const isPaymentSuccess =
+    transactionStatus ===
+      'settlement' ||
+    transactionStatus ===
+      'capture'
+
+  const isPaymentPending =
+    transactionStatus ===
+    'pending'
+
+  const isPaymentFailed =
+    transactionStatus ===
+      'deny' ||
+    transactionStatus ===
+      'cancel' ||
+    transactionStatus ===
+      'expire' ||
+    transactionStatus ===
+      'failure'
+
+  const isZakatTransaction =
+    lastDonation?.transactionType ===
+      'zakat' ||
+    lastDonation?.orderId?.startsWith(
+      'ZKT-',
+    ) ||
+    returnedOrderId?.startsWith(
+      'ZKT-',
+    ) ||
+    isZakat
+
+  /*
+  |--------------------------------------------------------------------------
+  | INITIAL CAMPAIGN / STEP
+  |--------------------------------------------------------------------------
+  |
+  | Ini adalah bagian penting untuk memperbaiki
+  | masalah campaign kembali ke Step 1.
   |--------------------------------------------------------------------------
   */
 
   useEffect(() => {
     if (isZakat) {
-      setCampaigns([]);
-      setCampaignId(null);
-      setCampaignError("");
-      setCampaignLoading(false);
-      return;
+      setCampaignId(null)
+      setStep(2)
+
+      return
     }
 
     /*
     |--------------------------------------------------------------------------
-    | Jika sedang kembali dari Midtrans,
-    | tidak perlu fetch campaign.
+    | PRIORITAS INITIAL CAMPAIGN
     |--------------------------------------------------------------------------
     */
 
     if (
-      isPaymentSuccess ||
-      isPaymentPending ||
-      isPaymentFailed
+      initialCampaignId !==
+      null &&
+      initialCampaignId !==
+        undefined
     ) {
-      setCampaignLoading(false);
-      return;
+      setCampaignId(
+        initialCampaignId,
+      )
+
+      setStep(
+        initialStep ?? 2,
+      )
+
+      return
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | PRIORITAS URL CAMPAIGN
+    |--------------------------------------------------------------------------
+    */
+
+    const campaignFromUrl =
+      getCampaignIdFromUrl()
+
+    if (campaignFromUrl) {
+      setCampaignId(
+        campaignFromUrl,
+      )
+
+      setStep(
+        getStepFromUrl(),
+      )
+
+      return
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | TANPA CAMPAIGN
+    |--------------------------------------------------------------------------
+    */
+
+    setCampaignId(null)
+
+    setStep(1)
+  }, [
+    initialCampaignId,
+    initialStep,
+    isZakat,
+  ])
+
+  /*
+  |--------------------------------------------------------------------------
+  | FETCH CAMPAIGNS
+  |--------------------------------------------------------------------------
+  */
+
+  useEffect(() => {
+    if (isZakat) {
+      setCampaigns([])
+      setCampaignLoading(false)
+
+      return
     }
 
     const fetchCampaigns =
       async () => {
         try {
-          setCampaignLoading(
-            true
-          );
-
-          setCampaignError("");
+          setCampaignLoading(true)
+          setCampaignError('')
 
           const response =
             await api.get<CampaignResponse>(
-              "/campaigns"
-            );
+              '/campaigns',
+            )
 
-          if (!response.success) {
+          if (
+            !response.success
+          ) {
             throw new Error(
               response.message ||
-                "Gagal mengambil daftar program."
-            );
+                'Gagal mengambil daftar program.',
+            )
           }
 
           let data: Campaign[] =
-            [];
-
-          if (
-            Array.isArray(
-              response.data
-            )
-          ) {
-            data =
-              response.data;
-          } else if (
-            response.data &&
-            Array.isArray(
-              response.data.data
-            )
-          ) {
-            data =
-              response.data.data;
-          }
-
-          setCampaigns(data);
+            []
 
           /*
           |--------------------------------------------------------------------------
-          | Dari halaman program
+          | RESPONSE ARRAY
           |--------------------------------------------------------------------------
           */
 
           if (
-            data.length > 0 &&
-            initialProgram
+            Array.isArray(
+              response.data,
+            )
+          ) {
+            data =
+              response.data
+          }
+
+          /*
+          |--------------------------------------------------------------------------
+          | RESPONSE NESTED
+          |--------------------------------------------------------------------------
+          */
+
+          if (
+            response.data &&
+            !Array.isArray(
+              response.data,
+            ) &&
+            Array.isArray(
+              response.data.data,
+            )
+          ) {
+            data =
+              response.data.data
+          }
+
+          setCampaigns(data)
+
+          /*
+          |--------------------------------------------------------------------------
+          | CAMPAIGN DARI URL / PROPS
+          |--------------------------------------------------------------------------
+          */
+
+          const requestedCampaignId =
+            initialCampaignId ??
+            getCampaignIdFromUrl()
+
+          if (
+            requestedCampaignId
+          ) {
+            const matchedCampaign =
+              data.find(
+                (
+                  campaign,
+                ) =>
+                  campaign.id ===
+                  requestedCampaignId,
+              )
+
+            if (
+              matchedCampaign
+            ) {
+              setCampaignId(
+                matchedCampaign.id,
+              )
+
+              /*
+              |--------------------------------------------------------------------------
+              | JANGAN KEMBALI KE STEP 1
+              |--------------------------------------------------------------------------
+              */
+
+              setStep(
+                initialStep ??
+                  getStepFromUrl(),
+              )
+            }
+          }
+
+          /*
+          |--------------------------------------------------------------------------
+          | INITIAL PROGRAM
+          |--------------------------------------------------------------------------
+          */
+
+          if (
+            initialProgram &&
+            !requestedCampaignId
           ) {
             const keyword =
-              initialProgram.toLowerCase();
+              initialProgram
+                .toLowerCase()
+                .trim()
+
+            const normalizedSlug =
+              keyword.replace(
+                /\s+/g,
+                '-',
+              )
 
             const match =
               data.find(
                 (
-                  campaign
-                ) =>
-                  campaign.title
-                    ?.toLowerCase()
-                    .includes(
-                      keyword
+                  campaign,
+                ) => {
+                  const title =
+                    campaign.title
+                      ?.toLowerCase()
+                      .trim() ??
+                    ''
+
+                  const slug =
+                    campaign.slug
+                      ?.toLowerCase()
+                      .trim() ??
+                    ''
+
+                  return (
+                    title.includes(
+                      keyword,
                     ) ||
-                  keyword.includes(
-                    campaign.title?.toLowerCase() ??
-                      ""
-                  ) ||
-                  campaign.slug
-                    ?.toLowerCase()
-                    .includes(
-                      keyword.replace(
-                        /\s+/g,
-                        "-"
-                      )
+                    keyword.includes(
+                      title,
+                    ) ||
+                    slug.includes(
+                      normalizedSlug,
                     )
-              );
+                  )
+                },
+              )
 
             if (match) {
               setCampaignId(
-                match.id
-              );
-            }
-          }
+                match.id,
+              )
 
-          /*
-          |--------------------------------------------------------------------------
-          | Dari kalkulator zakat
-          |--------------------------------------------------------------------------
-          */
+              /*
+              |--------------------------------------------------------------------------
+              | INITIAL PROGRAM JUGA LANGSUNG STEP 2
+              |--------------------------------------------------------------------------
+              */
 
-          if (
-            data.length > 0 &&
-            initialZakatAmount &&
-            initialZakatAmount >
-              0
-          ) {
-            const zakatCampaign =
-              data.find(
-                (
-                  campaign
-                ) =>
-                  campaign.title
-                    ?.toLowerCase()
-                    .includes(
-                      "zakat"
-                    ) ||
-                  campaign.slug
-                    ?.toLowerCase()
-                    .includes(
-                      "zakat"
-                    )
-              );
-
-            if (
-              zakatCampaign
-            ) {
-              setCampaignId(
-                zakatCampaign.id
-              );
+              setStep(2)
             }
           }
         } catch (error) {
           console.error(
-            "CAMPAIGN ERROR:",
-            error
-          );
+            'CAMPAIGN ERROR:',
+            error,
+          )
 
           setCampaignError(
             error instanceof
               Error
               ? error.message
-              : "Gagal mengambil daftar program."
-          );
+              : 'Gagal mengambil daftar program.',
+          )
         } finally {
-          setCampaignLoading(
-            false
-          );
+          setCampaignLoading(false)
         }
-      };
+      }
 
-    fetchCampaigns();
+    fetchCampaigns()
   }, [
+    initialCampaignId,
     initialProgram,
+    initialStep,
     isZakat,
-    isPaymentSuccess,
-    isPaymentPending,
-    isPaymentFailed,
-  ]);
+  ])
+
+  /*
+  |--------------------------------------------------------------------------
+  | MIDTRANS QUERY
+  |--------------------------------------------------------------------------
+  */
+
+  useEffect(() => {
+    if (
+      typeof window ===
+      'undefined'
+    ) {
+      return
+    }
+
+    const params =
+      new URLSearchParams(
+        window.location.search,
+      )
+
+    setTransactionStatus(
+      params.get(
+        'transaction_status',
+      ),
+    )
+
+    setStatusCode(
+      params.get(
+        'status_code',
+      ),
+    )
+
+    setReturnedOrderId(
+      params.get(
+        'order_id',
+      ),
+    )
+  }, [])
+
+  /*
+  |--------------------------------------------------------------------------
+  | SESSION
+  |--------------------------------------------------------------------------
+  */
+
+  useEffect(() => {
+    if (
+      typeof window ===
+      'undefined'
+    ) {
+      return
+    }
+
+    try {
+      const stored =
+        sessionStorage.getItem(
+          'lastDonation',
+        )
+
+      if (!stored) {
+        return
+      }
+
+      setLastDonation(
+        JSON.parse(
+          stored,
+        ) as StoredDonation,
+      )
+    } catch {
+      setLastDonation(null)
+    }
+  }, [])
 
   /*
   |--------------------------------------------------------------------------
@@ -591,17 +991,18 @@ export default function DonationForm({
   |--------------------------------------------------------------------------
   */
 
-  const handleCustomAmount = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setSelectedAmount(null);
+  const handleCustomAmount =
+    (
+      event: ChangeEvent<HTMLInputElement>,
+    ) => {
+      setSelectedAmount(null)
 
-    setCustomAmount(
-      formatNumberInput(
-        event.target.value
+      setCustomAmount(
+        formatNumberInput(
+          event.target.value,
+        ),
       )
-    );
-  };
+    }
 
   /*
   |--------------------------------------------------------------------------
@@ -613,28 +1014,65 @@ export default function DonationForm({
     () => {
       setIsAnonymous(
         (current) =>
-          !current
-      );
+          !current,
+      )
 
       if (!isAnonymous) {
-        setName("");
+        setName('')
       }
-    };
+    }
 
   /*
   |--------------------------------------------------------------------------
-  | VALIDATION
+  | SELECT CAMPAIGN
+  |--------------------------------------------------------------------------
+  */
+
+  const handleSelectCampaign =
+    (
+      id: number,
+    ) => {
+      setCampaignId(id)
+      setSubmitError('')
+    }
+
+  /*
+  |--------------------------------------------------------------------------
+  | STEP 1 → STEP 2
+  |--------------------------------------------------------------------------
+  */
+
+  const handleContinueToData =
+    () => {
+      if (!campaignId) {
+        setSubmitError(
+          'Silakan pilih program donasi terlebih dahulu.',
+        )
+
+        return
+      }
+
+      setSubmitError('')
+      setStep(2)
+    }
+
+  /*
+  |--------------------------------------------------------------------------
+  | VALIDATE STEP 2
   |--------------------------------------------------------------------------
   */
 
   const validateStepTwo =
     () => {
-      if (!isZakat && !campaignId) {
+      if (
+        !isZakat &&
+        !campaignId
+      ) {
         setSubmitError(
-          "Program donasi belum dipilih."
-        );
+          'Program donasi belum dipilih.',
+        )
 
-        return false;
+        return false
       }
 
       if (
@@ -643,111 +1081,129 @@ export default function DonationForm({
       ) {
         setSubmitError(
           isZakat
-            ? "Nama muzaki wajib diisi."
-            : "Nama donatur wajib diisi."
-        );
+            ? 'Nama muzaki wajib diisi.'
+            : 'Nama donatur wajib diisi.',
+        )
 
-        return false;
+        return false
       }
 
       if (!phone.trim()) {
         setSubmitError(
-          "Nomor WhatsApp wajib diisi."
-        );
+          'Nomor WhatsApp wajib diisi.',
+        )
 
-        return false;
+        return false
+      }
+
+      if (
+        phone.replace(
+          /\D/g,
+          '',
+        ).length < 8
+      ) {
+        setSubmitError(
+          'Nomor WhatsApp tidak valid.',
+        )
+
+        return false
       }
 
       if (!email.trim()) {
         setSubmitError(
-          "Email wajib diisi."
-        );
+          'Email wajib diisi.',
+        )
 
-        return false;
+        return false
       }
 
       if (
-        !email.includes("@")
+        !email.includes('@')
       ) {
         setSubmitError(
-          "Format email tidak valid."
-        );
+          'Format email tidak valid.',
+        )
 
-        return false;
+        return false
       }
 
       if (amount < 1000) {
         setSubmitError(
           isZakat
-            ? "Nominal zakat minimal Rp1.000."
-            : "Nominal donasi minimal Rp1.000."
-        );
+            ? 'Nominal zakat minimal Rp1.000.'
+            : 'Nominal donasi minimal Rp1.000.',
+        )
 
-        return false;
+        return false
       }
 
-      setSubmitError("");
+      setSubmitError('')
 
-      return true;
-    };
+      return true
+    }
 
   /*
   |--------------------------------------------------------------------------
-  | SUBMIT DONATION / ZAKAT
+  | SUBMIT
   |--------------------------------------------------------------------------
   */
 
   const handleSubmit =
     async (
-      event: React.FormEvent
+      event: FormEvent<HTMLFormElement>,
     ) => {
-      event.preventDefault();
+      event.preventDefault()
 
       if (
         !validateStepTwo()
       ) {
-        return;
-      }
-
-      if (
-        !isZakat &&
-        !campaignId
-      ) {
-        return;
+        return
       }
 
       try {
-        setIsSubmitting(true);
-        setSubmitError("");
+        setIsSubmitting(true)
+        setSubmitError('')
+
+        /*
+        |--------------------------------------------------------------------------
+        | ZAKAT
+        |--------------------------------------------------------------------------
+        */
 
         if (isZakat) {
           const response =
             await api.post<ZakatTransactionResponse>(
-              "/zakat-transactions",
+              '/zakat-transactions',
               {
                 zakat_type:
                   zakatType,
+
                 payer_name:
                   name.trim(),
+
                 email:
                   email.trim(),
+
                 phone:
                   normalizePhone(
-                    phone
+                    phone,
                   ),
-                amount,
-              }
-            );
 
-          if (!response.success) {
+                amount,
+              },
+            )
+
+          if (
+            !response.success
+          ) {
             throw new Error(
               response.message ||
-                "Gagal membuat transaksi zakat."
-            );
+                'Gagal membuat transaksi zakat.',
+            )
           }
 
           sessionStorage.setItem(
-            "lastDonation",
+            'lastDonation',
             JSON.stringify({
               transactionId:
                 response.data
@@ -769,14 +1225,14 @@ export default function DonationForm({
                   .amount,
 
               transactionType:
-                "zakat",
+                'zakat',
 
               zakatType:
                 response.data
                   .transaction
                   .zakat_type,
-            })
-          );
+            }),
+          )
 
           if (
             response.data
@@ -784,28 +1240,31 @@ export default function DonationForm({
           ) {
             window.location.href =
               response.data
-                .redirect_url;
+                .redirect_url
 
-            return;
-          }
-
-          if (
-            response.data
-              .snap_token
-          ) {
-            throw new Error(
-              "Transaksi zakat berhasil dibuat, tetapi URL pembayaran Midtrans tidak tersedia."
-            );
+            return
           }
 
           throw new Error(
-            "Backend tidak mengembalikan metode pembayaran Midtrans."
-          );
+            'Backend tidak mengembalikan metode pembayaran Midtrans.',
+          )
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | DONATION
+        |--------------------------------------------------------------------------
+        */
+
+        if (!campaignId) {
+          throw new Error(
+            'Campaign belum dipilih.',
+          )
         }
 
         const response =
           await api.post<DonationResponse>(
-            "/donations",
+            '/donations',
             {
               campaign_id:
                 campaignId,
@@ -818,7 +1277,7 @@ export default function DonationForm({
 
               phone:
                 normalizePhone(
-                  phone
+                  phone,
                 ),
 
               amount,
@@ -827,20 +1286,20 @@ export default function DonationForm({
 
               anonymous:
                 isAnonymous,
-            }
-          );
+            },
+          )
 
         if (
           !response.success
         ) {
           throw new Error(
             response.message ||
-              "Gagal membuat transaksi donasi."
-          );
+              'Gagal membuat transaksi donasi.',
+          )
         }
 
         sessionStorage.setItem(
-          "lastDonation",
+          'lastDonation',
           JSON.stringify({
             donationId:
               response.data
@@ -865,9 +1324,9 @@ export default function DonationForm({
                 .amount,
 
             transactionType:
-              "donation",
-          })
-        );
+              'donation',
+          }),
+        )
 
         if (
           response.data
@@ -875,92 +1334,60 @@ export default function DonationForm({
         ) {
           window.location.href =
             response.data
-              .redirect_url;
+              .redirect_url
 
-          return;
-        }
-
-        if (
-          response.data
-            .snap_token
-        ) {
-          throw new Error(
-            "Transaksi berhasil dibuat, tetapi URL pembayaran Midtrans tidak tersedia."
-          );
+          return
         }
 
         throw new Error(
-          "Backend tidak mengembalikan metode pembayaran Midtrans."
-        );
+          'Backend tidak mengembalikan metode pembayaran Midtrans.',
+        )
       } catch (error) {
         console.error(
-          isZakat
-            ? "ZAKAT PAYMENT ERROR:"
-            : "DONATION ERROR:",
-          error
-        );
+          'PAYMENT ERROR:',
+          error,
+        )
 
         setSubmitError(
-          error instanceof Error
+          error instanceof
+            Error
             ? error.message
-            : isZakat
-              ? "Terjadi kesalahan saat membuat transaksi zakat."
-              : "Terjadi kesalahan saat membuat donasi."
-        );
+            : 'Terjadi kesalahan saat membuat transaksi.',
+        )
       } finally {
-        setIsSubmitting(
-          false
-        );
+        setIsSubmitting(false)
       }
-    };
+    }
 
   /*
   |--------------------------------------------------------------------------
-  | KEMBALI KE WEBSITE
+  | NAVIGATION
   |--------------------------------------------------------------------------
   */
 
   const handleBackHome =
     () => {
       sessionStorage.removeItem(
-        "lastDonation"
-      );
-
-      window.history.replaceState(
-        {},
-        "",
-        "/"
-      );
+        'lastDonation',
+      )
 
       window.location.href =
-        "/";
-    };
-
-  /*
-  |--------------------------------------------------------------------------
-  | DONASI LAGI
-  |--------------------------------------------------------------------------
-  */
+        '/'
+    }
 
   const handleDonateAgain =
     () => {
       sessionStorage.removeItem(
-        "lastDonation"
-      );
-
-      window.history.replaceState(
-        {},
-        "",
-        "/donasi"
-      );
+        'lastDonation',
+      )
 
       window.location.href =
-        "/donasi";
-    };
+        '/donasi'
+    }
 
   /*
   |--------------------------------------------------------------------------
-  | PAYMENT SUCCESS
+  | SUCCESS
   |--------------------------------------------------------------------------
   */
 
@@ -968,190 +1395,106 @@ export default function DonationForm({
     const successOrderId =
       returnedOrderId ||
       lastDonation?.orderId ||
-      "-";
+      '-'
 
     const successAmount =
-      lastDonation?.amount;
+      lastDonation?.amount
 
     return (
-      <div className="min-h-screen bg-[#FFF8F2] pt-20 px-4 flex items-center justify-center relative overflow-hidden">
+      <div className="min-h-screen bg-[#FFF8F2] px-4 pt-20 flex items-center justify-center">
+        <div className="w-full max-w-xl bg-white rounded-3xl border border-[#F3DEC8] shadow-xl overflow-hidden">
 
-        <div className="absolute top-28 left-[10%] w-36 h-36 rounded-full bg-[#F58220]/5 blur-2xl" />
+          <div className="bg-gradient-to-br from-[#F58220] to-[#D96D0A] px-8 py-10 text-center">
 
-        <div className="absolute bottom-20 right-[10%] w-44 h-44 rounded-full bg-green-500/5 blur-2xl" />
+            <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-5">
 
-        <div className="relative z-10 w-full max-w-xl bg-white rounded-3xl border border-[#F3DEC8] shadow-xl overflow-hidden">
+              <div className="w-14 h-14 rounded-full bg-green-100 flex items-center justify-center">
 
-          <div className="bg-gradient-to-br from-[#F58220] to-[#D96D0A] px-8 py-10 text-center relative overflow-hidden">
+                <svg
+                  className="w-8 h-8 text-green-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2.8}
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
 
-            <div className="absolute inset-0 islamic-geo-bg opacity-20" />
-
-            <div className="relative z-10">
-
-              <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-5 shadow-lg">
-
-                <div className="w-14 h-14 rounded-full bg-green-100 flex items-center justify-center">
-
-                  <svg
-                    className="w-8 h-8 text-green-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2.8}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-
-                </div>
               </div>
-
-              <div className="inline-flex items-center bg-white/20 border border-white/30 rounded-full px-4 py-2 text-xs text-white font-semibold mb-4">
-                {isZakatTransaction
-                  ? "✓ Pembayaran Zakat Berhasil"
-                  : "✓ Pembayaran Berhasil"}
-              </div>
-
-              <h1
-                className="text-3xl sm:text-4xl font-bold text-white"
-                style={{
-                  fontFamily:
-                    "'Plus Jakarta Sans', sans-serif",
-                }}
-              >
-                {isZakatTransaction
-                  ? "Alhamdulillah, Zakat Anda Telah Ditunaikan"
-                  : "Jazakumullahu Khairan"}
-              </h1>
 
             </div>
+
+            <h1 className="text-3xl font-bold text-white">
+              {isZakatTransaction
+                ? 'Alhamdulillah, Zakat Anda Telah Ditunaikan'
+                : 'Jazakumullahu Khairan'}
+            </h1>
+
           </div>
 
           <div className="p-7 sm:p-9 text-center">
 
             <p className="text-gray-600 leading-relaxed mb-6">
-              {isZakatTransaction ? (
-                <>
-                  Terima kasih telah mempercayakan penunaian zakat melalui{" "}
-                  <strong className="text-[#F58220]">
-                    LAZISMU Pemalang
-                  </strong>
-                  .
-                </>
-              ) : (
-                <>
-                  Terima kasih atas kebaikan yang telah Anda titipkan melalui{" "}
-                  <strong className="text-[#F58220]">
-                    LAZISMU Pemalang
-                  </strong>
-                  .
-                </>
-              )}
-            </p>
-
-            <p className="text-gray-500 text-sm leading-relaxed mb-7">
-              {isZakatTransaction
-                ? "Zakat Anda telah berhasil diterima. Semoga Allah memberikan pahala atas zakat, infak, dan shodaqoh yang ditunaikan, memberikan keberkahan pada harta yang disimpan, dan menjadikannya sebagai pembersih (dosa)."
-                : "Donasi Anda telah berhasil diterima. Semoga Allah memberikan pahala atas zakat, infak, dan shodaqoh yang ditunaikan, memberikan keberkahan pada harta yang disimpan, dan menjadikannya sebagai pembersih (dosa)."}
+              Terima kasih telah
+              mempercayakan kebaikan
+              melalui{' '}
+              <strong className="text-[#F58220]">
+                LAZISMU Pemalang
+              </strong>
+              .
             </p>
 
             <div className="bg-[#FFF8F2] border border-[#F3DEC8] rounded-2xl p-5 mb-6 text-left space-y-4">
 
-              <div className="flex justify-between gap-5 text-sm">
-                <span className="text-gray-400">
-                  Status
-                </span>
-
-                <span className="font-bold text-green-600">
-                  Pembayaran Berhasil
-                </span>
-              </div>
+              <Summary
+                label="Status"
+                value="Pembayaran Berhasil"
+                valueClassName="text-green-600"
+              />
 
               {successAmount !==
                 undefined && (
-                <div className="flex justify-between gap-5 text-sm">
-                  <span className="text-gray-400">
-                    {isZakatTransaction
-                      ? "Total Zakat"
-                      : "Total Donasi"}
-                  </span>
-
-                  <span className="font-bold text-[#F58220]">
-                    {formatRupiah(
-                      successAmount
-                    )}
-                  </span>
-                </div>
+                <Summary
+                  label={
+                    isZakatTransaction
+                      ? 'Total Zakat'
+                      : 'Total Donasi'
+                  }
+                  value={formatRupiah(
+                    successAmount,
+                  )}
+                  valueClassName="text-[#F58220]"
+                />
               )}
 
-              {isZakatTransaction ? (
-                <div className="flex justify-between gap-5 text-sm">
-                  <span className="text-gray-400">
-                    Jenis Zakat
-                  </span>
-
-                  <span className="font-semibold text-gray-700 text-right max-w-[65%]">
-                    {lastDonation?.zakatType === "maal"
-                      ? "Zakat Maal"
-                      : "Zakat Penghasilan"}
-                  </span>
-                </div>
-              ) : (
+              {!isZakatTransaction &&
                 lastDonation?.campaignTitle && (
-                  <div className="flex justify-between gap-5 text-sm">
-                    <span className="text-gray-400">
-                      Program
-                    </span>
-
-                    <span className="font-semibold text-gray-700 text-right max-w-[65%]">
-                      {lastDonation.campaignTitle}
-                    </span>
-                  </div>
-                )
-              )}
+                  <Summary
+                    label="Program"
+                    value={
+                      lastDonation.campaignTitle
+                    }
+                  />
+                )}
 
               <div className="border-t border-[#F3DEC8]" />
 
               <div>
+
                 <div className="text-xs text-gray-400 mb-1">
                   Nomor Transaksi
                 </div>
 
-                <div className="font-mono text-xs sm:text-sm font-semibold text-gray-700 break-all">
+                <div className="font-mono text-xs font-semibold text-gray-700 break-all">
                   {successOrderId}
                 </div>
-              </div>
-
-            </div>
-
-            <div className="bg-green-50 border border-green-100 rounded-2xl p-5 mb-7 text-left">
-
-              <div className="flex items-start gap-3">
-
-                <div className="w-9 h-9 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                  <span className="text-lg">
-                    ✓
-                  </span>
-                </div>
-
-                <div>
-                  <div className="font-semibold text-green-800 text-sm mb-1">
-                    {isZakatTransaction
-                      ? "Konfirmasi Zakat"
-                      : "Konfirmasi Donasi"}
-                  </div>
-
-                  <p className="text-xs sm:text-sm text-green-700 leading-relaxed">
-                    {isZakatTransaction
-                      ? "Konfirmasi transaksi zakat akan dikirim melalui WhatsApp ke nomor yang Anda masukkan saat melakukan pembayaran."
-                      : "Konfirmasi transaksi donasi akan dikirim melalui WhatsApp ke nomor yang Anda masukkan saat berdonasi."}
-                  </p>
-                </div>
 
               </div>
+
             </div>
 
             <button
@@ -1159,11 +1502,7 @@ export default function DonationForm({
               onClick={
                 handleBackHome
               }
-              className="btn-primary w-full py-4 font-bold text-base mb-3"
-              style={{
-                fontFamily:
-                  "'Plus Jakarta Sans', sans-serif",
-              }}
+              className="btn-primary w-full py-4 font-bold"
             >
               Kembali ke Website →
             </button>
@@ -1173,28 +1512,21 @@ export default function DonationForm({
               onClick={
                 handleDonateAgain
               }
-              className="w-full py-3 text-sm font-semibold text-[#F58220] hover:text-[#D96D0A] hover:bg-[#FEF0E4] rounded-xl transition-all"
+              className="w-full mt-3 py-3 text-sm font-semibold text-[#F58220]"
             >
-              {isZakatTransaction
-                ? "Hitung & Bayar Zakat Lagi"
-                : "Donasi Lagi"}
+              Donasi Lagi
             </button>
 
-            <p className="text-[11px] text-gray-400 mt-6">
-              LAZISMU Pemalang —
-              Amanah, Profesional,
-              Transparan
-            </p>
-
           </div>
+
         </div>
       </div>
-    );
+    )
   }
 
   /*
   |--------------------------------------------------------------------------
-  | PAYMENT PENDING
+  | PENDING
   |--------------------------------------------------------------------------
   */
 
@@ -1202,26 +1534,20 @@ export default function DonationForm({
     return (
       <div className="min-h-screen bg-[#FFF8F2] pt-20 flex items-center justify-center px-4">
 
-        <div className="max-w-lg w-full bg-white rounded-3xl border border-[#F3DEC8] shadow-lg p-8 sm:p-10 text-center">
+        <div className="max-w-lg w-full bg-white rounded-3xl border border-[#F3DEC8] shadow-lg p-10 text-center">
 
-          <div className="w-20 h-20 rounded-full bg-yellow-100 flex items-center justify-center mx-auto mb-6">
-            <span className="text-4xl">
-              ⏳
-            </span>
+          <div className="text-5xl mb-5">
+            ⏳
           </div>
 
           <h1 className="text-2xl font-bold text-gray-900 mb-3">
             Menunggu Pembayaran
           </h1>
 
-          <p className="text-gray-500 text-sm leading-relaxed mb-7">
-            Transaksi Anda
-            berhasil dibuat,
-            tetapi pembayaran
+          <p className="text-gray-500 text-sm mb-7">
+            Transaksi Anda berhasil
+            dibuat, tetapi pembayaran
             belum dikonfirmasi.
-            Silakan selesaikan
-            pembayaran sesuai
-            instruksi Midtrans.
           </p>
 
           {returnedOrderId && (
@@ -1249,13 +1575,14 @@ export default function DonationForm({
           </button>
 
         </div>
+
       </div>
-    );
+    )
   }
 
   /*
   |--------------------------------------------------------------------------
-  | PAYMENT FAILED
+  | FAILED
   |--------------------------------------------------------------------------
   */
 
@@ -1263,24 +1590,19 @@ export default function DonationForm({
     return (
       <div className="min-h-screen bg-[#FFF8F2] pt-20 flex items-center justify-center px-4">
 
-        <div className="max-w-lg w-full bg-white rounded-3xl border border-[#F3DEC8] shadow-lg p-8 sm:p-10 text-center">
+        <div className="max-w-lg w-full bg-white rounded-3xl border border-[#F3DEC8] shadow-lg p-10 text-center">
 
-          <div className="w-20 h-20 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-6">
-            <span className="text-4xl">
-              ×
-            </span>
+          <div className="text-5xl mb-5">
+            ×
           </div>
 
           <h1 className="text-2xl font-bold text-gray-900 mb-3">
             Pembayaran Belum Berhasil
           </h1>
 
-          <p className="text-gray-500 text-sm leading-relaxed mb-7">
-            Pembayaran belum
-            berhasil diproses.
-            Anda dapat kembali
-            ke halaman donasi
-            untuk mencoba
+          <p className="text-gray-500 text-sm mb-7">
+            Pembayaran belum berhasil
+            diproses. Silakan coba
             kembali.
           </p>
 
@@ -1305,23 +1627,27 @@ export default function DonationForm({
             onClick={
               handleBackHome
             }
-            className="w-full mt-3 py-3 text-sm text-gray-500 hover:text-[#F58220]"
+            className="w-full mt-3 py-3 text-sm text-gray-500"
           >
             Kembali ke Website
           </button>
 
         </div>
+
       </div>
-    );
+    )
   }
 
   /*
   |--------------------------------------------------------------------------
-  | LOADING CAMPAIGN
+  | LOADING
   |--------------------------------------------------------------------------
   */
 
-  if (!isZakat && campaignLoading) {
+  if (
+    !isZakat &&
+    campaignLoading
+  ) {
     return (
       <div className="min-h-screen bg-[#FFF8F2] pt-20 flex items-center justify-center">
 
@@ -1337,12 +1663,12 @@ export default function DonationForm({
         </div>
 
       </div>
-    );
+    )
   }
 
   /*
   |--------------------------------------------------------------------------
-  | MAIN DONATION FORM
+  | MAIN
   |--------------------------------------------------------------------------
   */
 
@@ -1359,29 +1685,26 @@ export default function DonationForm({
 
           <div className="inline-flex items-center gap-2 bg-white/20 border border-white/30 rounded-full px-4 py-2 mb-5 text-white text-xs font-semibold">
             {isZakat
-              ? "🕌 Formulir Zakat — LAZISMU Pemalang"
-              : "❤️ Formulir Donasi — LAZISMU Pemalang"}
+              ? '🕌 Formulir Zakat — LAZISMU Pemalang'
+              : '❤️ Formulir Donasi — LAZISMU Pemalang'}
           </div>
 
-          <h1
-            className="text-3xl sm:text-4xl font-bold text-white mb-3"
-            style={{
-              fontFamily:
-                "'Plus Jakarta Sans', sans-serif",
-            }}
-          >
+          <h1 className="text-3xl sm:text-4xl font-bold text-white mb-3">
             {isZakat
-              ? "Tunaikan Zakat Anda"
-              : "Tunaikan Kebaikan Anda"}
+              ? 'Tunaikan Zakat Anda'
+              : 'Tunaikan Kebaikan Anda'}
           </h1>
 
           <p className="text-white/75 text-sm">
             {isZakat
-              ? "Isi data muzaki, periksa nominal zakat, kemudian lanjutkan pembayaran melalui Midtrans."
-              : "Pilih program, isi data, kemudian lanjutkan pembayaran melalui Midtrans."}
+              ? 'Isi data muzaki, periksa nominal zakat, kemudian lanjutkan pembayaran melalui Midtrans.'
+              : step === 1
+                ? 'Pilih program donasi terlebih dahulu, kemudian isi data dan nominal donasi.'
+                : 'Isi data donatur, tentukan nominal, kemudian lanjutkan pembayaran melalui Midtrans.'}
           </p>
 
         </div>
+
       </div>
 
       {/* STEP INDICATOR */}
@@ -1402,49 +1725,52 @@ export default function DonationForm({
                   <div
                     className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
                       step === number
-                        ? "bg-[#F58220] text-white"
+                        ? 'bg-[#F58220] text-white'
                         : step > number
-                        ? "bg-green-500 text-white"
-                        : "bg-gray-100 text-gray-400"
+                          ? 'bg-green-500 text-white'
+                          : 'bg-gray-100 text-gray-400'
                     }`}
                   >
                     {step > number
-                      ? "✓"
+                      ? '✓'
                       : number}
                   </div>
 
                   <span
                     className={`hidden sm:block text-xs font-semibold ${
                       step === number
-                        ? "text-[#F58220]"
-                        : "text-gray-400"
+                        ? 'text-[#F58220]'
+                        : 'text-gray-400'
                     }`}
                   >
                     {number === 1
-                      ? "Pilih Program"
+                      ? 'Pilih Program'
                       : number === 2
-                      ? "Data & Nominal"
-                      : "Konfirmasi"}
+                        ? 'Data & Nominal'
+                        : 'Konfirmasi'}
                   </span>
 
                   {number < 3 && (
                     <div
                       className={`w-10 h-px ${
                         step > number
-                          ? "bg-green-400"
-                          : "bg-gray-200"
+                          ? 'bg-green-400'
+                          : 'bg-gray-200'
                       }`}
                     />
                   )}
 
                 </div>
-              )
+              ),
             )}
 
           </div>
 
         </div>
+
       </div>
+
+      {/* CONTENT */}
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
@@ -1454,227 +1780,298 @@ export default function DonationForm({
           }
         >
 
-          {/* ========================================================
+          {/* ================================================================
               STEP 1
-          ======================================================== */}
+          ================================================================ */}
 
-          {!isZakat && step === 1 && (
-            <div>
+          {!isZakat &&
+            step === 1 && (
+              <div>
 
-              <h2 className="text-xl font-bold text-gray-800 mb-2">
-                Pilih Tujuan Donasi
-              </h2>
+                <h2 className="text-xl font-bold text-gray-800 mb-2">
+                  Pilih Tujuan Donasi
+                </h2>
 
-              <p className="text-gray-400 text-sm mb-6">
-                Program di bawah
-                diambil langsung
-                dari database
-                LAZISMU.
-              </p>
+                <p className="text-gray-400 text-sm mb-6">
+                  Pilih program donasi yang
+                  ingin Anda dukung.
+                </p>
 
-              {campaignError && (
-                <div className="bg-red-50 border border-red-200 text-red-600 p-4 rounded-xl mb-6 text-sm">
-                  {campaignError}
-                </div>
-              )}
+                {campaignError && (
+                  <div className="bg-red-50 border border-red-200 text-red-600 p-4 rounded-xl mb-6 text-sm">
+                    {campaignError}
+                  </div>
+                )}
 
-              {campaigns.length === 0 ? (
-                <div className="bg-white border border-[#F3DEC8] rounded-2xl p-8 text-center">
-                  <p className="text-gray-500">
-                    Belum ada program
-                    donasi yang
-                    dipublikasikan.
-                  </p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+                {campaigns.length ===
+                0 ? (
+                  <div className="bg-white border border-[#F3DEC8] rounded-2xl p-8 text-center">
 
-                  {campaigns.map(
-                    (campaign) => {
-                      const collected =
-                        Number(
-                          campaign.collected_amount ??
-                            0
-                        );
+                    <p className="text-gray-500">
+                      Belum ada program
+                      donasi yang
+                      dipublikasikan.
+                    </p>
 
-                      const target =
-                        Number(
-                          campaign.target_amount ??
-                            0
-                        );
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
 
-                      const percentage =
-                        target > 0
-                          ? Math.min(
-                              100,
-                              (collected /
-                                target) *
-                                100
-                            )
-                          : 0;
+                    {campaigns.map(
+                      (
+                        campaign,
+                      ) => {
+                        const collected =
+                          Number(
+                            campaign.collected_amount ??
+                              0,
+                          )
 
-                      const imageUrl =
-                        getCampaignImageUrl(
-                          campaign.image
-                        );
+                        const target =
+                          Number(
+                            campaign.target_amount ??
+                              0,
+                          )
 
-                      return (
-                        <button
-                          key={
-                            campaign.id
-                          }
-                          type="button"
-                          onClick={() =>
-                            setCampaignId(
+                        const percentage =
+                          target >
+                          0
+                            ? Math.min(
+                                100,
+                                Math.round(
+                                  (collected /
+                                    target) *
+                                    100,
+                                ),
+                              )
+                            : 0
+
+                        const imageUrl =
+                          getCampaignImageUrl(
+                            campaign.thumbnail ??
+                              campaign.image,
+                          )
+
+                        const isSelected =
+                          campaignId ===
+                          campaign.id
+
+                        return (
+                          <button
+                            key={
                               campaign.id
-                            )
-                          }
-                          className={`text-left bg-white rounded-2xl overflow-hidden border-2 transition-all ${
-                            campaignId ===
-                            campaign.id
-                              ? "border-[#F58220] ring-2 ring-[#F58220]/20"
-                              : "border-[#F3DEC8] hover:border-[#F58220]"
-                          }`}
-                        >
+                            }
+                            type="button"
+                            onClick={() =>
+                              handleSelectCampaign(
+                                campaign.id,
+                              )
+                            }
+                            className={`text-left bg-white rounded-2xl overflow-hidden border-2 transition-all ${
+                              isSelected
+                                ? 'border-[#F58220] ring-2 ring-[#F58220]/20'
+                                : 'border-[#F3DEC8] hover:border-[#F58220]'
+                            }`}
+                          >
 
-                          <div className="h-40 bg-orange-50 overflow-hidden">
+                            {/* THUMBNAIL */}
 
-                            {imageUrl ? (
-                              <img
-                                src={imageUrl}
-                                alt={
-                                  campaign.title
-                                }
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center text-4xl">
-                                🤲
-                              </div>
-                            )}
+                            <div className="h-40 bg-orange-50 overflow-hidden">
 
-                          </div>
-
-                          <div className="p-4">
-
-                            <h3 className="font-bold text-gray-800 text-sm mb-3 line-clamp-2">
-                              {
-                                campaign.title
-                              }
-                            </h3>
-
-                            <div className="w-full bg-gray-100 h-2 rounded-full overflow-hidden mb-2">
-
-                              <div
-                                className="h-full bg-[#F58220]"
-                                style={{
-                                  width: `${percentage}%`,
-                                }}
-                              />
-
-                            </div>
-
-                            <div className="flex justify-between text-xs">
-
-                              <div>
-                                <div className="text-gray-400">
-                                  Terkumpul
-                                </div>
-
-                                <strong className="text-gray-700">
-                                  {formatRupiah(
-                                    collected
-                                  )}
-                                </strong>
-                              </div>
-
-                              {target > 0 && (
-                                <div className="text-right">
-
-                                  <div className="text-gray-400">
-                                    Target
-                                  </div>
-
-                                  <strong className="text-gray-700">
-                                    {formatRupiah(
-                                      target
-                                    )}
-                                  </strong>
-
+                              {imageUrl ? (
+                                <img
+                                  src={
+                                    imageUrl
+                                  }
+                                  alt={
+                                    campaign.title
+                                  }
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center text-4xl">
+                                  🤲
                                 </div>
                               )}
 
                             </div>
 
-                          </div>
-                        </button>
-                      );
-                    }
-                  )}
+                            <div className="p-4">
 
-                </div>
-              )}
+                              <div className="flex items-start justify-between gap-3 mb-3">
 
-              <button
-                type="button"
-                disabled={!campaignId}
-                onClick={() =>
-                  setStep(2)
-                }
-                className={`w-full py-4 rounded-xl font-bold ${
-                  campaignId
-                    ? "btn-primary"
-                    : "bg-gray-100 text-gray-400 cursor-not-allowed"
-                }`}
-              >
-                Lanjut — Isi Data &
-                Nominal →
-              </button>
+                                <h3 className="font-bold text-gray-800 text-sm line-clamp-2">
+                                  {
+                                    campaign.title
+                                  }
+                                </h3>
 
-            </div>
-          )}
+                                {isSelected && (
+                                  <span className="flex-shrink-0 w-6 h-6 rounded-full bg-[#F58220] text-white flex items-center justify-center text-xs">
+                                    ✓
+                                  </span>
+                                )}
 
-          {/* ========================================================
+                              </div>
+
+                              <div className="w-full bg-gray-100 h-2 rounded-full overflow-hidden mb-2">
+
+                                <div
+                                  className="h-full bg-[#F58220]"
+                                  style={{
+                                    width: `${percentage}%`,
+                                  }}
+                                />
+
+                              </div>
+
+                              <div className="flex justify-between text-xs">
+
+                                <div>
+
+                                  <div className="text-gray-400">
+                                    Terkumpul
+                                  </div>
+
+                                  <strong className="text-gray-700">
+                                    {formatRupiah(
+                                      collected,
+                                    )}
+                                  </strong>
+
+                                </div>
+
+                                {target >
+                                  0 && (
+                                  <div className="text-right">
+
+                                    <div className="text-gray-400">
+                                      Target
+                                    </div>
+
+                                    <strong className="text-gray-700">
+                                      {formatRupiah(
+                                        target,
+                                      )}
+                                    </strong>
+
+                                  </div>
+                                )}
+
+                              </div>
+
+                            </div>
+
+                          </button>
+                        )
+                      },
+                    )}
+
+                  </div>
+                )}
+
+                {submitError && (
+                  <div className="mb-5 bg-red-50 border border-red-200 text-red-600 rounded-xl p-4 text-sm">
+                    {submitError}
+                  </div>
+                )}
+
+                <button
+                  type="button"
+                  disabled={!campaignId}
+                  onClick={
+                    handleContinueToData
+                  }
+                  className={`w-full py-4 rounded-xl font-bold ${
+                    campaignId
+                      ? 'btn-primary'
+                      : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  }`}
+                >
+                  Lanjut — Isi Data &
+                  Nominal →
+                </button>
+
+              </div>
+            )}
+
+          {/* ================================================================
               STEP 2
-          ======================================================== */}
+          ================================================================ */}
 
           {step === 2 && (
             <div>
 
+              {/* PROGRAM TERPILIH */}
+
               {!isZakat &&
                 selectedCampaign && (
-                <div className="bg-[#FEF0E4] border border-[#F58220]/30 rounded-xl p-4 mb-6">
+                  <div className="bg-[#FEF0E4] border border-[#F58220]/30 rounded-xl p-4 mb-6">
 
-                  <div className="text-xs text-gray-500 mb-1">
-                    Program dipilih
+                    <div className="flex items-center gap-4">
+
+                      {getCampaignImageUrl(
+                        selectedCampaign.thumbnail ??
+                          selectedCampaign.image,
+                      ) ? (
+                        <img
+                          src={
+                            getCampaignImageUrl(
+                              selectedCampaign.thumbnail ??
+                                selectedCampaign.image,
+                            ) as string
+                          }
+                          alt={
+                            selectedCampaign.title
+                          }
+                          className="w-20 h-16 rounded-lg object-cover flex-shrink-0"
+                        />
+                      ) : (
+                        <div className="w-20 h-16 rounded-lg bg-orange-100 flex items-center justify-center flex-shrink-0 text-2xl">
+                          🤲
+                        </div>
+                      )}
+
+                      <div className="min-w-0">
+
+                        <div className="text-xs text-gray-500 mb-1">
+                          Program dipilih
+                        </div>
+
+                        <div className="font-bold text-[#D96D0A] line-clamp-2">
+                          {
+                            selectedCampaign.title
+                          }
+                        </div>
+
+                      </div>
+
+                    </div>
+
                   </div>
+                )}
 
-                  <div className="font-bold text-[#D96D0A]">
-                    {
-                      selectedCampaign.title
-                    }
-                  </div>
-
-                </div>
-              )}
+              {/* ZAKAT */}
 
               {initialZakatAmount &&
-                initialZakatAmount > 0 && (
+                initialZakatAmount >
+                  0 && (
                   <div className="bg-green-50 border border-green-200 text-green-700 rounded-xl p-4 mb-6 text-sm">
-                    Nominal zakat{" "}
+                    Nominal zakat{' '}
                     <strong>
                       {formatRupiah(
-                        initialZakatAmount
+                        initialZakatAmount,
                       )}
-                    </strong>{" "}
-                    otomatis terisi
-                    dari Kalkulator
-                    Zakat.
+                    </strong>{' '}
+                    otomatis terisi dari
+                    Kalkulator Zakat.
                   </div>
                 )}
 
               <h2 className="text-xl font-bold text-gray-800 mb-6">
-                Isi Data Donatur
+                {isZakat
+                  ? 'Isi Data Muzaki'
+                  : 'Isi Data Donatur'}
               </h2>
 
               <div className="space-y-6">
@@ -1684,7 +2081,9 @@ export default function DonationForm({
                 <div>
 
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Nama Donatur
+                    {isZakat
+                      ? 'Nama Muzaki'
+                      : 'Nama Donatur'}
                   </label>
 
                   <input
@@ -1694,17 +2093,22 @@ export default function DonationForm({
                     }
                     value={
                       isAnonymous
-                        ? "Hamba Allah"
+                        ? 'Hamba Allah'
                         : name
                     }
                     onChange={(
-                      event
+                      event,
                     ) =>
                       setName(
-                        event.target.value
+                        event.target
+                          .value,
                       )
                     }
-                    placeholder="Masukkan nama"
+                    placeholder={
+                      isZakat
+                        ? 'Masukkan nama muzaki'
+                        : 'Masukkan nama'
+                    }
                     className="w-full bg-white border border-[#F3DEC8] rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#F58220]"
                   />
 
@@ -1747,13 +2151,13 @@ export default function DonationForm({
                       type="tel"
                       value={phone}
                       onChange={(
-                        event
+                        event,
                       ) =>
                         setPhone(
                           event.target.value.replace(
                             /\D/g,
-                            ""
-                          )
+                            '',
+                          ),
                         )
                       }
                       placeholder="8xxxxxxxxxx"
@@ -1776,10 +2180,11 @@ export default function DonationForm({
                     type="email"
                     value={email}
                     onChange={(
-                      event
+                      event,
                     ) =>
                       setEmail(
-                        event.target.value
+                        event.target
+                          .value,
                       )
                     }
                     placeholder="nama@email.com"
@@ -1793,7 +2198,9 @@ export default function DonationForm({
                 <div>
 
                   <label className="block text-sm font-semibold text-gray-700 mb-3">
-                    Nominal Donasi
+                    {isZakat
+                      ? 'Nominal Zakat'
+                      : 'Nominal Donasi'}
                   </label>
 
                   {!isZakat && (
@@ -1803,28 +2210,30 @@ export default function DonationForm({
                         (preset) => (
                           <button
                             type="button"
-                            key={preset}
+                            key={
+                              preset
+                            }
                             onClick={() => {
                               setSelectedAmount(
-                                preset
-                              );
+                                preset,
+                              )
 
                               setCustomAmount(
-                                ""
-                              );
+                                '',
+                              )
                             }}
                             className={`py-3 rounded-xl text-sm font-semibold ${
                               selectedAmount ===
                               preset
-                                ? "bg-[#F58220] text-white"
-                                : "bg-white border border-[#F3DEC8] text-gray-700"
+                                ? 'bg-[#F58220] text-white'
+                                : 'bg-white border border-[#F3DEC8] text-gray-700'
                             }`}
                           >
                             {formatRupiah(
-                              preset
+                              preset,
                             )}
                           </button>
-                        )
+                        ),
                       )}
 
                     </div>
@@ -1843,47 +2252,50 @@ export default function DonationForm({
                         selectedAmount !==
                           null &&
                         !presets.includes(
-                          selectedAmount
+                          selectedAmount,
                         )
                           ? selectedAmount.toLocaleString(
-                              "id-ID"
+                              'id-ID',
                             )
                           : customAmount
                       }
                       onChange={
                         handleCustomAmount
                       }
-                      readOnly={isZakat}
+                      readOnly={
+                        isZakat
+                      }
                       onFocus={() => {
                         if (
                           selectedAmount !==
                             null &&
                           !presets.includes(
-                            selectedAmount
+                            selectedAmount,
                           )
                         ) {
                           setCustomAmount(
                             selectedAmount.toLocaleString(
-                              "id-ID"
-                            )
-                          );
+                              'id-ID',
+                            ),
+                          )
 
                           setSelectedAmount(
-                            null
-                          );
+                            null,
+                          )
                         }
                       }}
                       placeholder={
                         isZakat
-                          ? "Nominal dari kalkulator zakat"
-                          : "Nominal lainnya"
+                          ? 'Nominal dari kalkulator zakat'
+                          : 'Nominal lainnya'
                       }
                       className="w-full bg-white border border-[#F3DEC8] rounded-xl pl-12 pr-4 py-3 text-sm focus:outline-none focus:border-[#F58220]"
                     />
 
                   </div>
 
-                  {amount > 0 && (
+                  {amount >
+                    0 && (
                     <div className="mt-3 bg-[#FEF0E4] rounded-xl px-4 py-3 flex justify-between">
 
                       <span className="text-sm text-gray-600">
@@ -1892,7 +2304,7 @@ export default function DonationForm({
 
                       <strong className="text-[#F58220]">
                         {formatRupiah(
-                          amount
+                          amount,
                         )}
                       </strong>
 
@@ -1917,7 +2329,7 @@ export default function DonationForm({
                     onClick={() =>
                       setStep(1)
                     }
-                    className="px-6 py-3 rounded-xl border border-[#F3DEC8]"
+                    className="px-6 py-3 rounded-xl border border-[#F3DEC8] bg-white"
                   >
                     ← Kembali
                   </button>
@@ -1929,7 +2341,7 @@ export default function DonationForm({
                     if (
                       validateStepTwo()
                     ) {
-                      setStep(3);
+                      setStep(3)
                     }
                   }}
                   className="flex-1 btn-primary py-3 font-bold"
@@ -1943,15 +2355,18 @@ export default function DonationForm({
             </div>
           )}
 
-          {/* ========================================================
+          {/* ================================================================
               STEP 3
-          ======================================================== */}
+          ================================================================ */}
 
           {step === 3 && (
             <div>
 
               <h2 className="text-xl font-bold text-gray-800 mb-6">
-                Konfirmasi Donasi
+                Konfirmasi{' '}
+                {isZakat
+                  ? 'Zakat'
+                  : 'Donasi'}
               </h2>
 
               <div className="bg-white border border-[#F3DEC8] rounded-2xl p-6 space-y-4">
@@ -1960,9 +2375,10 @@ export default function DonationForm({
                   <Summary
                     label="Jenis Zakat"
                     value={
-                      zakatType === "profesi"
-                        ? "Zakat Penghasilan"
-                        : "Zakat Maal"
+                      zakatType ===
+                      'profesi'
+                        ? 'Zakat Penghasilan'
+                        : 'Zakat Maal'
                     }
                   />
                 ) : (
@@ -1970,7 +2386,7 @@ export default function DonationForm({
                     label="Program"
                     value={
                       selectedCampaign?.title ??
-                      "-"
+                      '-'
                     }
                   />
                 )}
@@ -1978,8 +2394,8 @@ export default function DonationForm({
                 <Summary
                   label={
                     isZakat
-                      ? "Muzaki"
-                      : "Donatur"
+                      ? 'Muzaki'
+                      : 'Donatur'
                   }
                   value={
                     displayName
@@ -1989,7 +2405,7 @@ export default function DonationForm({
                 <Summary
                   label="WhatsApp"
                   value={`+${normalizePhone(
-                    phone
+                    phone,
                   )}`}
                 />
 
@@ -2000,15 +2416,17 @@ export default function DonationForm({
 
                 <div className="border-t border-[#F3DEC8]" />
 
-                <div className="flex justify-between items-center">
+                <div className="flex justify-between items-center gap-4">
 
                   <span className="font-semibold text-gray-600">
-                    Total Donasi
+                    {isZakat
+                      ? 'Total Zakat'
+                      : 'Total Donasi'}
                   </span>
 
-                  <span className="text-2xl font-bold text-[#F58220]">
+                  <span className="text-2xl font-bold text-[#F58220] text-right">
                     {formatRupiah(
-                      amount
+                      amount,
                     )}
                   </span>
 
@@ -2017,16 +2435,10 @@ export default function DonationForm({
               </div>
 
               <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 text-sm text-blue-700 mt-5">
-                Setelah menekan
-                tombol bayar,
-                Anda akan diarahkan
+                Setelah menekan tombol
+                bayar, Anda akan diarahkan
                 ke halaman pembayaran
-                Midtrans untuk
-                memilih QRIS,
-                Virtual Account,
-                atau metode
-                pembayaran lain
-                yang tersedia.
+                Midtrans.
               </div>
 
               {submitError && (
@@ -2045,7 +2457,7 @@ export default function DonationForm({
                   onClick={() =>
                     setStep(2)
                   }
-                  className="px-6 py-4 rounded-xl border border-[#F3DEC8]"
+                  className="px-6 py-4 rounded-xl border border-[#F3DEC8] bg-white"
                 >
                   ← Kembali
                 </button>
@@ -2058,9 +2470,9 @@ export default function DonationForm({
                   className="flex-1 btn-primary py-4 font-bold disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isSubmitting
-                    ? "Membuat Transaksi..."
+                    ? 'Membuat Transaksi...'
                     : `Bayar ${formatRupiah(
-                        amount
+                        amount,
                       )}`}
                 </button>
 
@@ -2074,7 +2486,7 @@ export default function DonationForm({
       </div>
 
     </div>
-  );
+  )
 }
 
 /*
@@ -2086,9 +2498,11 @@ export default function DonationForm({
 function Summary({
   label,
   value,
+  valueClassName = 'text-gray-800',
 }: {
-  label: string;
-  value: string;
+  label: string
+  value: string
+  valueClassName?: string
 }) {
   return (
     <div className="flex justify-between gap-5 text-sm">
@@ -2097,10 +2511,12 @@ function Summary({
         {label}
       </span>
 
-      <span className="font-semibold text-gray-800 text-right">
+      <span
+        className={`font-semibold text-right ${valueClassName}`}
+      >
         {value}
       </span>
 
     </div>
-  );
+  )
 }

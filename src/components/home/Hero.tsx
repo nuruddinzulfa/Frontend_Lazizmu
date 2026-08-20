@@ -811,10 +811,6 @@ export default function Hero({
 
               {/* ============================================================
                   FIXED SLIDER SLOT
-
-                  Penting:
-                  Tinggi slot dibuat tetap supaya ketika campaign berubah,
-                  layout hero tidak ikut berubah.
               ============================================================ */}
 
               <div
@@ -904,8 +900,6 @@ export default function Hero({
 
                   {/* ========================================================
                       CONTENT AREA
-
-                      Flex column + fixed height.
                   ======================================================== */}
 
                   <div
@@ -1018,9 +1012,6 @@ export default function Hero({
 
                     {/* ======================================================
                         DESCRIPTION
-
-                        Tinggi tetap sehingga description tidak mendorong
-                        progress dan tombol.
                     ====================================================== */}
 
                     <div
@@ -1061,8 +1052,6 @@ export default function Hero({
 
                     {/* ======================================================
                         PROGRESS
-
-                        Tinggi tetap.
                     ====================================================== */}
 
                     <div
@@ -1167,19 +1156,16 @@ export default function Hero({
 
                     {/* ======================================================
                         DONATE BUTTON
-
-                        mt-auto memastikan tombol selalu di posisi sama.
                     ====================================================== */}
 
                     <div className="mt-auto">
 
                       <button
                         type="button"
-                        onClick={() =>
-                          onNavigate(
-                            'donasi'
-                          )
-                        }
+                        onClick={() => {
+                          window.location.href =
+                            `/donasi?campaign=${currentUrgent.id}&step=2`
+                        }}
                         className="
                           btn-primary
                           block
@@ -1273,8 +1259,6 @@ export default function Hero({
 
               {/* ============================================================
                   DOT INDICATOR
-
-                  Berada di luar card sehingga tidak mempengaruhi tinggi card.
               ============================================================ */}
 
               {urgentCampaigns.length >
