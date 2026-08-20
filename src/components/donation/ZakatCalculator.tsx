@@ -2,7 +2,10 @@ import { useEffect, useState } from "react";
 import { api } from "@/services/api";
 
 interface ZakatCalculatorProps {
-  onPayZakat: (amount: number) => void;
+  onPayZakat: (
+    amount: number,
+    type: "profesi" | "maal"
+  ) => void;
 }
 
 interface GoldPriceResponse {
@@ -431,7 +434,8 @@ export default function ZakatCalculator({
     result:
       | ProfesiResponse["data"]
       | HartaResponse["data"]
-      | null
+      | null,
+    zakatType: "profesi" | "maal"
   ) => {
     if (!result) {
       return (
@@ -543,7 +547,8 @@ export default function ZakatCalculator({
                 onPayZakat(
                   Number(
                     result.zakat_amount
-                  )
+                  ),
+                  zakatType
                 )
               }
               className="btn-primary w-full text-center py-3 text-sm font-bold"
@@ -735,7 +740,8 @@ export default function ZakatCalculator({
                 </h3>
 
                 {renderResult(
-                  profesiResult
+                  profesiResult,
+                  "profesi"
                 )}
               </div>
             </div>
@@ -857,7 +863,8 @@ export default function ZakatCalculator({
                 </h3>
 
                 {renderResult(
-                  hartaResult
+                  hartaResult,
+                  "maal"
                 )}
               </div>
             </div>
