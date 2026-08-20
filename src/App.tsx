@@ -96,6 +96,9 @@ export default function App() {
   const [zakatAmount, setZakatAmount] =
     useState<number | null>(null)
 
+  const [zakatType, setZakatType] =
+    useState<'profesi' | 'maal' | null>(null)
+
   const [selectedProgram, setSelectedProgram] =
     useState<string | null>(null)
 
@@ -476,6 +479,7 @@ export default function App() {
 
     if (targetPage !== 'donasi') {
       setZakatAmount(null)
+      setZakatType(null)
       setSelectedProgram(null)
     }
 
@@ -561,6 +565,7 @@ export default function App() {
     setCurrentContent(null)
 
     setZakatAmount(null)
+    setZakatType(null)
     setSelectedProgram(null)
 
     setPage('pilar-detail')
@@ -592,9 +597,11 @@ export default function App() {
   */
 
   const handlePayZakat = (
-    amount: number
+    amount: number,
+    type: 'profesi' | 'maal'
   ) => {
     setZakatAmount(amount)
+    setZakatType(type)
 
     setCurrentContent(null)
     setCurrentPillar(null)
@@ -629,6 +636,7 @@ export default function App() {
     setSelectedProgram(program)
 
     setZakatAmount(null)
+    setZakatType(null)
 
     setCurrentContent(null)
     setCurrentPillar(null)
@@ -672,6 +680,7 @@ export default function App() {
     setCurrentCampaignId(null)
 
     setZakatAmount(null)
+    setZakatType(null)
     setSelectedProgram(null)
 
     setPage('baca')
@@ -706,6 +715,7 @@ export default function App() {
     setCurrentContent(null)
 
     setZakatAmount(null)
+    setZakatType(null)
     setSelectedProgram(null)
 
     setPage('campaign-detail')
@@ -1071,6 +1081,10 @@ export default function App() {
           <DonationForm
             initialZakatAmount={
               zakatAmount ??
+              undefined
+            }
+            initialZakatType={
+              zakatType ??
               undefined
             }
             initialProgram={

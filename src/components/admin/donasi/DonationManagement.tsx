@@ -3,6 +3,59 @@ import {
   getAdminDonations,
   type Donation,
 } from '@/service/donation.service'
+import { api } from '@/services/api'
+
+type TransactionStatus =
+  | 'settlement'
+  | 'capture'
+  | 'pending'
+  | 'failed'
+  | 'failure'
+  | 'deny'
+  | 'cancel'
+  | 'cancelled'
+  | 'expire'
+  | 'expired'
+  | string
+
+interface ZakatTransaction {
+  id: number
+  zakat_type: 'profesi' | 'maal'
+  payer_name: string
+  email?: string | null
+  phone?: string | null
+  amount: number | string
+  order_id: string
+  transaction_id?: string | null
+  payment_method?: string | null
+  payment_status: TransactionStatus
+  paid_at?: string | null
+  created_at: string
+}
+
+interface ZakatTransactionResponse {
+  success: boolean
+  message?: string
+  data:
+    | ZakatTransaction[]
+    | {
+        data: ZakatTransaction[]
+      }
+}
+
+interface TransactionRow {
+  key: string
+  id: number
+  orderId: string
+  name: string
+  programOrType: string
+  type: 'Donasi' | 'Zakat'
+  amount: number
+  createdAt: string
+  paymentStatus: TransactionStatus
+  rawDonation?: Donation
+  rawZakat?: ZakatTransaction
+}
 
 const formatRupiah = (amount: number | string) => {
   return 'Rp ' + Number(amount).toLocaleString('id-ID')
@@ -17,7 +70,7 @@ const formatDate = (date: string) => {
 }
 
 const getStatusLabel = (
-  status: Donation['payment_status']
+  status: TransactionStatus
 ) => {
   if (
     status === 'settlement' ||
@@ -43,29 +96,83 @@ const getProgramName = (
   )
 }
 
+const getZakatTypeLabel = (
+  type: ZakatTransaction['zakat_type']
+) => {
+  return type === 'maal'
+    ? 'Zakat Maal'
+    : 'Zakat Penghasilan'
+}
+
 export default function DonationManagement() {
-  const [donations, setDonations] = useState<Donation[]>([])
+  const [donations, setDonations] =
+    useState<Donation[]>([])
+
+  const [zakatTransactions, setZakatTransactions] =
+    useState<ZakatTransaction[]>([])
+
   const [search, setSearch] = useState('')
-  const [statusFilter, setStatusFilter] = useState('Semua')
-  const [typeFilter, setTypeFilter] = useState('Semua')
-  const [currentPage, setCurrentPage] = useState(1)
+  const [statusFilter, setStatusFilter] =
+    useState('Semua')
+  const [typeFilter, setTypeFilter] =
+    useState('Semua')
+  const [currentPage, setCurrentPage] =
+    useState(1)
 
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
+  const [loading, setLoading] =
+    useState(true)
+  const [error, setError] =
+    useState('')
 
-  const loadDonations = async () => {
+  const loadTransactions = async () => {
     try {
       setLoading(true)
       setError('')
 
-      const data = await getAdminDonations()
+      const [
+        donationData,
+        zakatResponse,
+      ] = await Promise.all([
+        getAdminDonations(),
+        api.get<ZakatTransactionResponse>(
+          '/admin/zakat-transactions'
+        ),
+      ])
 
-      setDonations(data)
+      setDonations(donationData)
+
+      if (!zakatResponse.success) {
+        throw new Error(
+          zakatResponse.message ||
+            'Gagal mengambil transaksi zakat.'
+        )
+      }
+
+      let zakatData: ZakatTransaction[] = []
+
+      if (
+        Array.isArray(
+          zakatResponse.data
+        )
+      ) {
+        zakatData =
+          zakatResponse.data
+      } else if (
+        zakatResponse.data &&
+        Array.isArray(
+          zakatResponse.data.data
+        )
+      ) {
+        zakatData =
+          zakatResponse.data.data
+      }
+
+      setZakatTransactions(zakatData)
     } catch (error) {
       setError(
         error instanceof Error
           ? error.message
-          : 'Gagal mengambil data donasi.'
+          : 'Gagal mengambil data transaksi.'
       )
     } finally {
       setLoading(false)
@@ -73,107 +180,172 @@ export default function DonationManagement() {
   }
 
   useEffect(() => {
-    loadDonations()
+    loadTransactions()
   }, [])
 
-  const filteredDonations = useMemo(() => {
-    return donations.filter((donation) => {
-      const searchValue = search.toLowerCase()
+  const transactions =
+    useMemo<TransactionRow[]>(() => {
+      const donationRows: TransactionRow[] =
+        donations.map(
+          (donation) => ({
+            key: `donation-${donation.id}`,
+            id: donation.id,
+            orderId: donation.order_id,
+            name: donation.anonymous
+              ? 'Hamba Allah'
+              : donation.donor_name,
+            programOrType:
+              getProgramName(donation),
+            type: 'Donasi',
+            amount: Number(
+              donation.amount
+            ),
+            createdAt:
+              donation.created_at,
+            paymentStatus:
+              donation.payment_status,
+            rawDonation: donation,
+          })
+        )
 
-      const donorName = (
-        donation.anonymous
-          ? 'Hamba Allah'
-          : donation.donor_name
-      ).toLowerCase()
+      const zakatRows: TransactionRow[] =
+        zakatTransactions.map(
+          (transaction) => ({
+            key: `zakat-${transaction.id}`,
+            id: transaction.id,
+            orderId:
+              transaction.order_id,
+            name:
+              transaction.payer_name,
+            programOrType:
+              getZakatTypeLabel(
+                transaction.zakat_type
+              ),
+            type: 'Zakat',
+            amount: Number(
+              transaction.amount
+            ),
+            createdAt:
+              transaction.created_at,
+            paymentStatus:
+              transaction.payment_status,
+            rawZakat: transaction,
+          })
+        )
 
-      const program = getProgramName(
-        donation
-      ).toLowerCase()
-
-      const id = donation.id.toString()
-
-      const status = getStatusLabel(
-        donation.payment_status
+      return [
+        ...donationRows,
+        ...zakatRows,
+      ].sort(
+        (a, b) =>
+          new Date(
+            b.createdAt
+          ).getTime() -
+          new Date(
+            a.createdAt
+          ).getTime()
       )
+    }, [
+      donations,
+      zakatTransactions,
+    ])
 
-      const matchesSearch =
-        donorName.includes(searchValue) ||
-        program.includes(searchValue) ||
-        id.includes(searchValue) ||
-        donation.order_id
-          .toLowerCase()
-          .includes(searchValue)
+  const filteredTransactions =
+    useMemo(() => {
+      return transactions.filter(
+        (transaction) => {
+          const searchValue =
+            search
+              .trim()
+              .toLowerCase()
 
-      const matchesStatus =
-        statusFilter === 'Semua' ||
-        status === statusFilter
+          const status =
+            getStatusLabel(
+              transaction.paymentStatus
+            )
 
-      /*
-       * Backend donations belum memiliki
-       * kolom jenis donasi.
-       *
-       * Untuk sementara semua ditampilkan
-       * sebagai "Donasi".
-       */
-      const type = 'Donasi'
+          const matchesSearch =
+            !searchValue ||
+            transaction.name
+              .toLowerCase()
+              .includes(
+                searchValue
+              ) ||
+            transaction.programOrType
+              .toLowerCase()
+              .includes(
+                searchValue
+              ) ||
+            transaction.id
+              .toString()
+              .includes(
+                searchValue
+              ) ||
+            transaction.orderId
+              .toLowerCase()
+              .includes(
+                searchValue
+              )
 
-      const matchesType =
-        typeFilter === 'Semua' ||
-        type === typeFilter
+          const matchesStatus =
+            statusFilter ===
+              'Semua' ||
+            status ===
+              statusFilter
 
-      return (
-        matchesSearch &&
-        matchesStatus &&
-        matchesType
+          const matchesType =
+            typeFilter ===
+              'Semua' ||
+            transaction.type ===
+              typeFilter
+
+          return (
+            matchesSearch &&
+            matchesStatus &&
+            matchesType
+          )
+        }
       )
-    })
-  }, [
-    donations,
-    search,
-    statusFilter,
-    typeFilter,
-  ])
+    }, [
+      transactions,
+      search,
+      statusFilter,
+      typeFilter,
+    ])
 
-  const totalDonation = donations
-    .filter(
-      (donation) =>
-        donation.payment_status ===
-          'settlement' ||
-        donation.payment_status ===
-          'capture'
+  const successfulRows =
+    transactions.filter(
+      (transaction) =>
+        getStatusLabel(
+          transaction.paymentStatus
+        ) === 'Berhasil'
     )
-    .reduce(
-      (total, donation) =>
-        total + Number(donation.amount),
+
+  const totalSuccessfulFunds =
+    successfulRows.reduce(
+      (total, transaction) =>
+        total +
+        transaction.amount,
       0
     )
 
   const successfulTransactions =
-    donations.filter(
-      (donation) =>
-        donation.payment_status ===
-          'settlement' ||
-        donation.payment_status ===
-          'capture'
-    ).length
+    successfulRows.length
 
   const pendingTransactions =
-    donations.filter(
-      (donation) =>
-        donation.payment_status ===
-        'pending'
+    transactions.filter(
+      (transaction) =>
+        getStatusLabel(
+          transaction.paymentStatus
+        ) === 'Pending'
     ).length
 
   const failedTransactions =
-    donations.filter(
-      (donation) =>
-        ![
-          'pending',
-          'settlement',
-          'capture',
-        ].includes(
-          donation.payment_status
-        )
+    transactions.filter(
+      (transaction) =>
+        getStatusLabel(
+          transaction.paymentStatus
+        ) === 'Gagal'
     ).length
 
   const pageSize = 10
@@ -181,45 +353,67 @@ export default function DonationManagement() {
   const totalPages = Math.max(
     1,
     Math.ceil(
-      filteredDonations.length /
+      filteredTransactions.length /
         pageSize
     )
   )
 
-  const paginatedDonations =
-    filteredDonations.slice(
-      (currentPage - 1) * pageSize,
+  const paginatedTransactions =
+    filteredTransactions.slice(
+      (currentPage - 1) *
+        pageSize,
       currentPage * pageSize
     )
 
   useEffect(() => {
     if (
-      currentPage > totalPages
+      currentPage >
+      totalPages
     ) {
-      setCurrentPage(totalPages)
+      setCurrentPage(
+        totalPages
+      )
     }
-  }, [currentPage, totalPages])
+  }, [
+    currentPage,
+    totalPages,
+  ])
 
   return (
     <div className="space-y-6">
 
       {/* Header */}
-      <div>
-        <h1
-          className="text-xl font-bold text-gray-900"
-          style={{
-            fontFamily:
-              "'Plus Jakarta Sans', sans-serif",
-          }}
-        >
-          Donasi & Transaksi
-        </h1>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h1
+            className="text-xl font-bold text-gray-900"
+            style={{
+              fontFamily:
+                "'Plus Jakarta Sans', sans-serif",
+            }}
+          >
+            Donasi & Transaksi
+          </h1>
 
-        <p className="mt-1 text-sm text-gray-500">
-          Kelola seluruh donasi dan transaksi
-          yang masuk ke LAZISMU Kabupaten
-          Pemalang.
-        </p>
+          <p className="mt-1 text-sm text-gray-500">
+            Kelola seluruh donasi dan transaksi
+            zakat yang masuk ke LAZISMU Kabupaten
+            Pemalang.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onClick={
+            loadTransactions
+          }
+          disabled={loading}
+          className="rounded-xl bg-[#F58220] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#E87516] disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {loading
+            ? 'Memuat...'
+            : 'Muat Ulang Data'}
+        </button>
       </div>
 
       {/* Error */}
@@ -234,15 +428,17 @@ export default function DonationManagement() {
 
         <div className="rounded-2xl border border-[#F3DEC8] bg-white p-5 shadow-sm">
           <p className="text-xs font-medium text-gray-500">
-            Total Donasi Berhasil
+            Total Dana Berhasil
           </p>
 
           <p className="mt-2 text-xl font-bold text-[#F58220]">
-            {formatRupiah(totalDonation)}
+            {formatRupiah(
+              totalSuccessfulFunds
+            )}
           </p>
 
           <p className="mt-1 text-xs text-gray-400">
-            Akumulasi transaksi berhasil
+            Donasi + zakat yang berhasil
           </p>
         </div>
 
@@ -256,7 +452,7 @@ export default function DonationManagement() {
           </p>
 
           <p className="mt-1 text-xs text-gray-400">
-            Transaksi telah berhasil
+            Seluruh transaksi berhasil
           </p>
         </div>
 
@@ -270,7 +466,7 @@ export default function DonationManagement() {
           </p>
 
           <p className="mt-1 text-xs text-gray-400">
-            Membutuhkan pemeriksaan
+            Menunggu pembayaran / konfirmasi
           </p>
         </div>
 
@@ -320,7 +516,7 @@ export default function DonationManagement() {
                 )
                 setCurrentPage(1)
               }}
-              placeholder="Nama, program, atau ID..."
+              placeholder="Nama, program, jenis zakat, atau ID..."
               className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm outline-none transition focus:border-[#F58220] focus:ring-2 focus:ring-orange-100"
             />
           </div>
@@ -331,7 +527,9 @@ export default function DonationManagement() {
             </label>
 
             <select
-              value={statusFilter}
+              value={
+                statusFilter
+              }
               onChange={(event) => {
                 setStatusFilter(
                   event.target.value
@@ -357,11 +555,13 @@ export default function DonationManagement() {
 
           <div>
             <label className="mb-1.5 block text-xs font-medium text-gray-600">
-              Jenis Donasi
+              Jenis Transaksi
             </label>
 
             <select
-              value={typeFilter}
+              value={
+                typeFilter
+              }
               onChange={(event) => {
                 setTypeFilter(
                   event.target.value
@@ -375,6 +575,9 @@ export default function DonationManagement() {
               </option>
               <option value="Donasi">
                 Donasi
+              </option>
+              <option value="Zakat">
+                Zakat
               </option>
             </select>
           </div>
@@ -393,12 +596,12 @@ export default function DonationManagement() {
           <p className="mt-1 text-xs text-gray-400">
             {loading
               ? 'Memuat data...'
-              : `Menampilkan ${filteredDonations.length} transaksi.`}
+              : `Menampilkan ${filteredTransactions.length} transaksi.`}
           </p>
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[850px] text-sm">
+          <table className="w-full min-w-[900px] text-sm">
 
             <thead className="bg-gray-50">
               <tr>
@@ -407,11 +610,11 @@ export default function DonationManagement() {
                 </th>
 
                 <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                  Donatur
+                  Nama
                 </th>
 
                 <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                  Program
+                  Program / Jenis Zakat
                 </th>
 
                 <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
@@ -431,7 +634,7 @@ export default function DonationManagement() {
                 </th>
 
                 <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                  Aksi
+                  Order ID
                 </th>
               </tr>
             </thead>
@@ -447,59 +650,71 @@ export default function DonationManagement() {
                     Memuat transaksi...
                   </td>
                 </tr>
-              ) : paginatedDonations.length > 0 ? (
-                paginatedDonations.map(
-                  (donation) => {
+              ) : paginatedTransactions.length >
+                0 ? (
+                paginatedTransactions.map(
+                  (transaction) => {
                     const status =
                       getStatusLabel(
-                        donation.payment_status
+                        transaction.paymentStatus
                       )
 
                     return (
                       <tr
-                        key={donation.id}
+                        key={
+                          transaction.key
+                        }
                         className="transition-colors hover:bg-gray-50"
                       >
                         <td className="px-5 py-3.5 text-xs font-medium text-gray-500">
-                          #{donation.id}
+                          #{transaction.id}
                         </td>
 
                         <td className="px-5 py-3.5 font-medium text-gray-900">
-                          {donation.anonymous
-                            ? 'Hamba Allah'
-                            : donation.donor_name}
+                          {transaction.name}
                         </td>
 
                         <td className="px-5 py-3.5 text-gray-700">
-                          {getProgramName(
-                            donation
-                          )}
+                          {
+                            transaction.programOrType
+                          }
                         </td>
 
                         <td className="px-5 py-3.5">
-                          <span className="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600">
-                            Donasi
+                          <span
+                            className={`rounded-full px-2.5 py-1 text-xs font-medium ${
+                              transaction.type ===
+                              'Zakat'
+                                ? 'bg-orange-100 text-orange-700'
+                                : 'bg-gray-100 text-gray-600'
+                            }`}
+                          >
+                            {
+                              transaction.type
+                            }
                           </span>
                         </td>
 
                         <td className="px-5 py-3.5 font-semibold text-[#F58220]">
                           {formatRupiah(
-                            donation.amount
+                            transaction.amount
                           )}
                         </td>
 
                         <td className="px-5 py-3.5 text-xs text-gray-500">
                           {formatDate(
-                            donation.created_at
+                            transaction.createdAt
                           )}
                         </td>
 
                         <td className="px-5 py-3.5">
                           <span
                             className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
-                              status === 'Berhasil'
+                              status ===
+                              'Berhasil'
                                 ? 'bg-green-100 text-green-700'
-                                : status === 'Pending'
+                                : status ===
+                                    'Pending'
                                   ? 'bg-yellow-100 text-yellow-700'
                                   : 'bg-red-100 text-red-700'
                             }`}
@@ -508,13 +723,10 @@ export default function DonationManagement() {
                           </span>
                         </td>
 
-                        <td className="px-5 py-3.5">
-                          <button
-                            type="button"
-                            className="rounded-lg px-3 py-1.5 text-xs font-semibold text-[#F58220] transition hover:bg-orange-50"
-                          >
-                            Detail
-                          </button>
+                        <td className="px-5 py-3.5 font-mono text-xs text-gray-500">
+                          {
+                            transaction.orderId
+                          }
                         </td>
                       </tr>
                     )
@@ -549,7 +761,10 @@ export default function DonationManagement() {
               onClick={() =>
                 setCurrentPage(
                   (page) =>
-                    Math.max(1, page - 1)
+                    Math.max(
+                      1,
+                      page - 1
+                    )
                 )
               }
               disabled={
@@ -572,7 +787,8 @@ export default function DonationManagement() {
                 )
               }
               disabled={
-                currentPage >= totalPages
+                currentPage >=
+                totalPages
               }
               className="rounded-lg bg-[#F58220] px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-[#E87516] disabled:cursor-not-allowed disabled:opacity-40"
             >

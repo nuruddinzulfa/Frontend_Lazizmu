@@ -20,6 +20,27 @@ interface Donation {
   campaign?: CampaignRef | null
 }
 
+interface ZakatTransaction {
+  id: number
+  zakat_type: 'profesi' | 'maal'
+  payer_name: string
+  amount: string | number
+  payment_status: PaymentStatus
+  created_at: string
+  updated_at?: string
+  order_id?: string
+}
+
+type RecentTransaction = {
+  key: string
+  name: string
+  type: 'Donasi' | 'Zakat'
+  source: string
+  amount: number
+  payment_status: PaymentStatus
+  created_at: string
+}
+
 interface Campaign {
   id: number
   title: string
@@ -281,6 +302,8 @@ function paymentStatusClass(status: string) {
 
 export default function DashboardContent() {
   const [donations, setDonations] = useState<Donation[]>([])
+  const [zakatTransactions, setZakatTransactions] =
+    useState<ZakatTransaction[]>([])
   const [campaigns, setCampaigns] = useState<Campaign[]>([])
   const [programs, setPrograms] = useState<Program[]>([])
   const [news, setNews] = useState<News[]>([])
@@ -296,6 +319,7 @@ export default function DashboardContent() {
 
       const [
         donationData,
+        zakatData,
         campaignData,
         programData,
         newsData,
@@ -303,6 +327,7 @@ export default function DashboardContent() {
         userData,
       ] = await Promise.all([
         adminGet<Donation>('/admin/donations'),
+        adminGet<ZakatTransaction>('/admin/zakat-transactions'),
         adminGet<Campaign>('/admin/campaigns'),
         adminGet<Program>('/admin/programs'),
         adminGet<News>('/admin/news'),
@@ -311,6 +336,7 @@ export default function DashboardContent() {
       ])
 
       setDonations(donationData)
+      setZakatTransactions(zakatData)
       setCampaigns(campaignData)
       setPrograms(programData)
       setNews(newsData)
@@ -343,23 +369,56 @@ export default function DashboardContent() {
     [donations]
   )
 
-  const totalDonationAmount = useMemo(
+  const successfulZakat = useMemo(
+    () =>
+      zakatTransactions.filter((transaction) =>
+        SUCCESS_PAYMENT_STATUSES.has(
+          transaction.payment_status
+        )
+      ),
+    [zakatTransactions]
+  )
+
+  const totalSuccessfulAmount = useMemo(
     () =>
       successfulDonations.reduce(
         (total, donation) =>
           total + toAmount(donation.amount),
         0
+      ) +
+      successfulZakat.reduce(
+        (total, transaction) =>
+          total + toAmount(transaction.amount),
+        0
       ),
-    [successfulDonations]
+    [
+      successfulDonations,
+      successfulZakat,
+    ]
   )
+
+  const totalTransactions =
+    donations.length +
+    zakatTransactions.length
+
+  const successfulTransactionCount =
+    successfulDonations.length +
+    successfulZakat.length
 
   const pendingTransactions = useMemo(
     () =>
       donations.filter(
         (donation) =>
           donation.payment_status === 'pending'
+      ).length +
+      zakatTransactions.filter(
+        (transaction) =>
+          transaction.payment_status === 'pending'
       ).length,
-    [donations]
+    [
+      donations,
+      zakatTransactions,
+    ]
   )
 
   const activeCampaigns = useMemo(
@@ -402,16 +461,57 @@ export default function DashboardContent() {
     [articles]
   )
 
-  const recentDonations = useMemo(
-    () =>
-      [...donations]
+  const recentTransactions = useMemo<RecentTransaction[]>(
+    () => {
+      const donationRows: RecentTransaction[] =
+        donations.map((donation) => ({
+          key: `donation-${donation.id}`,
+          name:
+            donation.donor_name || 'Anonim',
+          type: 'Donasi',
+          source:
+            donation.campaign?.title || '-',
+          amount:
+            toAmount(donation.amount),
+          payment_status:
+            donation.payment_status,
+          created_at:
+            donation.created_at,
+        }))
+
+      const zakatRows: RecentTransaction[] =
+        zakatTransactions.map((transaction) => ({
+          key: `zakat-${transaction.id}`,
+          name:
+            transaction.payer_name || '-',
+          type: 'Zakat',
+          source:
+            transaction.zakat_type === 'maal'
+              ? 'Zakat Maal'
+              : 'Zakat Penghasilan',
+          amount:
+            toAmount(transaction.amount),
+          payment_status:
+            transaction.payment_status,
+          created_at:
+            transaction.created_at,
+        }))
+
+      return [
+        ...donationRows,
+        ...zakatRows,
+      ]
         .sort(
           (a, b) =>
             new Date(b.created_at).getTime() -
             new Date(a.created_at).getTime()
         )
-        .slice(0, 8),
-    [donations]
+        .slice(0, 8)
+    },
+    [
+      donations,
+      zakatTransactions,
+    ]
   )
 
   const activities = useMemo<DashboardActivity[]>(() => {
@@ -432,6 +532,25 @@ export default function DashboardContent() {
           'Donasi masuk ke sistem',
         timestamp: latestDonation.created_at,
         dotClass: 'bg-[#F58220]',
+      })
+    }
+
+    const latestZakat = [...zakatTransactions].sort(
+      (a, b) =>
+        new Date(b.created_at).getTime() -
+        new Date(a.created_at).getTime()
+    )[0]
+
+    if (latestZakat) {
+      data.push({
+        key: `zakat-${latestZakat.id}`,
+        label: 'Zakat terbaru',
+        description:
+          latestZakat.zakat_type === 'maal'
+            ? 'Zakat Maal'
+            : 'Zakat Penghasilan',
+        timestamp: latestZakat.created_at,
+        dotClass: 'bg-emerald-500',
       })
     }
 
@@ -513,20 +632,26 @@ export default function DashboardContent() {
           new Date(a.timestamp).getTime()
       )
       .slice(0, 4)
-  }, [donations, programs, users, articles])
+  }, [
+    donations,
+    zakatTransactions,
+    programs,
+    users,
+    articles,
+  ])
 
   const adminStats = [
     {
-      label: 'Total Donasi Berhasil',
-      value: formatRupiah(totalDonationAmount),
+      label: 'Total Dana Berhasil',
+      value: formatRupiah(totalSuccessfulAmount),
       description:
-        `${successfulDonations.length} transaksi berhasil`,
+        `${successfulTransactionCount} transaksi berhasil`,
       color: 'text-[#F58220]',
       bg: 'bg-[#FEF0E4]',
     },
     {
       label: 'Total Transaksi',
-      value: String(donations.length),
+      value: String(totalTransactions),
       description: 'Seluruh transaksi tercatat',
       color: 'text-blue-600',
       bg: 'bg-blue-50',
@@ -655,7 +780,7 @@ export default function DashboardContent() {
                 "'Plus Jakarta Sans', sans-serif",
             }}
           >
-            Donasi Terbaru
+            Transaksi Terbaru
           </h2>
 
           <p className="mt-1 text-xs text-gray-400">
@@ -671,10 +796,10 @@ export default function DashboardContent() {
                   Tanggal
                 </th>
                 <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                  Donatur
+                  Nama
                 </th>
                 <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                  Campaign
+                  Program / Jenis Zakat
                 </th>
                 <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
                   Jumlah
@@ -686,44 +811,60 @@ export default function DashboardContent() {
             </thead>
 
             <tbody className="divide-y divide-gray-50">
-              {recentDonations.map((donation) => (
+              {recentTransactions.map((transaction) => (
                 <tr
-                  key={donation.id}
+                  key={transaction.key}
                   className="transition-colors hover:bg-gray-50"
                 >
                   <td className="px-5 py-3.5 text-xs text-gray-500">
-                    {formatDate(donation.created_at)}
+                    {formatDate(transaction.created_at)}
                   </td>
+
                   <td className="px-5 py-3.5 font-medium text-gray-900">
-                    {donation.donor_name || 'Anonim'}
+                    {transaction.name}
                   </td>
+
                   <td className="px-5 py-3.5 text-gray-700">
-                    {donation.campaign?.title || '-'}
+                    {transaction.source}
                   </td>
+
+                  <td className="px-5 py-3.5">
+                    <span
+                      className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
+                        transaction.type === 'Zakat'
+                          ? 'bg-orange-100 text-orange-700'
+                          : 'bg-gray-100 text-gray-600'
+                      }`}
+                    >
+                      {transaction.type}
+                    </span>
+                  </td>
+
                   <td className="px-5 py-3.5 font-semibold text-[#F58220]">
-                    {formatRupiah(toAmount(donation.amount))}
+                    {formatRupiah(transaction.amount)}
                   </td>
+
                   <td className="px-5 py-3.5">
                     <span
                       className={`rounded-full px-2.5 py-1 text-xs font-semibold ${paymentStatusClass(
-                        donation.payment_status
+                        transaction.payment_status
                       )}`}
                     >
                       {paymentStatusLabel(
-                        donation.payment_status
+                        transaction.payment_status
                       )}
                     </span>
                   </td>
                 </tr>
               ))}
 
-              {recentDonations.length === 0 && (
+              {recentTransactions.length === 0 && (
                 <tr>
                   <td
-                    colSpan={5}
+                    colSpan={6}
                     className="px-5 py-10 text-center text-sm text-gray-400"
                   >
-                    Belum ada transaksi donasi.
+                    Belum ada transaksi.
                   </td>
                 </tr>
               )}

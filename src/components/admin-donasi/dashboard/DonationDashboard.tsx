@@ -43,6 +43,43 @@ interface DonationListResponse {
   data: Donation[]
 }
 
+interface ZakatTransaction {
+  id: number
+  zakat_type: 'profesi' | 'maal'
+  payer_name: string
+  email: string | null
+  phone: string | null
+  amount: string | number
+  order_id: string
+  payment_status: PaymentStatus
+  payment_method: string | null
+  transaction_id: string | null
+  paid_at: string | null
+  created_at: string
+  updated_at: string
+}
+
+interface ZakatListResponse {
+  success: boolean
+  message?: string
+  data:
+    | ZakatTransaction[]
+    | {
+        data?: ZakatTransaction[]
+      }
+}
+
+type CombinedTransaction = {
+  key: string
+  name: string
+  type: 'Donasi' | 'Zakat'
+  programOrZakat: string
+  amount: number
+  paymentStatus: PaymentStatus
+  paymentMethod: string | null
+  createdAt: string
+}
+
 const SUCCESS_STATUSES = new Set([
   'settlement',
   'capture',
@@ -132,13 +169,16 @@ export default function DonationDashboard() {
   const [donations, setDonations] =
     useState<Donation[]>([])
 
+  const [zakatTransactions, setZakatTransactions] =
+    useState<ZakatTransaction[]>([])
+
   const [loading, setLoading] =
     useState(true)
 
   const [error, setError] =
     useState<string | null>(null)
 
-  const loadDonations = useCallback(
+  const loadTransactions = useCallback(
     async () => {
       try {
         setLoading(true)
@@ -146,39 +186,77 @@ export default function DonationDashboard() {
 
         const token = getToken()
 
-        const response = await fetch(
-          `${API_URL}/admin/donations`,
-          {
-            method: 'GET',
-            headers: {
-              Accept: 'application/json',
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        )
+        const [
+          donationResponse,
+          zakatResponse,
+        ] = await Promise.all([
+          fetch(
+            `${API_URL}/admin/donations`,
+            {
+              method: 'GET',
+              headers: {
+                Accept: 'application/json',
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          ),
+          fetch(
+            `${API_URL}/admin/zakat-transactions`,
+            {
+              method: 'GET',
+              headers: {
+                Accept: 'application/json',
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          ),
+        ])
 
-        const data: DonationListResponse =
-          await response.json()
+        const donationData: DonationListResponse =
+          await donationResponse.json()
 
-        if (!response.ok) {
+        const zakatData: ZakatListResponse =
+          await zakatResponse.json()
+
+        if (!donationResponse.ok) {
           throw new Error(
-            data.message ||
+            donationData.message ||
               'Gagal mengambil data donasi.'
           )
         }
 
+        if (!zakatResponse.ok) {
+          throw new Error(
+            zakatData.message ||
+              'Gagal mengambil data zakat.'
+          )
+        }
+
         setDonations(
-          Array.isArray(data.data)
-            ? data.data
+          Array.isArray(donationData.data)
+            ? donationData.data
             : []
         )
+
+        let zakatList: ZakatTransaction[] = []
+
+        if (Array.isArray(zakatData.data)) {
+          zakatList = zakatData.data
+        } else if (
+          zakatData.data &&
+          Array.isArray(zakatData.data.data)
+        ) {
+          zakatList = zakatData.data.data
+        }
+
+        setZakatTransactions(zakatList)
       } catch (err) {
         console.error(err)
 
         setError(
           err instanceof Error
             ? err.message
-            : 'Gagal mengambil data donasi.'
+            : 'Gagal mengambil data transaksi.'
         )
       } finally {
         setLoading(false)
@@ -188,8 +266,8 @@ export default function DonationDashboard() {
   )
 
   useEffect(() => {
-    loadDonations()
-  }, [loadDonations])
+    loadTransactions()
+  }, [loadTransactions])
 
   const successfulDonations =
     useMemo(
@@ -202,16 +280,43 @@ export default function DonationDashboard() {
       [donations]
     )
 
-  const totalDonation =
+  const successfulZakat =
+    useMemo(
+      () =>
+        zakatTransactions.filter((item) =>
+          SUCCESS_STATUSES.has(
+            item.payment_status
+          )
+        ),
+      [zakatTransactions]
+    )
+
+  const totalSuccessfulFunds =
     useMemo(
       () =>
         successfulDonations.reduce(
           (total, item) =>
             total + toNumber(item.amount),
           0
+        ) +
+        successfulZakat.reduce(
+          (total, item) =>
+            total + toNumber(item.amount),
+          0
         ),
-      [successfulDonations]
+      [
+        successfulDonations,
+        successfulZakat,
+      ]
     )
+
+  const successfulCount =
+    successfulDonations.length +
+    successfulZakat.length
+
+  const totalTransactionCount =
+    donations.length +
+    zakatTransactions.length
 
   const pendingCount =
     useMemo(
@@ -220,8 +325,16 @@ export default function DonationDashboard() {
           (item) =>
             item.payment_status ===
             'pending'
+        ).length +
+        zakatTransactions.filter(
+          (item) =>
+            item.payment_status ===
+            'pending'
         ).length,
-      [donations]
+      [
+        donations,
+        zakatTransactions,
+      ]
     )
 
   const failedCount =
@@ -234,25 +347,82 @@ export default function DonationDashboard() {
             ) &&
             item.payment_status !==
               'pending'
+        ).length +
+        zakatTransactions.filter(
+          (item) =>
+            !SUCCESS_STATUSES.has(
+              item.payment_status
+            ) &&
+            item.payment_status !==
+              'pending'
         ).length,
-      [donations]
+      [
+        donations,
+        zakatTransactions,
+      ]
     )
 
-  const latestDonations =
-    useMemo(
-      () =>
-        [...donations]
+  const latestTransactions =
+    useMemo<CombinedTransaction[]>(
+      () => {
+        const donationRows: CombinedTransaction[] =
+          donations.map((donation) => ({
+            key: `donation-${donation.id}`,
+            name: donation.anonymous
+              ? 'Hamba Allah'
+              : donation.donor_name,
+            type: 'Donasi',
+            programOrZakat:
+              donation.campaign?.title || '-',
+            amount:
+              toNumber(donation.amount),
+            paymentStatus:
+              donation.payment_status,
+            paymentMethod:
+              donation.payment_method,
+            createdAt:
+              donation.created_at,
+          }))
+
+        const zakatRows: CombinedTransaction[] =
+          zakatTransactions.map((transaction) => ({
+            key: `zakat-${transaction.id}`,
+            name:
+              transaction.payer_name,
+            type: 'Zakat',
+            programOrZakat:
+              transaction.zakat_type === 'maal'
+                ? 'Zakat Maal'
+                : 'Zakat Penghasilan',
+            amount:
+              toNumber(transaction.amount),
+            paymentStatus:
+              transaction.payment_status,
+            paymentMethod:
+              transaction.payment_method,
+            createdAt:
+              transaction.created_at,
+          }))
+
+        return [
+          ...donationRows,
+          ...zakatRows,
+        ]
           .sort(
             (a, b) =>
               new Date(
-                b.created_at
+                b.createdAt
               ).getTime() -
               new Date(
-                a.created_at
+                a.createdAt
               ).getTime()
           )
-          .slice(0, 10),
-      [donations]
+          .slice(0, 10)
+      },
+      [
+        donations,
+        zakatTransactions,
+      ]
     )
 
   const campaignSummary =
@@ -328,13 +498,13 @@ export default function DonationDashboard() {
             </h1>
 
             <p className="mt-1 text-sm text-white/90">
-              Ringkasan transaksi donasi LAZISMU Pemalang.
+              Ringkasan transaksi donasi dan zakat LAZISMU Pemalang.
             </p>
           </div>
 
           <button
             type="button"
-            onClick={loadDonations}
+            onClick={loadTransactions}
             className="rounded-xl bg-white/15 px-4 py-2 text-xs font-semibold transition hover:bg-white/20"
           >
             Muat Ulang
@@ -351,18 +521,18 @@ export default function DonationDashboard() {
       {/* STATISTIK */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
-          label="Total Donasi Berhasil"
+          label="Total Dana Berhasil"
           value={formatRupiah(
-            totalDonation
+            totalSuccessfulFunds
           )}
-          description={`${successfulDonations.length} transaksi berhasil`}
+          description={`${successfulCount} transaksi berhasil`}
           valueClass="text-[#F58220]"
         />
 
         <StatCard
           label="Total Transaksi"
           value={String(
-            donations.length
+            totalTransactionCount
           )}
           description="Seluruh transaksi tercatat"
           valueClass="text-blue-600"
@@ -395,7 +565,7 @@ export default function DonationDashboard() {
           </h2>
 
           <p className="mt-1 text-xs text-gray-400">
-            10 transaksi donasi terbaru dari backend
+            10 transaksi donasi dan zakat terbaru
           </p>
         </div>
 
@@ -408,11 +578,15 @@ export default function DonationDashboard() {
                 </th>
 
                 <th className="px-5 py-3 text-left text-xs font-semibold uppercase text-gray-500">
-                  Donatur
+                  Nama
                 </th>
 
                 <th className="px-5 py-3 text-left text-xs font-semibold uppercase text-gray-500">
-                  Campaign
+                  Program / Jenis Zakat
+                </th>
+
+                <th className="px-5 py-3 text-left text-xs font-semibold uppercase text-gray-500">
+                  Jenis
                 </th>
 
                 <th className="px-5 py-3 text-left text-xs font-semibold uppercase text-gray-500">
@@ -430,50 +604,61 @@ export default function DonationDashboard() {
             </thead>
 
             <tbody className="divide-y divide-gray-50">
-              {latestDonations.map(
-                (donation) => (
+              {latestTransactions.map(
+                (transaction) => (
                   <tr
-                    key={donation.id}
+                    key={transaction.key}
                     className="hover:bg-orange-50/30"
                   >
                     <td className="px-5 py-4 text-xs text-gray-500">
                       {formatDate(
-                        donation.created_at
+                        transaction.createdAt
                       )}
                     </td>
 
                     <td className="px-5 py-4 font-medium text-gray-900">
-                      {donation.anonymous
-                        ? 'Hamba Allah'
-                        : donation.donor_name}
+                      {transaction.name}
                     </td>
 
                     <td className="px-5 py-4 text-gray-600">
-                      {donation.campaign
-                        ?.title || '-'}
+                      {
+                        transaction.programOrZakat
+                      }
+                    </td>
+
+                    <td className="px-5 py-4">
+                      <span
+                        className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
+                          transaction.type === 'Zakat'
+                            ? 'bg-orange-100 text-orange-700'
+                            : 'bg-gray-100 text-gray-600'
+                        }`}
+                      >
+                        {transaction.type}
+                      </span>
                     </td>
 
                     <td className="px-5 py-4 font-semibold text-[#F58220]">
                       {formatRupiah(
-                        toNumber(
-                          donation.amount
-                        )
+                        transaction.amount
                       )}
                     </td>
 
                     <td className="px-5 py-4 text-gray-600">
-                      {donation.payment_method ||
-                        '-'}
+                      {
+                        transaction.paymentMethod ||
+                        '-'
+                      }
                     </td>
 
                     <td className="px-5 py-4">
                       <span
                         className={`rounded-full px-2.5 py-1 text-xs font-semibold ${statusClass(
-                          donation.payment_status
+                          transaction.paymentStatus
                         )}`}
                       >
                         {statusLabel(
-                          donation.payment_status
+                          transaction.paymentStatus
                         )}
                       </span>
                     </td>
@@ -481,14 +666,14 @@ export default function DonationDashboard() {
                 )
               )}
 
-              {latestDonations.length ===
+              {latestTransactions.length ===
                 0 && (
                 <tr>
                   <td
-                    colSpan={6}
+                    colSpan={7}
                     className="px-5 py-10 text-center text-sm text-gray-400"
                   >
-                    Belum ada transaksi donasi.
+                    Belum ada transaksi.
                   </td>
                 </tr>
               )}
@@ -512,7 +697,7 @@ export default function DonationDashboard() {
             <SummaryRow
               label="Berhasil"
               value={
-                successfulDonations.length
+                successfulCount
               }
             />
 
@@ -534,7 +719,7 @@ export default function DonationDashboard() {
 
             <SummaryRow
               label="Total Transaksi"
-              value={donations.length}
+              value={totalTransactionCount}
             />
           </div>
         </div>

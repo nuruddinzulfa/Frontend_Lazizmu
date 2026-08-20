@@ -4,6 +4,7 @@ import API_URL from "@/lib/api";
 
 interface DonasiPageProps {
   initialZakatAmount?: number;
+  initialZakatType?: "profesi" | "maal";
   initialProgram?: string;
 }
 
@@ -56,13 +57,34 @@ interface DonationResponse {
   };
 }
 
+interface ZakatTransactionResponse {
+  success: boolean;
+  message: string;
+  data: {
+    transaction: {
+      id: number;
+      zakat_type: "profesi" | "maal";
+      order_id: string;
+      payer_name: string;
+      amount: number;
+      payment_status: string;
+      created_at: string;
+    };
+    snap_token?: string;
+    redirect_url?: string;
+  };
+}
+
 interface StoredDonation {
   donationId?: number;
+  transactionId?: number;
   orderId?: string;
   campaignId?: number;
   amount?: number;
   donorName?: string;
   campaignTitle?: string;
+  transactionType?: "donation" | "zakat";
+  zakatType?: "profesi" | "maal";
 }
 
 /*
@@ -173,8 +195,17 @@ function getCampaignImageUrl(
 
 export default function DonationForm({
   initialZakatAmount,
+  initialZakatType,
   initialProgram,
 }: DonasiPageProps) {
+  const isZakat =
+    Boolean(
+      initialZakatAmount &&
+        initialZakatAmount > 0
+    );
+
+  const zakatType =
+    initialZakatType ?? "profesi";
   /*
   |--------------------------------------------------------------------------
   | MIDTRANS REDIRECT
@@ -239,6 +270,13 @@ export default function DonationForm({
       }
     }, []);
 
+  const isZakatTransaction =
+    lastDonation?.transactionType === "zakat" ||
+    lastDonation?.orderId?.startsWith("ZKT-") ||
+    returnedOrderId?.startsWith("ZKT-") ||
+    isZakat;
+
+
   /*
   |--------------------------------------------------------------------------
   | CAMPAIGN
@@ -251,7 +289,7 @@ export default function DonationForm({
   const [
     campaignLoading,
     setCampaignLoading,
-  ] = useState(true);
+  ] = useState(!isZakat);
 
   const [
     campaignError,
@@ -358,7 +396,9 @@ export default function DonationForm({
     );
 
   const displayName =
-    isAnonymous
+    isZakat
+      ? name.trim()
+      : isAnonymous
       ? "Hamba Allah"
       : name.trim();
 
@@ -369,6 +409,14 @@ export default function DonationForm({
   */
 
   useEffect(() => {
+    if (isZakat) {
+      setCampaigns([]);
+      setCampaignId(null);
+      setCampaignError("");
+      setCampaignLoading(false);
+      return;
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Jika sedang kembali dari Midtrans,
@@ -531,7 +579,7 @@ export default function DonationForm({
     fetchCampaigns();
   }, [
     initialProgram,
-    initialZakatAmount,
+    isZakat,
     isPaymentSuccess,
     isPaymentPending,
     isPaymentFailed,
@@ -581,7 +629,7 @@ export default function DonationForm({
 
   const validateStepTwo =
     () => {
-      if (!campaignId) {
+      if (!isZakat && !campaignId) {
         setSubmitError(
           "Program donasi belum dipilih."
         );
@@ -594,7 +642,9 @@ export default function DonationForm({
         !name.trim()
       ) {
         setSubmitError(
-          "Nama donatur wajib diisi."
+          isZakat
+            ? "Nama muzaki wajib diisi."
+            : "Nama donatur wajib diisi."
         );
 
         return false;
@@ -628,7 +678,9 @@ export default function DonationForm({
 
       if (amount < 1000) {
         setSubmitError(
-          "Nominal donasi minimal Rp1.000."
+          isZakat
+            ? "Nominal zakat minimal Rp1.000."
+            : "Nominal donasi minimal Rp1.000."
         );
 
         return false;
@@ -641,7 +693,7 @@ export default function DonationForm({
 
   /*
   |--------------------------------------------------------------------------
-  | SUBMIT DONATION
+  | SUBMIT DONATION / ZAKAT
   |--------------------------------------------------------------------------
   */
 
@@ -657,14 +709,99 @@ export default function DonationForm({
         return;
       }
 
-      if (!campaignId) {
+      if (
+        !isZakat &&
+        !campaignId
+      ) {
         return;
       }
 
       try {
         setIsSubmitting(true);
-
         setSubmitError("");
+
+        if (isZakat) {
+          const response =
+            await api.post<ZakatTransactionResponse>(
+              "/zakat-transactions",
+              {
+                zakat_type:
+                  zakatType,
+                payer_name:
+                  name.trim(),
+                email:
+                  email.trim(),
+                phone:
+                  normalizePhone(
+                    phone
+                  ),
+                amount,
+              }
+            );
+
+          if (!response.success) {
+            throw new Error(
+              response.message ||
+                "Gagal membuat transaksi zakat."
+            );
+          }
+
+          sessionStorage.setItem(
+            "lastDonation",
+            JSON.stringify({
+              transactionId:
+                response.data
+                  .transaction.id,
+
+              orderId:
+                response.data
+                  .transaction
+                  .order_id,
+
+              donorName:
+                response.data
+                  .transaction
+                  .payer_name,
+
+              amount:
+                response.data
+                  .transaction
+                  .amount,
+
+              transactionType:
+                "zakat",
+
+              zakatType:
+                response.data
+                  .transaction
+                  .zakat_type,
+            })
+          );
+
+          if (
+            response.data
+              .redirect_url
+          ) {
+            window.location.href =
+              response.data
+                .redirect_url;
+
+            return;
+          }
+
+          if (
+            response.data
+              .snap_token
+          ) {
+            throw new Error(
+              "Transaksi zakat berhasil dibuat, tetapi URL pembayaran Midtrans tidak tersedia."
+            );
+          }
+
+          throw new Error(
+            "Backend tidak mengembalikan metode pembayaran Midtrans."
+          );
+        }
 
         const response =
           await api.post<DonationResponse>(
@@ -726,14 +863,11 @@ export default function DonationForm({
               response.data
                 .donation
                 .amount,
+
+            transactionType:
+              "donation",
           })
         );
-
-        /*
-        |--------------------------------------------------------------------------
-        | REDIRECT MIDTRANS
-        |--------------------------------------------------------------------------
-        */
 
         if (
           response.data
@@ -760,14 +894,18 @@ export default function DonationForm({
         );
       } catch (error) {
         console.error(
-          "DONATION ERROR:",
+          isZakat
+            ? "ZAKAT PAYMENT ERROR:"
+            : "DONATION ERROR:",
           error
         );
 
         setSubmitError(
           error instanceof Error
             ? error.message
-            : "Terjadi kesalahan saat membuat donasi."
+            : isZakat
+              ? "Terjadi kesalahan saat membuat transaksi zakat."
+              : "Terjadi kesalahan saat membuat donasi."
         );
       } finally {
         setIsSubmitting(
@@ -872,7 +1010,9 @@ export default function DonationForm({
               </div>
 
               <div className="inline-flex items-center bg-white/20 border border-white/30 rounded-full px-4 py-2 text-xs text-white font-semibold mb-4">
-                ✓ Pembayaran Berhasil
+                {isZakatTransaction
+                  ? "✓ Pembayaran Zakat Berhasil"
+                  : "✓ Pembayaran Berhasil"}
               </div>
 
               <h1
@@ -882,8 +1022,9 @@ export default function DonationForm({
                     "'Plus Jakarta Sans', sans-serif",
                 }}
               >
-                Jazakumullahu
-                Khairan
+                {isZakatTransaction
+                  ? "Alhamdulillah, Zakat Anda Telah Ditunaikan"
+                  : "Jazakumullahu Khairan"}
               </h1>
 
             </div>
@@ -892,24 +1033,29 @@ export default function DonationForm({
           <div className="p-7 sm:p-9 text-center">
 
             <p className="text-gray-600 leading-relaxed mb-6">
-              Terima kasih telah
-              menunaikan kebaikan
-              melalui{" "}
-              <strong className="text-[#F58220]">
-                LAZISMU Pemalang
-              </strong>
-              .
+              {isZakatTransaction ? (
+                <>
+                  Terima kasih telah menunaikan zakat melalui{" "}
+                  <strong className="text-[#F58220]">
+                    LAZISMU Kabupaten Pemalang
+                  </strong>
+                  .
+                </>
+              ) : (
+                <>
+                  Terima kasih telah menunaikan kebaikan melalui{" "}
+                  <strong className="text-[#F58220]">
+                    LAZISMU Pemalang
+                  </strong>
+                  .
+                </>
+              )}
             </p>
 
             <p className="text-gray-500 text-sm leading-relaxed mb-7">
-              Pembayaran Anda
-              telah berhasil
-              diterima. Semoga
-              setiap kebaikan
-              yang ditunaikan
-              menjadi amal yang
-              bermanfaat dan
-              membawa keberkahan.
+              {isZakatTransaction
+                ? "Pembayaran zakat Anda telah berhasil diterima. Semoga Allah menerima zakat Anda, menyucikan harta, dan memberikan keberkahan."
+                : "Pembayaran Anda telah berhasil diterima. Semoga setiap kebaikan yang ditunaikan menjadi amal yang bermanfaat dan membawa keberkahan."}
             </p>
 
             <div className="bg-[#FFF8F2] border border-[#F3DEC8] rounded-2xl p-5 mb-6 text-left space-y-4">
@@ -928,7 +1074,9 @@ export default function DonationForm({
                 undefined && (
                 <div className="flex justify-between gap-5 text-sm">
                   <span className="text-gray-400">
-                    Total Donasi
+                    {isZakatTransaction
+                      ? "Total Zakat"
+                      : "Total Donasi"}
                   </span>
 
                   <span className="font-bold text-[#F58220]">
@@ -939,18 +1087,30 @@ export default function DonationForm({
                 </div>
               )}
 
-              {lastDonation?.campaignTitle && (
+              {isZakatTransaction ? (
                 <div className="flex justify-between gap-5 text-sm">
                   <span className="text-gray-400">
-                    Program
+                    Jenis Zakat
                   </span>
 
                   <span className="font-semibold text-gray-700 text-right max-w-[65%]">
-                    {
-                      lastDonation.campaignTitle
-                    }
+                    {lastDonation?.zakatType === "maal"
+                      ? "Zakat Maal"
+                      : "Zakat Penghasilan"}
                   </span>
                 </div>
+              ) : (
+                lastDonation?.campaignTitle && (
+                  <div className="flex justify-between gap-5 text-sm">
+                    <span className="text-gray-400">
+                      Program
+                    </span>
+
+                    <span className="font-semibold text-gray-700 text-right max-w-[65%]">
+                      {lastDonation.campaignTitle}
+                    </span>
+                  </div>
+                )
               )}
 
               <div className="border-t border-[#F3DEC8]" />
@@ -979,15 +1139,15 @@ export default function DonationForm({
 
                 <div>
                   <div className="font-semibold text-green-800 text-sm mb-1">
-                    Konfirmasi Donasi
+                    {isZakatTransaction
+                      ? "Konfirmasi Zakat"
+                      : "Konfirmasi Donasi"}
                   </div>
 
                   <p className="text-xs sm:text-sm text-green-700 leading-relaxed">
-                    Konfirmasi pembayaran
-                    akan dikirim melalui
-                    WhatsApp sesuai nomor
-                    yang Anda masukkan
-                    saat berdonasi.
+                    {isZakatTransaction
+                      ? "Konfirmasi pembayaran zakat akan dikirim melalui WhatsApp sesuai nomor yang Anda masukkan saat melakukan pembayaran."
+                      : "Konfirmasi pembayaran akan dikirim melalui WhatsApp sesuai nomor yang Anda masukkan saat berdonasi."}
                   </p>
                 </div>
 
@@ -1015,7 +1175,9 @@ export default function DonationForm({
               }
               className="w-full py-3 text-sm font-semibold text-[#F58220] hover:text-[#D96D0A] hover:bg-[#FEF0E4] rounded-xl transition-all"
             >
-              Donasi Lagi
+              {isZakatTransaction
+                ? "Hitung & Bayar Zakat Lagi"
+                : "Donasi Lagi"}
             </button>
 
             <p className="text-[11px] text-gray-400 mt-6">
@@ -1159,7 +1321,7 @@ export default function DonationForm({
   |--------------------------------------------------------------------------
   */
 
-  if (campaignLoading) {
+  if (!isZakat && campaignLoading) {
     return (
       <div className="min-h-screen bg-[#FFF8F2] pt-20 flex items-center justify-center">
 
@@ -1196,8 +1358,9 @@ export default function DonationForm({
         <div className="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 text-center">
 
           <div className="inline-flex items-center gap-2 bg-white/20 border border-white/30 rounded-full px-4 py-2 mb-5 text-white text-xs font-semibold">
-            ❤️ Formulir Donasi —
-            LAZISMU Pemalang
+            {isZakat
+              ? "🕌 Formulir Zakat — LAZISMU Pemalang"
+              : "❤️ Formulir Donasi — LAZISMU Pemalang"}
           </div>
 
           <h1
@@ -1207,14 +1370,15 @@ export default function DonationForm({
                 "'Plus Jakarta Sans', sans-serif",
             }}
           >
-            Tunaikan Kebaikan Anda
+            {isZakat
+              ? "Tunaikan Zakat Anda"
+              : "Tunaikan Kebaikan Anda"}
           </h1>
 
           <p className="text-white/75 text-sm">
-            Pilih program, isi
-            data, kemudian
-            lanjutkan pembayaran
-            melalui Midtrans.
+            {isZakat
+              ? "Isi data muzaki, periksa nominal zakat, kemudian lanjutkan pembayaran melalui Midtrans."
+              : "Pilih program, isi data, kemudian lanjutkan pembayaran melalui Midtrans."}
           </p>
 
         </div>
@@ -1294,7 +1458,7 @@ export default function DonationForm({
               STEP 1
           ======================================================== */}
 
-          {step === 1 && (
+          {!isZakat && step === 1 && (
             <div>
 
               <h2 className="text-xl font-bold text-gray-800 mb-2">
@@ -1477,7 +1641,8 @@ export default function DonationForm({
           {step === 2 && (
             <div>
 
-              {selectedCampaign && (
+              {!isZakat &&
+                selectedCampaign && (
                 <div className="bg-[#FEF0E4] border border-[#F58220]/30 rounded-xl p-4 mb-6">
 
                   <div className="text-xs text-gray-500 mb-1">
@@ -1543,22 +1708,24 @@ export default function DonationForm({
                     className="w-full bg-white border border-[#F3DEC8] rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#F58220]"
                   />
 
-                  <label className="flex items-center gap-2 mt-3 text-sm text-gray-600 cursor-pointer">
+                  {!isZakat && (
+                    <label className="flex items-center gap-2 mt-3 text-sm text-gray-600 cursor-pointer">
 
-                    <input
-                      type="checkbox"
-                      checked={
-                        isAnonymous
-                      }
-                      onChange={
-                        handleAnonymous
-                      }
-                    />
+                      <input
+                        type="checkbox"
+                        checked={
+                          isAnonymous
+                        }
+                        onChange={
+                          handleAnonymous
+                        }
+                      />
 
-                    Sembunyikan nama
-                    sebagai Hamba Allah
+                      Sembunyikan nama
+                      sebagai Hamba Allah
 
-                  </label>
+                    </label>
+                  )}
 
                 </div>
 
@@ -1629,37 +1796,39 @@ export default function DonationForm({
                     Nominal Donasi
                   </label>
 
-                  <div className="grid grid-cols-3 gap-2 mb-3">
+                  {!isZakat && (
+                    <div className="grid grid-cols-3 gap-2 mb-3">
 
-                    {presets.map(
-                      (preset) => (
-                        <button
-                          type="button"
-                          key={preset}
-                          onClick={() => {
-                            setSelectedAmount(
+                      {presets.map(
+                        (preset) => (
+                          <button
+                            type="button"
+                            key={preset}
+                            onClick={() => {
+                              setSelectedAmount(
+                                preset
+                              );
+
+                              setCustomAmount(
+                                ""
+                              );
+                            }}
+                            className={`py-3 rounded-xl text-sm font-semibold ${
+                              selectedAmount ===
                               preset
-                            );
+                                ? "bg-[#F58220] text-white"
+                                : "bg-white border border-[#F3DEC8] text-gray-700"
+                            }`}
+                          >
+                            {formatRupiah(
+                              preset
+                            )}
+                          </button>
+                        )
+                      )}
 
-                            setCustomAmount(
-                              ""
-                            );
-                          }}
-                          className={`py-3 rounded-xl text-sm font-semibold ${
-                            selectedAmount ===
-                            preset
-                              ? "bg-[#F58220] text-white"
-                              : "bg-white border border-[#F3DEC8] text-gray-700"
-                          }`}
-                        >
-                          {formatRupiah(
-                            preset
-                          )}
-                        </button>
-                      )
-                    )}
-
-                  </div>
+                    </div>
+                  )}
 
                   <div className="relative">
 
@@ -1684,6 +1853,7 @@ export default function DonationForm({
                       onChange={
                         handleCustomAmount
                       }
+                      readOnly={isZakat}
                       onFocus={() => {
                         if (
                           selectedAmount !==
@@ -1703,7 +1873,11 @@ export default function DonationForm({
                           );
                         }
                       }}
-                      placeholder="Nominal lainnya"
+                      placeholder={
+                        isZakat
+                          ? "Nominal dari kalkulator zakat"
+                          : "Nominal lainnya"
+                      }
                       className="w-full bg-white border border-[#F3DEC8] rounded-xl pl-12 pr-4 py-3 text-sm focus:outline-none focus:border-[#F58220]"
                     />
 
@@ -1737,15 +1911,17 @@ export default function DonationForm({
 
               <div className="flex gap-3 mt-8">
 
-                <button
-                  type="button"
-                  onClick={() =>
-                    setStep(1)
-                  }
-                  className="px-6 py-3 rounded-xl border border-[#F3DEC8]"
-                >
-                  ← Kembali
-                </button>
+                {!isZakat && (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setStep(1)
+                    }
+                    className="px-6 py-3 rounded-xl border border-[#F3DEC8]"
+                  >
+                    ← Kembali
+                  </button>
+                )}
 
                 <button
                   type="button"
@@ -1780,16 +1956,31 @@ export default function DonationForm({
 
               <div className="bg-white border border-[#F3DEC8] rounded-2xl p-6 space-y-4">
 
-                <Summary
-                  label="Program"
-                  value={
-                    selectedCampaign?.title ??
-                    "-"
-                  }
-                />
+                {isZakat ? (
+                  <Summary
+                    label="Jenis Zakat"
+                    value={
+                      zakatType === "profesi"
+                        ? "Zakat Penghasilan"
+                        : "Zakat Maal"
+                    }
+                  />
+                ) : (
+                  <Summary
+                    label="Program"
+                    value={
+                      selectedCampaign?.title ??
+                      "-"
+                    }
+                  />
+                )}
 
                 <Summary
-                  label="Donatur"
+                  label={
+                    isZakat
+                      ? "Muzaki"
+                      : "Donatur"
+                  }
                   value={
                     displayName
                   }
