@@ -39,7 +39,7 @@ export default function RegisterPage({ onNavigate }: RegisterPageProps) {
     <div className="min-h-screen bg-[#FFF8F2] flex items-center justify-center px-4 py-24">
       <div className="w-full max-w-md bg-white border border-[#F3DEC8] rounded-2xl shadow-sm p-8">
         <div className="text-center mb-8">
-          <img src={logo} alt="LAZISMU Kabupaten Pemalang" className="h-16 w-auto object-contain mx-auto mb-1" />
+          <img src={logo} alt="Lazismu Pemalang" className="h-16 w-auto object-contain mx-auto mb-1" />
           <h1 className="text-2xl font-bold text-gray-900 mt-4" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Daftar Akun Baru</h1>
           <p className="text-sm text-gray-500 mt-1">Bergabung dan mulai berdonasi dengan mudah</p>
         </div>

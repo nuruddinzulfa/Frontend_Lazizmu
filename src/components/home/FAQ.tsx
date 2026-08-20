@@ -3,12 +3,12 @@ import { useInView } from '../../hooks/useInView'
 
 const faqs = [
   {
-    q: 'Apakah LAZISMU Pemalang sudah resmi dan terpercaya?',
-    a: 'Ya. LAZISMU adalah Lembaga Amil Zakat Nasional (LAZNAS) yang telah mendapat izin resmi dari Kementerian Agama RI sejak 2002. LAZISMU Pemalang adalah cabang resmi yang beroperasi di Kabupaten Pemalang dengan pengawasan dari Dewan Pengawas Syariah dan auditor independen.',
+    q: 'Apakah Lazismu Pemalang sudah resmi dan terpercaya?',
+    a: 'Ya. Lazismu adalah Lembaga Amil Zakat Nasional (LAZNAS) yang telah mendapat izin resmi dari Kementerian Agama RI sejak 2002. Lazismu Pemalang adalah cabang resmi yang beroperasi di Pemalang dengan pengawasan dari Dewan Pengawas Syariah dan auditor independen.',
   },
   {
-    q: 'Bagaimana cara berdonasi melalui LAZISMU Pemalang?',
-    a: 'Donasi dapat dilakukan melalui: (1) Website ini menggunakan QRIS, transfer bank, atau e-wallet; (2) Transfer langsung ke rekening LAZISMU Pemalang; (3) Datang langsung ke kantor kami di Jl. Ahmad Yani No. 12, Pemalang; (4) Melalui relawan kami yang tersebar di 14 kecamatan.',
+    q: 'Bagaimana cara berdonasi melalui Lazismu Pemalang?',
+    a: 'Donasi dapat dilakukan melalui: (1) Website ini menggunakan QRIS, transfer bank, atau e-wallet; (2) Transfer langsung ke rekening Lazismu Pemalang; (3) Datang langsung ke kantor kami di Jl. Ahmad Yani No. 12, Pemalang; (4) Melalui relawan kami yang tersebar di 14 kecamatan.',
   },
   {
     q: 'Berapa nisab zakat profesi saat ini?',
@@ -19,8 +19,8 @@ const faqs = [
     a: 'Ya, kami berkomitmen pada transparansi penuh. Laporan keuangan triwulanan dan tahunan dipublikasikan di website ini dan dapat diunduh oleh siapapun. Kami juga mengirimkan laporan penyaluran kepada donatur yang mendaftar untuk notifikasi.',
   },
   {
-    q: 'Bagaimana cara menjadi relawan LAZISMU Pemalang?',
-    a: 'Anda bisa mendaftar sebagai relawan melalui formulir pendaftaran di website kami, menghubungi kantor LAZISMU Pemalang, atau menghubungi WhatsApp di 0812-XXXX-XXXX. Tidak ada syarat khusus — cukup niat tulus untuk membantu sesama.',
+    q: 'Bagaimana cara menjadi relawan Lazismu Pemalang?',
+    a: 'Anda bisa mendaftar sebagai relawan melalui formulir pendaftaran di website kami, menghubungi kantor Lazismu Pemalang, atau menghubungi WhatsApp di 0812-XXXX-XXXX. Tidak ada syarat khusus — cukup niat tulus untuk membantu sesama.',
   },
   {
     q: 'Apakah donasi saya bisa untuk program tertentu yang saya pilih?',
@@ -124,7 +124,7 @@ export default function FAQ() {
               Chat WhatsApp
             </a>
             {/* <a
-              href="mailto:info@lazismu-pemalang.or.id"
+              href="mailto:info@Lazismu-pemalang.or.id"
               className="bg-white/20 text-white hover:bg-white/30 transition-colors px-6 py-2.5 rounded-xl font-semibold text-sm flex items-center gap-2"
               style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
             >

@@ -443,7 +443,7 @@ export default function ArticleManagement() {
 
           <p className="mt-1 text-sm text-gray-500">
             Kelola artikel dan informasi edukasi
-            LAZISMU.
+            Lazismu.
           </p>
         </div>
 

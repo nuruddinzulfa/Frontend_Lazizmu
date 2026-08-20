@@ -15,7 +15,7 @@ export default function SettingsManagement() {
         </h1>
 
         <p className="mt-1 text-sm text-gray-500">
-          Informasi konfigurasi sistem administrasi LAZISMU.
+          Informasi konfigurasi sistem administrasi Lazismu.
         </p>
       </div>
 

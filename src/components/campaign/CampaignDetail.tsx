@@ -182,7 +182,7 @@ export default function CampaignDetail({
             ) : (
               <div className="mb-6 flex h-[380px] items-center justify-center rounded-2xl border border-[#F3DEC8] bg-[#FFF0DE]">
                 <span className="font-semibold text-[#F58220]">
-                  LAZISMU
+                  Lazismu
                 </span>
               </div>
             )}

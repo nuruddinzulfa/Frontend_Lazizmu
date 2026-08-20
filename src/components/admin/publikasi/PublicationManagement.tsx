@@ -523,7 +523,7 @@ export default function PublicationManagement() {
           </h1>
 
           <p className="mt-1 text-sm text-gray-500">
-            Kelola laporan publikasi LAZISMU.
+            Kelola laporan publikasi Lazismu.
           </p>
         </div>
 
@@ -1230,7 +1230,7 @@ export default function PublicationManagement() {
                       event.target.value
                     )
                   }
-                  placeholder="Contoh: Laporan Keuangan LAZISMU 2026"
+                  placeholder="Contoh: Laporan Keuangan Lazismu 2026"
                   className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-[#F58220] focus:ring-1 focus:ring-[#F58220]"
                   required
                 />

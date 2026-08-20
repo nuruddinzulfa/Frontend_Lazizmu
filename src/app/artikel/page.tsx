@@ -495,7 +495,7 @@ export default function ArtikelPage({
                             </div>
 
                             <span>
-                              LAZISMU Pemalang
+                              Lazismu Pemalang
                             </span>
 
                           </div>

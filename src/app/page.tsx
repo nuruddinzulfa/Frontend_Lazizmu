@@ -14,11 +14,16 @@ import type { NavPage } from '../App'
 interface HomePageProps {
   onNavigate: (page: NavPage) => void
   onOpenPillar?: (category: string) => void
+  onOpenContent?: (
+    type: 'berita' | 'artikel',
+    id: number
+  ) => void
 }
 
 export default function HomePage({
   onNavigate,
   onOpenPillar,
+  onOpenContent,
 }: HomePageProps) {
   return (
     <>
@@ -51,6 +56,7 @@ export default function HomePage({
 
       <NewsSection
         onNavigate={onNavigate}
+        onOpenContent={onOpenContent}
       />
 
       <FAQ />

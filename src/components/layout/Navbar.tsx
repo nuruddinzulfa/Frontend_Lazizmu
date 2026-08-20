@@ -22,7 +22,7 @@ const pageNavLinks: {
     page: "about",
   },
   {
-    label: "Program & Kampanye",
+    label: "Program & Campaign",
     page: "program",
   },
   {
@@ -197,11 +197,11 @@ export default function Navbar({
               handleLogoClick
             }
             className="flex-shrink-0 cursor-pointer"
-            aria-label="Beranda LAZISMU Pemalang"
+            aria-label="Beranda Lazismu Pemalang"
           >
             <img
               src={logo}
-              alt="LAZISMU Kabupaten Pemalang"
+              alt="Lazismu Pemalang"
               className="h-9 sm:h-11 lg:h-13 w-auto object-contain"
             />
           </button>

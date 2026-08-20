@@ -484,7 +484,7 @@ export default function PartnerManagement() {
           </h1>
 
           <p className="mt-1 text-sm text-gray-500">
-            Kelola daftar mitra yang tampil pada website LAZISMU.
+            Kelola daftar mitra yang tampil pada website Lazismu.
           </p>
         </div>
 

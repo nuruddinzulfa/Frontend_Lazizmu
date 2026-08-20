@@ -371,7 +371,7 @@ export default function QuickDonation({
                   <p className="mx-auto mb-8 max-w-sm text-sm leading-7 text-gray-500">
                     Pilih program yang ingin Anda
                     dukung dan salurkan donasi melalui
-                    layanan LAZISMU Pemalang.
+                    layanan Lazismu Pemalang.
                   </p>
 
 

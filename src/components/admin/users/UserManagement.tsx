@@ -702,7 +702,7 @@ export default function UserManagement() {
           </h1>
 
           <p className="mt-1 text-sm text-gray-500">
-            Kelola pengguna, admin, dan hak akses sistem LAZISMU.
+            Kelola pengguna, admin, dan hak akses sistem Lazismu.
           </p>
         </div>
 
@@ -1182,7 +1182,7 @@ export default function UserManagement() {
                   value={createForm.email}
                   disabled={createLoading}
                   onChange={(event) => handleCreateInputChange('email', event.target.value)}
-                  placeholder="nama@lazismu.org"
+                  placeholder="nama@Lazismu.org"
                   className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm outline-none transition focus:border-[#F58220] focus:ring-1 focus:ring-[#F58220] disabled:cursor-not-allowed disabled:bg-gray-50"
                 />
               </div>
@@ -1362,7 +1362,7 @@ export default function UserManagement() {
                   value={editForm.email}
                   disabled={editLoading}
                   onChange={(event) => handleEditInputChange('email', event.target.value)}
-                  placeholder="nama@lazismu.org"
+                  placeholder="nama@Lazismu.org"
                   className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm outline-none transition focus:border-[#F58220] focus:ring-1 focus:ring-[#F58220] disabled:cursor-not-allowed disabled:bg-gray-50"
                 />
               </div>

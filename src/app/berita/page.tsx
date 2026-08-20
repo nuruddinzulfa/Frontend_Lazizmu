@@ -11,12 +11,12 @@ interface BeritaPageProps {
   ) => void
 }
 
-const categories = [
-  'Semua',
-  'Kegiatan',
-  'Pengumuman',
-  'Laporan',
-]
+// const categories = [
+//   'Semua',
+//   'Kegiatan',
+//   'Pengumuman',
+//   'Laporan',
+// ]
 
 const categoryColors: Record<string, string> = {
   Kegiatan: 'bg-blue-100 text-blue-700',
@@ -67,8 +67,8 @@ export default function BeritaPage({
   const [newsData, setNewsData] =
     useState<News[]>([])
 
-  const [activeCategory, setActiveCategory] =
-    useState('Semua')
+  // const [activeCategory, setActiveCategory] =
+  //   useState('Semua')
 
   const [isLoading, setIsLoading] =
     useState(true)
@@ -128,13 +128,7 @@ export default function BeritaPage({
   const regular =
     newsData.slice(1)
 
-  const filtered =
-    activeCategory === 'Semua'
-      ? regular
-      : regular.filter(
-          (news) =>
-            news.category === activeCategory
-        )
+const filtered = regular
 
   const openNews = (id: number) => {
     onOpenContent?.('berita', id)
@@ -194,7 +188,7 @@ export default function BeritaPage({
 
           <p className="mt-4 text-lg opacity-90 max-w-2xl">
             Informasi terkini kegiatan,
-            pengumuman, dan laporan LAZISMU
+            pengumuman, dan laporan Lazismu
             Pemalang.
           </p>
         </div>
@@ -236,7 +230,7 @@ export default function BeritaPage({
               )}
 
               {/* FILTER */}
-              <div className="flex flex-wrap gap-3">
+              {/* <div className="flex flex-wrap gap-3">
                 {categories.map(
                   (category) => (
                     <button
@@ -258,7 +252,7 @@ export default function BeritaPage({
                     </button>
                   )
                 )}
-              </div>
+              </div> */}
 
               {/* NEWS GRID */}
               {filtered.length === 0 ? (
@@ -289,7 +283,7 @@ export default function BeritaPage({
             <aside className="space-y-6">
 
               {/* CATEGORY */}
-              <div className="bg-white border border-[#F3DEC8] rounded-2xl p-6 shadow-sm">
+              {/* <div className="bg-white border border-[#F3DEC8] rounded-2xl p-6 shadow-sm">
                 <h3
                   className="font-bold text-gray-900 mb-4"
                   style={{
@@ -355,7 +349,7 @@ export default function BeritaPage({
                       }
                     )}
                 </div>
-              </div>
+              </div> */}
 
               {/* LATEST NEWS */}
               <div className="bg-white border border-[#F3DEC8] rounded-2xl p-6 shadow-sm">

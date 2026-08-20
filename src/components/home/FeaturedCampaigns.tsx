@@ -179,7 +179,7 @@ function CampaignCard({
 
   const category =
     campaign.category?.trim() ||
-    "Kampanye";
+    "Campaign";
 
   return (
     <article
@@ -214,7 +214,7 @@ function CampaignCard({
               </div>
 
               <p className="text-xs font-semibold text-[#F58220]">
-                LAZISMU Pemalang
+                Lazismu Pemalang
               </p>
             </div>
           </div>
@@ -411,7 +411,7 @@ export default function FeaturedCampaigns({
           if (!response.ok) {
             throw new Error(
               data.message ||
-                "Gagal mengambil kampanye."
+                "Gagal mengambil campaign."
             );
           }
 
@@ -442,7 +442,7 @@ export default function FeaturedCampaigns({
           setError(
             error instanceof Error
               ? error.message
-              : "Gagal mengambil kampanye."
+              : "Gagal mengambil campaign."
           );
         } finally {
           setLoading(false);
@@ -566,15 +566,15 @@ export default function FeaturedCampaigns({
                 "'Plus Jakarta Sans', sans-serif",
             }}
           >
-            Kampanye Unggulan
+            Campaign Unggulan
           </h2>
 
           <div className="mx-auto mt-4 h-1 w-14 rounded-full bg-gradient-to-r from-[#F58220] to-[#D96808]" />
 
           <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-gray-600 sm:text-base">
-            Pilih kampanye yang sesuai
+            Pilih campaign yang sesuai
             dengan niat kebaikan Anda.
-            Bersama LAZISMU, setiap
+            Bersama Lazismu, setiap
             donasi menjadi manfaat bagi
             mereka yang membutuhkan.
           </p>
@@ -591,7 +591,7 @@ export default function FeaturedCampaigns({
             <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-4 border-[#F58220] border-t-transparent" />
 
             <p className="text-sm font-medium text-gray-500">
-              Mengambil kampanye...
+              Mengambil campaign...
             </p>
 
           </div>
@@ -629,7 +629,7 @@ export default function FeaturedCampaigns({
               </div>
 
               <p className="mb-2 font-bold text-gray-800">
-                Belum ada kampanye
+                Belum ada campaign
                 unggulan
               </p>
 
@@ -702,7 +702,7 @@ export default function FeaturedCampaigns({
                 "'Plus Jakarta Sans', sans-serif",
             }}
           >
-            Lihat Semua Kampanye
+            Lihat Semua Campaign
 
             <span className="transition-transform duration-200 group-hover:translate-x-1">
               →

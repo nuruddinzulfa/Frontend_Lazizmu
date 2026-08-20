@@ -110,7 +110,7 @@ export default function AdminSidebar({
       <div className="flex h-[62px] items-center justify-center border-b border-[#F3DEC8] px-4">
         <img
           src={logo}
-          alt="LAZISMU Kabupaten Pemalang"
+          alt="Lazismu Pemalang"
           className="h-11 w-auto object-contain"
         />
       </div>

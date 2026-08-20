@@ -338,7 +338,7 @@ export default function FinancialTransparency() {
           <div className="mx-auto mt-4 h-1 w-14 rounded-full bg-gradient-to-r from-[#F58220] to-[#D96808]" />
 
           <p className="mx-auto mt-5 text-sm leading-7 text-gray-600 sm:text-base">
-            LAZISMU Pemalang berkomitmen
+            Lazismu Pemalang berkomitmen
             memberikan akses informasi laporan
             dan publikasi secara transparan
             kepada masyarakat.
@@ -561,7 +561,7 @@ export default function FinancialTransparency() {
                                 </div>
 
                                 <div className="text-xs font-bold uppercase tracking-wider text-[#F58220]">
-                                  LAZISMU
+                                  Lazismu
                                   Pemalang
                                 </div>
 
@@ -614,7 +614,7 @@ export default function FinancialTransparency() {
 
                           <p className="mb-5 line-clamp-3 flex-1 text-sm leading-7 text-gray-500">
                             {report.description ||
-                              "Publikasi resmi LAZISMU Pemalang."}
+                              "Publikasi resmi Lazismu Pemalang."}
                           </p>
 
                           {/* DATE */}

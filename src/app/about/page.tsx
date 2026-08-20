@@ -157,7 +157,7 @@ export default function AboutPage() {
   }
 
   const organizationName =
-    profile?.name || 'LAZISMU Kabupaten Pemalang'
+    profile?.name || 'Lazismu Pemalang'
 
   const logoUrl =
     getOrganizationLogoUrl(
@@ -258,7 +258,7 @@ export default function AboutPage() {
 
               <p className="mt-5 max-w-xl text-base leading-7 text-white/90 sm:text-lg">
                 {profile?.tagline ||
-                  'Lembaga Amil Zakat, Infak, dan Sedekah Muhammadiyah Kabupaten Pemalang'}
+                  'Lembaga Amil Zakat, Infak, dan Sedekah Muhammadiyah Pemalang'}
               </p>
 
             </div>
@@ -542,7 +542,10 @@ export default function AboutPage() {
           STRUKTUR ORGANISASI
       ===================================================== */}
 
-      <section className="relative overflow-hidden bg-white px-4 py-14 sm:px-6 lg:px-8">
+      <section
+        id="struktur-organisasi"
+        className="scroll-mt-24 relative overflow-hidden bg-white px-4 py-14 sm:px-6 lg:px-8"
+      >
 
         {/* Pattern */}
 
@@ -564,7 +567,7 @@ export default function AboutPage() {
             </div>
 
             <h2 className="text-3xl font-bold text-gray-900 sm:text-4xl">
-              Tim Pengurus {organizationName}
+              Badan Pengelola {organizationName}
             </h2>
 
             <div className="mx-auto mt-4 h-1 w-14 rounded-full bg-[#F58220]" />
@@ -650,11 +653,10 @@ export default function AboutPage() {
                       <div className="mx-auto mt-4 flex h-7 w-7 items-center justify-center rounded-full border border-[#F3DEC8] bg-[#FFF8F2]">
 
                         <svg
-                          className={`h-3.5 w-3.5 text-[#F58220] transition-transform ${
-                            isExpanded
+                          className={`h-3.5 w-3.5 text-[#F58220] transition-transform ${isExpanded
                               ? 'rotate-180'
                               : ''
-                          }`}
+                            }`}
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -675,11 +677,10 @@ export default function AboutPage() {
                     {/* DETAIL */}
 
                     <div
-                      className={`grid transition-all duration-300 ${
-                        isExpanded
+                      className={`grid transition-all duration-300 ${isExpanded
                           ? 'grid-rows-[1fr]'
                           : 'grid-rows-[0fr]'
-                      }`}
+                        }`}
                     >
 
                       <div className="overflow-hidden">

@@ -551,7 +551,7 @@ export default function ContentDashboard() {
 
         <p className="mt-1 text-sm text-gray-500">
           Ringkasan konten
-          website LAZISMU
+          website Lazismu
           Pemalang berdasarkan
           data backend.
         </p>
@@ -1009,7 +1009,7 @@ export default function ContentDashboard() {
           <p className="mt-1 text-xs text-gray-500">
             Data publik yang
             sedang tersedia di
-            website LAZISMU
+            website Lazismu
             Pemalang.
           </p>
 

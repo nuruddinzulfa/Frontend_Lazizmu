@@ -1,4 +1,8 @@
-import { useEffect, useState } from 'react'
+import {
+  useEffect,
+  
+  useState,
+} from 'react'
 
 import Navbar from './components/layout/Navbar'
 import Footer from './components/layout/Footer'
@@ -89,6 +93,17 @@ export default function App() {
 
   /*
   |--------------------------------------------------------------------------
+  | SECTION NAVIGATION STATE
+  |--------------------------------------------------------------------------
+  */
+
+  const [
+    pendingSectionId,
+    setPendingSectionId,
+  ] = useState<string | null>(null)
+
+  /*
+  |--------------------------------------------------------------------------
   | DONATION STATE
   |--------------------------------------------------------------------------
   */
@@ -97,7 +112,9 @@ export default function App() {
     useState<number | null>(null)
 
   const [zakatType, setZakatType] =
-    useState<'profesi' | 'maal' | null>(null)
+    useState<
+      'profesi' | 'maal' | null
+    >(null)
 
   const [selectedProgram, setSelectedProgram] =
     useState<string | null>(null)
@@ -129,8 +146,10 @@ export default function App() {
   |--------------------------------------------------------------------------
   */
 
-  const [currentCampaignId, setCurrentCampaignId] =
-    useState<number | null>(null)
+  const [
+    currentCampaignId,
+    setCurrentCampaignId,
+  ] = useState<number | null>(null)
 
   /*
   |--------------------------------------------------------------------------
@@ -196,6 +215,9 @@ export default function App() {
     const search =
       window.location.search
 
+    const hash =
+      window.location.hash
+
     /*
     |--------------------------------------------------------------------------
     | DONASI / MIDTRANS RETURN
@@ -210,7 +232,7 @@ export default function App() {
           page: 'donasi',
         },
         '',
-        `/donasi${search}`
+        `/donasi${search}${hash}`
       )
 
       return
@@ -253,8 +275,8 @@ export default function App() {
     if (contentMatch) {
       const type =
         contentMatch[1] as
-          | 'berita'
-          | 'artikel'
+        | 'berita'
+        | 'artikel'
 
       const id = Number(
         contentMatch[2]
@@ -297,7 +319,6 @@ export default function App() {
       )
 
       setCurrentCampaignId(id)
-      setCurrentCampaignId(id)
       setPage('campaign-detail')
 
       window.history.replaceState(
@@ -324,18 +345,20 @@ export default function App() {
       )
 
     if (pillarMatch) {
-      const slug = decodeURIComponent(
-        pillarMatch[1]
-      )
-
-      const category = slug
-        .split('-')
-        .map(
-          (word) =>
-            word.charAt(0).toUpperCase() +
-            word.slice(1)
+      const slug =
+        decodeURIComponent(
+          pillarMatch[1]
         )
-        .join(' ')
+
+      const category =
+        slug
+          .split('-')
+          .map(
+            (word) =>
+              word.charAt(0).toUpperCase() +
+              word.slice(1)
+          )
+          .join(' ')
 
       setCurrentPillar(category)
       setPage('pilar-detail')
@@ -381,6 +404,12 @@ export default function App() {
     if (
       validPages.includes(pathPage)
     ) {
+      /*
+      |--------------------------------------------------------------------------
+      | DASHBOARD PROTECTION
+      |--------------------------------------------------------------------------
+      */
+
       if (
         pathPage === 'dashboard' &&
         !localStorage.getItem('token')
@@ -400,12 +429,31 @@ export default function App() {
 
       setPage(pathPage)
 
+      /*
+      |--------------------------------------------------------------------------
+      | SUPPORT DIRECT HASH
+      |--------------------------------------------------------------------------
+      */
+
+      if (
+        pathPage === 'about' &&
+        hash
+      ) {
+        setPendingSectionId(
+          hash.replace(/^#/, '')
+        )
+      }
+
       window.history.replaceState(
         {
           page: pathPage,
+          sectionId:
+            hash
+              ? hash.replace(/^#/, '')
+              : null,
         },
         '',
-        pathname + search
+        pathname + search + hash
       )
 
       return
@@ -430,13 +478,108 @@ export default function App() {
 
   /*
   |--------------------------------------------------------------------------
-  | GENERAL NAVIGATION
+  | SCROLL TO SECTION AFTER PAGE RENDER
   |--------------------------------------------------------------------------
   */
 
+  useEffect(() => {
+    if (!pendingSectionId) {
+      return
+    }
+
+    if (page !== 'about') {
+      return
+    }
+
+    let cancelled = false
+    let timeoutId: number | undefined
+
+    const scrollToSection = () => {
+      if (cancelled) {
+        return
+      }
+
+      const element =
+        document.getElementById(
+          pendingSectionId
+        )
+
+      if (!element) {
+        timeoutId = window.setTimeout(
+          scrollToSection,
+          100
+        )
+
+        return
+      }
+
+      const navbarOffset = 88
+
+      const elementTop =
+        element.getBoundingClientRect().top +
+        window.scrollY
+
+      const targetTop = Math.max(
+        elementTop - navbarOffset,
+        0
+      )
+
+      window.scrollTo({
+        top: targetTop,
+        behavior: 'smooth',
+      })
+
+      setPendingSectionId(null)
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Tunggu halaman About selesai render
+    |--------------------------------------------------------------------------
+    */
+
+    timeoutId = window.setTimeout(
+      scrollToSection,
+      300
+    )
+
+    return () => {
+      cancelled = true
+
+      if (timeoutId) {
+        window.clearTimeout(
+          timeoutId
+        )
+      }
+    }
+  }, [
+    page,
+    pendingSectionId,
+  ])
+
+  /*
+  |--------------------------------------------------------------------------
+  | GENERAL NAVIGATION
+  |--------------------------------------------------------------------------
+  */
+  const saveCurrentScrollPosition = () => {
+  const currentState =
+    window.history.state || {}
+
+  window.history.replaceState(
+    {
+      ...currentState,
+      scrollY: window.scrollY,
+    },
+    '',
+    window.location.href
+  )
+}
   const handleNavigate = (
-    targetPage: NavPage
+    targetPage: NavPage,
+    sectionId?: string
   ) => {
+    saveCurrentScrollPosition()
     /*
     |--------------------------------------------------------------------------
     | Dashboard membutuhkan login
@@ -449,6 +592,7 @@ export default function App() {
 
       if (!token) {
         setPage('login')
+        setPendingSectionId(null)
 
         window.history.pushState(
           {
@@ -518,6 +662,27 @@ export default function App() {
 
     /*
     |--------------------------------------------------------------------------
+    | Simpan target section
+    |--------------------------------------------------------------------------
+    */
+
+    setPendingSectionId(
+      sectionId ?? null
+    )
+    /*
+    |--------------------------------------------------------------------------
+    | Reset scroll SEBELUM pindah halaman
+    |--------------------------------------------------------------------------
+    */
+
+    if (sectionId) {
+      window.scrollTo({
+        top: 0,
+        behavior: 'auto',
+      })
+    }
+    /*
+    |--------------------------------------------------------------------------
     | Set page
     |--------------------------------------------------------------------------
     */
@@ -530,24 +695,35 @@ export default function App() {
     |--------------------------------------------------------------------------
     */
 
+    const path =
+      getPathForPage(targetPage)
+
+    const targetUrl = sectionId
+      ? `${path}#${sectionId}`
+      : path
+
     window.history.pushState(
       {
         page: targetPage,
+        sectionId:
+          sectionId ?? null,
       },
       '',
-      getPathForPage(targetPage)
+      targetUrl
     )
 
     /*
     |--------------------------------------------------------------------------
-    | Scroll top
+    | Jika tidak ada section, scroll ke atas.
     |--------------------------------------------------------------------------
     */
 
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth',
-    })
+    if (!sectionId) {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth',
+      })
+    }
   }
 
   /*
@@ -559,6 +735,7 @@ export default function App() {
   const handleOpenPillar = (
     category: string
   ) => {
+    saveCurrentScrollPosition()
     setCurrentPillar(category)
 
     setCurrentCampaignId(null)
@@ -568,12 +745,15 @@ export default function App() {
     setZakatType(null)
     setSelectedProgram(null)
 
+    setPendingSectionId(null)
+
     setPage('pilar-detail')
 
-    const slug = category
-      .toLowerCase()
-      .trim()
-      .replace(/\s+/g, '-')
+    const slug =
+      category
+        .toLowerCase()
+        .trim()
+        .replace(/\s+/g, '-')
 
     window.history.pushState(
       {
@@ -600,6 +780,7 @@ export default function App() {
     amount: number,
     type: 'profesi' | 'maal'
   ) => {
+    saveCurrentScrollPosition()
     setZakatAmount(amount)
     setZakatType(type)
 
@@ -607,6 +788,7 @@ export default function App() {
     setCurrentPillar(null)
     setCurrentCampaignId(null)
     setSelectedProgram(null)
+    setPendingSectionId(null)
 
     setPage('donasi')
 
@@ -633,6 +815,7 @@ export default function App() {
   const handleNavigateToDonasiWithProgram = (
     program: string
   ) => {
+    saveCurrentScrollPosition()
     setSelectedProgram(program)
 
     setZakatAmount(null)
@@ -641,6 +824,7 @@ export default function App() {
     setCurrentContent(null)
     setCurrentPillar(null)
     setCurrentCampaignId(null)
+    setPendingSectionId(null)
 
     setPage('donasi')
 
@@ -669,6 +853,7 @@ export default function App() {
     type: 'berita' | 'artikel',
     id: number
   ) => {
+    saveCurrentScrollPosition()
     const content = {
       type,
       id,
@@ -682,6 +867,7 @@ export default function App() {
     setZakatAmount(null)
     setZakatType(null)
     setSelectedProgram(null)
+    setPendingSectionId(null)
 
     setPage('baca')
 
@@ -709,6 +895,7 @@ export default function App() {
   const handleOpenCampaign = (
     id: number
   ) => {
+    saveCurrentScrollPosition()
     setCurrentCampaignId(id)
 
     setCurrentPillar(null)
@@ -717,6 +904,7 @@ export default function App() {
     setZakatAmount(null)
     setZakatType(null)
     setSelectedProgram(null)
+    setPendingSectionId(null)
 
     setPage('campaign-detail')
 
@@ -790,6 +978,7 @@ export default function App() {
             )
 
             setPage('login')
+            setPendingSectionId(null)
 
             return
           }
@@ -807,9 +996,10 @@ export default function App() {
           if (
             shouldOpenDashboard &&
             window.location.pathname !==
-              '/donasi'
+            '/donasi'
           ) {
             setPage('dashboard')
+            setPendingSectionId(null)
           }
         } catch (error) {
           console.error(
@@ -829,17 +1019,12 @@ export default function App() {
             'adminDashboard'
           )
 
-          /*
-          |--------------------------------------------------------------------------
-          | Jangan ganggu return Midtrans
-          |--------------------------------------------------------------------------
-          */
-
           if (
             window.location.pathname !==
             '/donasi'
           ) {
             setPage('login')
+            setPendingSectionId(null)
           }
         } finally {
           setAuthLoading(false)
@@ -856,146 +1041,219 @@ export default function App() {
   */
 
   useEffect(() => {
-    const handlePopState = (
-      event: PopStateEvent
-    ) => {
-      const state =
-        event.state
+  const handlePopState = (
+    event: PopStateEvent
+  ) => {
+    const state = event.state
 
-      if (!state?.page) {
-        setPage('home')
+    /*
+    |--------------------------------------------------------------------------
+    | Jika tidak ada history state
+    |--------------------------------------------------------------------------
+    */
 
-        setCurrentContent(null)
-        setCurrentPillar(null)
-        setCurrentCampaignId(null)
+    if (!state?.page) {
+      setPage('home')
 
-        setZakatAmount(null)
-        setSelectedProgram(null)
+      setCurrentContent(null)
+      setCurrentPillar(null)
+      setCurrentCampaignId(null)
 
-        window.scrollTo({
-          top: 0,
-          behavior: 'smooth',
-        })
-
-        return
-      }
-
-      const targetPage =
-        state.page as NavPage
-
-      /*
-      |--------------------------------------------------------------------------
-      | Dashboard protection
-      |--------------------------------------------------------------------------
-      */
-
-      if (
-        targetPage === 'dashboard' &&
-        !localStorage.getItem('token')
-      ) {
-        setPage('login')
-
-        return
-      }
-
-      setPage(targetPage)
-
-      /*
-      |--------------------------------------------------------------------------
-      | Content
-      |--------------------------------------------------------------------------
-      */
-
-      if (
-        targetPage === 'baca' &&
-        state.content
-      ) {
-        setCurrentContent(
-          state.content
-        )
-      } else {
-        setCurrentContent(null)
-      }
-
-      /*
-      |--------------------------------------------------------------------------
-      | Pilar
-      |--------------------------------------------------------------------------
-      */
-
-      if (
-        targetPage === 'pilar-detail'
-      ) {
-        setCurrentPillar(
-          state.category ?? null
-        )
-      } else {
-        setCurrentPillar(null)
-      }
-
-      /*
-      |--------------------------------------------------------------------------
-      | Campaign
-      |--------------------------------------------------------------------------
-      */
-
-      if (
-        targetPage ===
-        'campaign-detail'
-      ) {
-        const campaignId =
-          Number(
-            state.campaignId
-          )
-
-        setCurrentCampaignId(
-          Number.isNaN(
-            campaignId
-          )
-            ? null
-            : campaignId
-        )
-      } else {
-        setCurrentCampaignId(null)
-      }
-
-      /*
-      |--------------------------------------------------------------------------
-      | Donation
-      |--------------------------------------------------------------------------
-      */
-
-      if (
-        targetPage !== 'donasi'
-      ) {
-        setZakatAmount(null)
-        setSelectedProgram(null)
-      }
-
-      /*
-      |--------------------------------------------------------------------------
-      | Scroll
-      |--------------------------------------------------------------------------
-      */
+      setZakatAmount(null)
+      setZakatType(null)
+      setSelectedProgram(null)
+      setPendingSectionId(null)
 
       window.scrollTo({
         top: 0,
-        behavior: 'smooth',
+        behavior: 'auto',
       })
+
+      return
     }
 
-    window.addEventListener(
+    const targetPage =
+      state.page as NavPage
+
+    /*
+    |--------------------------------------------------------------------------
+    | Dashboard protection
+    |--------------------------------------------------------------------------
+    */
+
+    if (
+      targetPage === 'dashboard' &&
+      !localStorage.getItem('token')
+    ) {
+      setPage('login')
+      setPendingSectionId(null)
+
+      window.scrollTo({
+        top: 0,
+        behavior: 'auto',
+      })
+
+      return
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | PAGE
+    |--------------------------------------------------------------------------
+    */
+
+    setPage(targetPage)
+
+    /*
+    |--------------------------------------------------------------------------
+    | SECTION
+    |--------------------------------------------------------------------------
+    */
+
+    const sectionId =
+      state.sectionId ?? null
+
+    setPendingSectionId(sectionId)
+
+    /*
+    |--------------------------------------------------------------------------
+    | CONTENT
+    |--------------------------------------------------------------------------
+    */
+
+    if (
+      targetPage === 'baca' &&
+      state.content
+    ) {
+      setCurrentContent(state.content)
+    } else {
+      setCurrentContent(null)
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | PILAR
+    |--------------------------------------------------------------------------
+    */
+
+    if (
+      targetPage === 'pilar-detail'
+    ) {
+      setCurrentPillar(
+        state.category ?? null
+      )
+    } else {
+      setCurrentPillar(null)
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | CAMPAIGN
+    |--------------------------------------------------------------------------
+    */
+
+    if (
+      targetPage === 'campaign-detail'
+    ) {
+      const campaignId =
+        Number(state.campaignId)
+
+      setCurrentCampaignId(
+        Number.isNaN(campaignId)
+          ? null
+          : campaignId
+      )
+    } else {
+      setCurrentCampaignId(null)
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | DONATION
+    |--------------------------------------------------------------------------
+    */
+
+    if (
+      targetPage !== 'donasi'
+    ) {
+      setZakatAmount(null)
+      setZakatType(null)
+      setSelectedProgram(null)
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | RESTORE SCROLL POSITION
+    |--------------------------------------------------------------------------
+    */
+
+    const savedScrollY =
+      typeof state.scrollY === 'number'
+        ? state.scrollY
+        : 0
+
+    /*
+    |--------------------------------------------------------------------------
+    | Jika kembali ke section tertentu
+    |--------------------------------------------------------------------------
+    */
+
+    if (sectionId) {
+      return
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Tunggu halaman selesai render
+    |--------------------------------------------------------------------------
+    */
+
+    window.setTimeout(() => {
+      window.scrollTo({
+        top: savedScrollY,
+        behavior: 'auto',
+      })
+    }, 100)
+  }
+
+  window.addEventListener(
+    'popstate',
+    handlePopState
+  )
+
+  return () => {
+    window.removeEventListener(
       'popstate',
       handlePopState
     )
+  }
+}, [])
 
-    return () => {
-      window.removeEventListener(
-        'popstate',
-        handlePopState
-      )
+/*
+|--------------------------------------------------------------------------
+| BROWSER SCROLL RESTORATION
+|--------------------------------------------------------------------------
+*/
+
+useEffect(() => {
+  if (
+    'scrollRestoration' in
+    window.history
+  ) {
+    window.history.scrollRestoration =
+      'manual'
+  }
+
+  return () => {
+    if (
+      'scrollRestoration' in
+      window.history
+    ) {
+      window.history.scrollRestoration =
+        'auto'
     }
-  }, [])
+  }
+}, [])
 
   /*
   |--------------------------------------------------------------------------
@@ -1043,15 +1301,12 @@ export default function App() {
       |--------------------------------------------------------------------------
       */
 
-  case 'home':
+      case 'home':
   return (
     <HomePage
-      onNavigate={
-        handleNavigate
-      }
-      onOpenPillar={
-        handleOpenPillar
-      }
+      onNavigate={handleNavigate}
+      onOpenPillar={handleOpenPillar}
+      onOpenContent={handleOpenContent}
     />
   )
 
@@ -1354,7 +1609,6 @@ export default function App() {
   if (authLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#FFF8F2]">
-
         <div className="text-center">
 
           <div className="mx-auto mb-3 h-8 w-8 animate-spin rounded-full border-4 border-[#F58220] border-t-transparent" />
@@ -1364,7 +1618,6 @@ export default function App() {
           </p>
 
         </div>
-
       </div>
     )
   }

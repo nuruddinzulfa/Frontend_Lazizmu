@@ -635,7 +635,7 @@ export default function CampaignManagement() {
 
           <p className="mt-1 text-sm text-gray-500">
             Kelola campaign penggalangan
-            dana LAZISMU.
+            dana Lazismu.
           </p>
         </div>
 

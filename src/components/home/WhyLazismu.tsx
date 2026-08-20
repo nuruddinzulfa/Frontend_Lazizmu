@@ -18,7 +18,7 @@ const reasons = [
       </svg>
     ),
     title: 'Amanah & Terpercaya',
-    desc: 'Pengelolaan zakat, infak, sedekah, dan dana sosial dilakukan dengan mengedepankan amanah, profesionalitas, dan tanggung jawab.',
+    desc: 'Pengelolaan zakat, infak, sedekah, dan dana sosial keagamaan lainnya dilakukan dengan mengedepankan amanah, profesionalitas, dan transparan.',
   },
   {
     icon: (
@@ -100,7 +100,7 @@ const reasons = [
       </svg>
     ),
     title: 'Donasi Lebih Mudah',
-    desc: 'Website LAZISMU Pemalang membantu masyarakat melihat program dan melakukan donasi secara lebih mudah melalui layanan digital.',
+    desc: 'Website Lazismu Pemalang membantu masyarakat melihat program dan melakukan donasi secara lebih mudah melalui layanan digital.',
   },
   {
     icon: (
@@ -213,7 +213,7 @@ export default function WhyLazismu() {
                 "'Plus Jakarta Sans', sans-serif",
             }}
           >
-            Kenapa Pilih LAZISMU
+            Kenapa Pilih Lazismu
             Pemalang?
           </h2>
 

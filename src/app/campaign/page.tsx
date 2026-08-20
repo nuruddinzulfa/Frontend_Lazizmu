@@ -883,7 +883,7 @@ export default function ProgramPage({
                             {/* BRAND */}
 
                             <span className="absolute bottom-4 text-sm font-bold text-white">
-                              LAZISMU
+                              Lazismu
                             </span>
 
                             {/* CATEGORY */}

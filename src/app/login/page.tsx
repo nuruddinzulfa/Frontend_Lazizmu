@@ -87,7 +87,7 @@ export default function LoginPage({
           <div className="flex justify-center mb-4">
             <img
               src={logo}
-              alt="LAZISMU Kabupaten Pemalang"
+              alt="Lazismu Pemalang"
               className="h-16 w-auto object-contain"
             />
           </div>

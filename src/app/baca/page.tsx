@@ -1,7 +1,9 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+
 import type { NavPage } from '../../App'
+
 import API_URL from '../../lib/api'
 
 import {
@@ -14,6 +16,12 @@ import {
   type Article,
 } from '../../service/article.service'
 
+/*
+|--------------------------------------------------------------------------
+| TYPES
+|--------------------------------------------------------------------------
+*/
+
 interface BacaPageProps {
   content: {
     type: 'berita' | 'artikel'
@@ -25,31 +33,16 @@ interface BacaPageProps {
 
 type ContentData = News | Article
 
-const categoryColors: Record<
-  string,
-  string
-> = {
-  Kegiatan:
-    'bg-blue-100 text-blue-700',
-  Pengumuman:
-    'bg-yellow-100 text-yellow-700',
-  Laporan:
-    'bg-green-100 text-green-700',
+/*
+|--------------------------------------------------------------------------
+| HELPERS
+|--------------------------------------------------------------------------
+*/
 
-  Zakat:
-    'bg-blue-100 text-blue-700',
-  Infaq:
-    'bg-green-100 text-green-700',
-  Sedekah:
-    'bg-purple-100 text-purple-700',
-  Wakaf:
-    'bg-orange-100 text-orange-700',
-  Fiqih:
-    'bg-red-100 text-red-700',
-  Inspirasi:
-    'bg-yellow-100 text-yellow-700',
-}
-
+/**
+ * Mengubah path thumbnail dari Laravel
+ * menjadi URL yang dapat digunakan browser.
+ */
 function getThumbnailUrl(
   thumbnail: string | null
 ): string | null {
@@ -79,6 +72,9 @@ function getThumbnailUrl(
   return `${backendUrl}/storage/${cleanThumbnail}`
 }
 
+/**
+ * Format tanggal ke Bahasa Indonesia.
+ */
 function formatDate(
   date: string | null | undefined
 ): string {
@@ -86,9 +82,17 @@ function formatDate(
     return '-'
   }
 
-  return new Date(
-    date
-  ).toLocaleDateString(
+  const parsedDate = new Date(date)
+
+  if (
+    Number.isNaN(
+      parsedDate.getTime()
+    )
+  ) {
+    return '-'
+  }
+
+  return parsedDate.toLocaleDateString(
     'id-ID',
     {
       day: 'numeric',
@@ -98,10 +102,22 @@ function formatDate(
   )
 }
 
+/*
+|--------------------------------------------------------------------------
+| COMPONENT
+|--------------------------------------------------------------------------
+*/
+
 export default function BacaPage({
   content,
   onNavigate,
 }: BacaPageProps) {
+  /*
+  |--------------------------------------------------------------------------
+  | STATE
+  |--------------------------------------------------------------------------
+  */
+
   const [
     contentData,
     setContentData,
@@ -127,6 +143,12 @@ export default function BacaPage({
     setCopied,
   ] =
     useState(false)
+
+  /*
+  |--------------------------------------------------------------------------
+  | LOAD CONTENT
+  |--------------------------------------------------------------------------
+  */
 
   useEffect(() => {
     let mounted = true
@@ -198,6 +220,12 @@ export default function BacaPage({
     }
   }, [content])
 
+  /*
+  |--------------------------------------------------------------------------
+  | COPY LINK
+  |--------------------------------------------------------------------------
+  */
+
   const handleCopyLink =
     async () => {
       try {
@@ -207,11 +235,9 @@ export default function BacaPage({
 
         setCopied(true)
 
-        window.setTimeout(
-          () =>
-            setCopied(false),
-          2000
-        )
+        window.setTimeout(() => {
+          setCopied(false)
+        }, 2000)
       } catch (err) {
         console.error(
           'Gagal menyalin link:',
@@ -220,11 +246,39 @@ export default function BacaPage({
       }
     }
 
+  /*
+  |--------------------------------------------------------------------------
+  | LOADING
+  |--------------------------------------------------------------------------
+  */
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#FFF8F2] pt-32 flex items-center justify-center">
+      <div
+        className="
+          flex
+          min-h-screen
+          items-center
+          justify-center
+          bg-[#FFF8F2]
+          px-4
+          pt-32
+        "
+      >
         <div className="text-center">
-          <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-[#F58220] border-t-transparent" />
+          <div
+            className="
+              mx-auto
+              mb-4
+              h-8
+              w-8
+              animate-spin
+              rounded-full
+              border-4
+              border-[#F58220]
+              border-t-transparent
+            "
+          />
 
           <p className="text-sm text-gray-500">
             Memuat konten...
@@ -233,6 +287,12 @@ export default function BacaPage({
       </div>
     )
   }
+
+  /*
+  |--------------------------------------------------------------------------
+  | ERROR / EMPTY
+  |--------------------------------------------------------------------------
+  */
 
   if (
     !content ||
@@ -247,10 +307,39 @@ export default function BacaPage({
         : 'berita'
 
     return (
-      <div className="min-h-screen bg-[#FFF8F2] pt-32 flex items-center justify-center px-4">
-        <div className="bg-white border border-[#F3DEC8] rounded-2xl p-8 text-center max-w-md">
-          <h2 className="text-xl font-bold text-gray-900 mb-2">
-            Konten tidak tersedia
+      <div
+        className="
+          flex
+          min-h-screen
+          items-center
+          justify-center
+          bg-[#FFF8F2]
+          px-4
+          pt-32
+        "
+      >
+        <div
+          className="
+            w-full
+            max-w-md
+            rounded-2xl
+            border
+            border-[#F3DEC8]
+            bg-white
+            p-8
+            text-center
+            shadow-sm
+          "
+        >
+          <h2
+            className="
+              mb-2
+              text-xl
+              font-bold
+              text-gray-900
+            "
+          >
+            Konten Tidak Tersedia
           </h2>
 
           <p className="text-sm text-gray-500">
@@ -265,7 +354,12 @@ export default function BacaPage({
                 backPage
               )
             }
-            className="mt-5 text-[#F58220] font-semibold hover:underline"
+            className="
+              mt-5
+              font-semibold
+              text-[#F58220]
+              hover:underline
+            "
           >
             ← Kembali ke{' '}
             {backPage ===
@@ -277,6 +371,12 @@ export default function BacaPage({
       </div>
     )
   }
+
+  /*
+  |--------------------------------------------------------------------------
+  | CONTENT VARIABLES
+  |--------------------------------------------------------------------------
+  */
 
   const isArticle =
     content.type ===
@@ -305,7 +405,13 @@ export default function BacaPage({
       : ''
 
   const shareText =
-    `${contentData.title} - LAZISMU Pemalang`
+    `${contentData.title} - Lazismu Pemalang`
+
+  /*
+  |--------------------------------------------------------------------------
+  | SHARE
+  |--------------------------------------------------------------------------
+  */
 
   const handleShare = (
     platform:
@@ -355,81 +461,159 @@ export default function BacaPage({
     )
   }
 
-  return (
-    <div className="min-h-screen bg-[#FFF8F2]">
+  /*
+  |--------------------------------------------------------------------------
+  | RENDER
+  |--------------------------------------------------------------------------
+  */
 
-      {/* HERO */}
+  return (
+    <div
+      className="
+        min-h-screen
+        bg-[#FFF8F2]
+      "
+    >
+
+      {/* ================================================================
+          HERO
+      ================================================================= */}
+
       <section className="pt-24">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div
+          className="
+            mx-auto
+            max-w-6xl
+            px-4
+            sm:px-6
+            lg:px-8
+          "
+        >
 
           {thumbnailUrl ? (
-            <div className="relative overflow-hidden rounded-2xl border border-[#F3DEC8] bg-white shadow-sm">
+            <div
+              className="
+                relative
+                overflow-hidden
+                rounded-2xl
+                border
+                border-[#F3DEC8]
+                bg-white
+                shadow-sm
+              "
+            >
 
               <img
-                src={
-                  thumbnailUrl
-                }
-                alt={
-                  contentData.title
-                }
-                className="block w-full max-h-[520px] object-cover object-center"
+                src={thumbnailUrl}
+                alt={contentData.title}
+                className="
+                  block
+                  max-h-[520px]
+                  w-full
+                  object-cover
+                  object-center
+                "
               />
 
-              <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
+              {/* OVERLAY */}
 
-              <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-10">
+              <div
+                className="
+                  absolute
+                  inset-0
+                  bg-gradient-to-t
+                  from-black/75
+                  via-black/20
+                  to-transparent
+                "
+              />
+
+              {/* TITLE */}
+
+              <div
+                className="
+                  absolute
+                  bottom-0
+                  left-0
+                  right-0
+                  p-6
+                  sm:p-10
+                "
+              >
                 <div className="max-w-4xl">
 
-                  <CategoryBadge
-                    category={
-                      contentData.category
-                    }
-                  />
-
                   <h1
-                    className="mt-4 text-2xl sm:text-4xl lg:text-5xl font-bold leading-tight text-white"
+                    className="
+                      text-2xl
+                      font-bold
+                      leading-tight
+                      text-white
+                      sm:text-4xl
+                      lg:text-5xl
+                    "
                     style={{
                       fontFamily:
                         "'Plus Jakarta Sans', sans-serif",
                     }}
                   >
-                    {
-                      contentData.title
-                    }
+                    {contentData.title}
                   </h1>
+
                 </div>
               </div>
             </div>
           ) : (
-            <div className="rounded-2xl bg-gradient-to-br from-[#F58220] to-[#D96D0A] p-8 sm:p-12 text-white">
-
-              <CategoryBadge
-                category={
-                  contentData.category
-                }
-              />
+            <div
+              className="
+                rounded-2xl
+                bg-gradient-to-br
+                from-[#F58220]
+                to-[#D96D0A]
+                p-8
+                text-white
+                sm:p-12
+              "
+            >
 
               <h1
-                className="mt-4 text-2xl sm:text-4xl lg:text-5xl font-bold leading-tight"
+                className="
+                  text-2xl
+                  font-bold
+                  leading-tight
+                  sm:text-4xl
+                  lg:text-5xl
+                "
                 style={{
                   fontFamily:
                     "'Plus Jakarta Sans', sans-serif",
                 }}
               >
-                {
-                  contentData.title
-                }
+                {contentData.title}
               </h1>
+
             </div>
           )}
 
         </div>
       </section>
 
-      {/* CONTENT */}
-      <main className="max-w-6xl mx-auto px-4 py-10 sm:px-6 lg:px-8">
+      {/* ================================================================
+          CONTENT
+      ================================================================= */}
+
+      <main
+        className="
+          mx-auto
+          max-w-6xl
+          px-4
+          py-10
+          sm:px-6
+          lg:px-8
+        "
+      >
 
         {/* BACK */}
+
         <button
           type="button"
           onClick={() =>
@@ -439,7 +623,17 @@ export default function BacaPage({
                 : 'berita'
             )
           }
-          className="mb-8 flex items-center gap-2 text-sm font-semibold text-[#F58220] hover:text-[#D96D0A]"
+          className="
+            mb-8
+            flex
+            items-center
+            gap-2
+            text-sm
+            font-semibold
+            text-[#F58220]
+            transition
+            hover:text-[#D96D0A]
+          "
         >
           <svg
             className="h-4 w-4"
@@ -450,32 +644,55 @@ export default function BacaPage({
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
-              strokeWidth={
-                2
-              }
+              strokeWidth={2}
               d="M15 19l-7-7 7-7"
             />
           </svg>
 
-          Kembali ke{' '}
-          {contentLabel}
+          Kembali ke {contentLabel}
         </button>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+        <div
+          className="
+            grid
+            grid-cols-1
+            gap-10
+            lg:grid-cols-3
+          "
+        >
 
-          {/* MAIN ARTICLE */}
+          {/* ============================================================
+              MAIN CONTENT
+          ============================================================= */}
+
           <div className="lg:col-span-2">
 
             {/* META */}
-            <div className="mb-8 flex flex-wrap items-center gap-4 border-b border-[#F3DEC8] pb-6 text-sm text-gray-400">
 
-              <CategoryBadge
-                category={
-                  contentData.category
-                }
-              />
+            <div
+              className="
+                mb-8
+                flex
+                flex-wrap
+                items-center
+                gap-4
+                border-b
+                border-[#F3DEC8]
+                pb-6
+                text-sm
+                text-gray-400
+              "
+            >
 
-              <div className="flex items-center gap-1.5">
+              {/* DATE */}
+
+              <div
+                className="
+                  flex
+                  items-center
+                  gap-1.5
+                "
+              >
                 <svg
                   className="h-4 w-4"
                   fill="none"
@@ -485,21 +702,25 @@ export default function BacaPage({
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    strokeWidth={
-                      2
-                    }
+                    strokeWidth={2}
                     d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
                   />
                 </svg>
 
                 <span>
-                  {
-                    formattedDate
-                  }
+                  {formattedDate}
                 </span>
               </div>
 
-              <div className="flex items-center gap-1.5">
+              {/* VIEWS */}
+
+              <div
+                className="
+                  flex
+                  items-center
+                  gap-1.5
+                "
+              >
                 <svg
                   className="h-4 w-4"
                   fill="none"
@@ -509,18 +730,14 @@ export default function BacaPage({
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    strokeWidth={
-                      2
-                    }
+                    strokeWidth={2}
                     d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
                   />
 
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    strokeWidth={
-                      2
-                    }
+                    strokeWidth={2}
                     d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
                   />
                 </svg>
@@ -534,41 +751,96 @@ export default function BacaPage({
 
             </div>
 
-            {/* EXCERPT */}
+            {/* ==========================================================
+                EXCERPT
+            =========================================================== */}
+
             {contentData.excerpt && (
-              <div className="mb-8 rounded-2xl border border-[#F3DEC8] bg-white p-6 shadow-sm">
-                <p className="text-base font-medium leading-relaxed text-gray-600">
-                  {
-                    contentData.excerpt
-                  }
+              <div
+                className="
+                  mb-8
+                  rounded-2xl
+                  border
+                  border-[#F3DEC8]
+                  bg-white
+                  p-6
+                  shadow-sm
+                "
+              >
+                <p
+                  className="
+                    text-base
+                    font-medium
+                    leading-relaxed
+                    text-gray-600
+                  "
+                >
+                  {contentData.excerpt}
                 </p>
               </div>
             )}
 
-            {/* BODY */}
+            {/* ==========================================================
+                BODY
+            =========================================================== */}
+
             <article
-              className="prose prose-gray max-w-none text-gray-700 leading-8 prose-headings:font-bold prose-headings:text-gray-900 prose-a:text-[#F58220] prose-strong:text-gray-900 prose-blockquote:border-[#F58220] prose-blockquote:text-gray-600"
+              className="
+                prose
+                prose-gray
+                max-w-none
+                leading-8
+                text-gray-700
+                prose-headings:font-bold
+                prose-headings:text-gray-900
+                prose-a:text-[#F58220]
+                prose-strong:text-gray-900
+                prose-blockquote:border-[#F58220]
+                prose-blockquote:text-gray-600
+              "
               dangerouslySetInnerHTML={{
                 __html:
                   contentData.content,
               }}
             />
 
-            {/* SHARE */}
-            <div className="mt-10 border-t border-[#F3DEC8] pt-6">
+            {/* ==========================================================
+                SHARE
+            =========================================================== */}
+
+            <div
+              className="
+                mt-10
+                border-t
+                border-[#F3DEC8]
+                pt-6
+              "
+            >
 
               <p
-                className="mb-4 text-sm font-bold text-gray-900"
+                className="
+                  mb-4
+                  text-sm
+                  font-bold
+                  text-gray-900
+                "
                 style={{
                   fontFamily:
                     "'Plus Jakarta Sans', sans-serif",
                 }}
               >
-                Bagikan{' '}
-                {contentLabel}
+                Bagikan {contentLabel}
               </p>
 
-              <div className="flex flex-wrap gap-3">
+              <div
+                className="
+                  flex
+                  flex-wrap
+                  gap-3
+                "
+              >
+
+                {/* WHATSAPP */}
 
                 <button
                   type="button"
@@ -577,10 +849,22 @@ export default function BacaPage({
                       'whatsapp'
                     )
                   }
-                  className="rounded-xl bg-green-500 px-4 py-2 text-xs font-semibold text-white hover:opacity-90"
+                  className="
+                    rounded-xl
+                    bg-green-500
+                    px-4
+                    py-2
+                    text-xs
+                    font-semibold
+                    text-white
+                    transition
+                    hover:opacity-90
+                  "
                 >
                   WhatsApp
                 </button>
+
+                {/* FACEBOOK */}
 
                 <button
                   type="button"
@@ -589,10 +873,22 @@ export default function BacaPage({
                       'facebook'
                     )
                   }
-                  className="rounded-xl bg-blue-600 px-4 py-2 text-xs font-semibold text-white hover:opacity-90"
+                  className="
+                    rounded-xl
+                    bg-blue-600
+                    px-4
+                    py-2
+                    text-xs
+                    font-semibold
+                    text-white
+                    transition
+                    hover:opacity-90
+                  "
                 >
                   Facebook
                 </button>
+
+                {/* TWITTER */}
 
                 <button
                   type="button"
@@ -601,10 +897,22 @@ export default function BacaPage({
                       'twitter'
                     )
                   }
-                  className="rounded-xl bg-gray-800 px-4 py-2 text-xs font-semibold text-white hover:opacity-90"
+                  className="
+                    rounded-xl
+                    bg-gray-800
+                    px-4
+                    py-2
+                    text-xs
+                    font-semibold
+                    text-white
+                    transition
+                    hover:opacity-90
+                  "
                 >
                   X / Twitter
                 </button>
+
+                {/* TELEGRAM */}
 
                 <button
                   type="button"
@@ -613,17 +921,42 @@ export default function BacaPage({
                       'telegram'
                     )
                   }
-                  className="rounded-xl bg-sky-500 px-4 py-2 text-xs font-semibold text-white hover:opacity-90"
+                  className="
+                    rounded-xl
+                    bg-sky-500
+                    px-4
+                    py-2
+                    text-xs
+                    font-semibold
+                    text-white
+                    transition
+                    hover:opacity-90
+                  "
                 >
                   Telegram
                 </button>
+
+                {/* COPY LINK */}
 
                 <button
                   type="button"
                   onClick={
                     handleCopyLink
                   }
-                  className="rounded-xl border border-[#F3DEC8] bg-white px-4 py-2 text-xs font-semibold text-gray-700 hover:bg-orange-50 hover:text-[#F58220]"
+                  className="
+                    rounded-xl
+                    border
+                    border-[#F3DEC8]
+                    bg-white
+                    px-4
+                    py-2
+                    text-xs
+                    font-semibold
+                    text-gray-700
+                    transition
+                    hover:bg-orange-50
+                    hover:text-[#F58220]
+                  "
                 >
                   {copied
                     ? '✓ Link Disalin'
@@ -635,49 +968,88 @@ export default function BacaPage({
 
           </div>
 
-          {/* SIDEBAR */}
-          <aside className="space-y-6">
+          {/* ============================================================
+              SIDEBAR
+          ============================================================= */}
 
-            <div className="rounded-2xl border border-[#F3DEC8] bg-white p-5 shadow-sm">
+          <aside
+            className="
+              space-y-6
+            "
+          >
 
-              <p className="mb-4 text-xs font-semibold uppercase tracking-wide text-gray-400">
-                Informasi{' '}
-                {contentLabel}
+            {/* INFORMATION */}
+
+            <div
+              className="
+                rounded-2xl
+                border
+                border-[#F3DEC8]
+                bg-white
+                p-5
+                shadow-sm
+              "
+            >
+
+              <p
+                className="
+                  mb-4
+                  text-xs
+                  font-semibold
+                  uppercase
+                  tracking-wide
+                  text-gray-400
+                "
+              >
+                Informasi {contentLabel}
               </p>
 
               <div className="space-y-4">
 
+                {/* DATE */}
+
                 <div>
-                  <p className="text-xs text-gray-400">
-                    Kategori
+                  <p
+                    className="
+                      text-xs
+                      text-gray-400
+                    "
+                  >
+                    Tanggal Publikasi
                   </p>
 
-                  <p className="mt-1 text-sm font-semibold text-gray-800">
-                    {
-                      contentData.category
-                    }
+                  <p
+                    className="
+                      mt-1
+                      text-sm
+                      font-semibold
+                      text-gray-800
+                    "
+                  >
+                    {formattedDate}
                   </p>
                 </div>
 
-                <div>
-                  <p className="text-xs text-gray-400">
-                    Tanggal
-                    Publikasi
-                  </p>
-
-                  <p className="mt-1 text-sm font-semibold text-gray-800">
-                    {
-                      formattedDate
-                    }
-                  </p>
-                </div>
+                {/* VIEWS */}
 
                 <div>
-                  <p className="text-xs text-gray-400">
+                  <p
+                    className="
+                      text-xs
+                      text-gray-400
+                    "
+                  >
                     Dilihat
                   </p>
 
-                  <p className="mt-1 text-sm font-semibold text-gray-800">
+                  <p
+                    className="
+                      mt-1
+                      text-sm
+                      font-semibold
+                      text-gray-800
+                    "
+                  >
                     {contentData.views ??
                       0}{' '}
                     kali
@@ -687,23 +1059,27 @@ export default function BacaPage({
               </div>
             </div>
 
-            <div className="rounded-2xl border border-[#F3DEC8] bg-white p-5 shadow-sm">
+            {/* OTHER CONTENT */}
 
-              <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">
-                Kategori
-              </p>
+            <div
+              className="
+                rounded-2xl
+                border
+                border-[#F3DEC8]
+                bg-white
+                p-5
+                shadow-sm
+              "
+            >
 
-              <CategoryBadge
-                category={
-                  contentData.category
-                }
-              />
-
-            </div>
-
-            <div className="rounded-2xl border border-[#F3DEC8] bg-white p-5 shadow-sm">
-
-              <p className="mb-3 text-sm font-bold text-gray-900">
+              <p
+                className="
+                  mb-3
+                  text-sm
+                  font-bold
+                  text-gray-900
+                "
+              >
                 Ingin membaca{' '}
                 {isArticle
                   ? 'artikel'
@@ -720,7 +1096,18 @@ export default function BacaPage({
                       : 'berita'
                   )
                 }
-                className="w-full rounded-xl bg-[#F58220] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-orange-600"
+                className="
+                  w-full
+                  rounded-xl
+                  bg-[#F58220]
+                  px-4
+                  py-2.5
+                  text-sm
+                  font-semibold
+                  text-white
+                  transition
+                  hover:bg-orange-600
+                "
               >
                 Lihat Semua{' '}
                 {contentLabel}
@@ -729,27 +1116,9 @@ export default function BacaPage({
             </div>
 
           </aside>
+
         </div>
       </main>
     </div>
-  )
-}
-
-function CategoryBadge({
-  category,
-}: {
-  category: string
-}) {
-  return (
-    <span
-      className={`inline-block rounded-full px-3 py-1 text-xs font-semibold ${
-        categoryColors[
-          category
-        ] ??
-        'bg-gray-100 text-gray-700'
-      }`}
-    >
-      {category}
-    </span>
   )
 }

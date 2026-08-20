@@ -400,7 +400,8 @@ export default function DonationManagement() {
 
           <p className="mt-1 text-sm text-gray-500">
             Kelola seluruh donasi dan transaksi
-            zakat yang masuk ke LAZISMU Pemalang.
+            zakat yang masuk ke Lazismu Kabupaten
+            Pemalang.
           </p>
         </div>
 

@@ -481,7 +481,7 @@ export default function ReportManagement() {
           </h1>
 
           <p className="mt-1 text-sm text-gray-500">
-            Kelola laporan publikasi LAZISMU.
+            Kelola laporan publikasi Lazismu.
           </p>
         </div>
 

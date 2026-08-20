@@ -1,6 +1,6 @@
 Act as a Senior UI/UX Designer, Product Designer, and Frontend Architect.
 
-Design and generate a modern, premium, responsive website for LAZISMU Kabupaten Pemalang. The website should focus on trust, transparency, Islamic philanthropy, and an excellent donation experience while reflecting the identity of Pemalang.
+Design and generate a modern, premium, responsive website for Lazismu Kabupaten Pemalang. The website should focus on trust, transparency, Islamic philanthropy, and an excellent donation experience while reflecting the identity of Pemalang.
 
 ## IMPORTANT
 

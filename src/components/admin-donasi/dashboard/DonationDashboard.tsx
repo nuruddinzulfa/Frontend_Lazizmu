@@ -498,7 +498,7 @@ export default function DonationDashboard() {
             </h1>
 
             <p className="mt-1 text-sm text-white/90">
-              Ringkasan transaksi donasi dan zakat LAZISMU Pemalang.
+              Ringkasan transaksi donasi dan zakat Lazismu Pemalang.
             </p>
           </div>
 

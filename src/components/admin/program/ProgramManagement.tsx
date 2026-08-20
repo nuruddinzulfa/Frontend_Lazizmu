@@ -497,7 +497,7 @@ export default function ProgramManagement() {
           </h1>
 
           <p className="mt-1 text-sm text-gray-500">
-            Kelola program LAZISMU Kabupaten Pemalang dari data backend.
+            Kelola program Lazismu Pemalang dari data backend.
           </p>
         </div>
 

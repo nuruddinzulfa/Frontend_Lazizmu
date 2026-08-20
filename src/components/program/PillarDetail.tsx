@@ -484,7 +484,7 @@ export default function PillarDetail({
   const pillar =
     pillarDescriptions[category] ?? {
       description:
-        'Program pemberdayaan masyarakat LAZISMU.',
+        'Program pemberdayaan masyarakat Lazismu.',
     }
 
   const pillarColor =

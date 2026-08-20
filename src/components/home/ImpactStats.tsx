@@ -435,7 +435,7 @@ export default function ImpactStats() {
 
           <p className="mx-auto mt-5 max-w-xl text-sm leading-7 text-white/75 sm:text-base">
             Data dampak dan jangkauan program
-            LAZISMU Pemalang yang terus
+            Lazismu Pemalang yang terus
             bertumbuh bersama kebaikan Anda.
           </p>
 

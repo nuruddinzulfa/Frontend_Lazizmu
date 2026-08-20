@@ -349,7 +349,7 @@ export default function NewsManagement() {
           </h1>
 
           <p className="mt-1 text-sm text-gray-500">
-            Kelola berita yang ditampilkan pada website LAZISMU.
+            Kelola berita yang ditampilkan pada website Lazismu.
           </p>
         </div>
 

@@ -164,7 +164,7 @@ export default function PublikasiPage() {
 
           <p className="mt-4 text-lg opacity-90 max-w-2xl">
             Laporan keuangan dan program
-            LAZISMU Pemalang yang transparan
+            Lazismu Pemalang yang transparan
             dan akuntabel.
           </p>
 
@@ -549,14 +549,14 @@ export default function PublikasiPage() {
                 <div>
 
                   <h3 className="font-bold text-gray-900 text-sm">
-                    Transparansi LAZISMU
+                    Transparansi Lazismu
                   </h3>
 
                   <p className="text-xs text-gray-500 mt-1">
                     Dokumen laporan yang tersedia
                     pada halaman ini merupakan laporan
                     yang telah dipublikasikan oleh
-                    administrator LAZISMU.
+                    administrator Lazismu.
                   </p>
 
                 </div>

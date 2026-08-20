@@ -320,17 +320,17 @@ const pillars = [
   {
     name: 'Pendidikan',
     color: '#F58220',
-    desc: 'Pendidikan adalah kunci utama untuk membuka pintu masa depan yang cerah. LAZISMU terus berupaya memberikan akses pendidikan berkualitas bagi seluruh lapisan masyarakat, terutama mereka yang kurang beruntung.',
+    desc: 'Pendidikan adalah kunci utama untuk membuka pintu masa depan yang cerah. Lazismu terus berupaya memberikan akses pendidikan berkualitas bagi seluruh lapisan masyarakat, terutama mereka yang kurang beruntung.',
   },
   {
     name: 'Kesehatan',
     color: '#E94224',
-    desc: 'Kesehatan menjadi aset yang tak ternilai. LAZISMU hadir dengan komitmen untuk membantu masyarakat memperoleh akses layanan kesehatan yang layak dan mewujudkan masyarakat yang sehat dan sejahtera.',
+    desc: 'Kesehatan menjadi aset yang tak ternilai. Lazismu hadir dengan komitmen untuk membantu masyarakat memperoleh akses layanan kesehatan yang layak dan mewujudkan masyarakat yang sehat dan sejahtera.',
   },
   {
     name: 'Ekonomi',
     color: '#D21F26',
-    desc: 'Melalui Pilar Ekonomi, LAZISMU berkomitmen memberdayakan masyarakat, khususnya mereka yang berada di garis kemiskinan, agar mampu meningkatkan taraf hidup dan kemandirian ekonomi.',
+    desc: 'Melalui Pilar Ekonomi, Lazismu berkomitmen memberdayakan masyarakat, khususnya mereka yang berada di garis kemiskinan, agar mampu meningkatkan taraf hidup dan kemandirian ekonomi.',
   },
   {
     name: 'Sosial Dakwah',
@@ -340,7 +340,7 @@ const pillars = [
   {
     name: 'Kemanusiaan',
     color: '#94C11F',
-    desc: 'LAZISMU senantiasa hadir di tengah masyarakat untuk memberikan bantuan dan dukungan. Pilar Kemanusiaan menjadi wujud nyata komitmen untuk meringankan beban sesama.',
+    desc: 'Lazismu senantiasa hadir di tengah masyarakat untuk memberikan bantuan dan dukungan. Pilar Kemanusiaan menjadi wujud nyata komitmen untuk meringankan beban sesama.',
   },
   {
     name: 'Lingkungan',
@@ -465,7 +465,7 @@ export default function Programs({
 
           <p className="mx-auto mt-5 max-w-xl text-sm leading-7 text-gray-600 sm:text-base">
             Setiap pilar mewakili komitmen
-            LAZISMU Pemalang dalam
+            Lazismu Pemalang dalam
             memberdayakan masyarakat secara
             menyeluruh dan berkelanjutan.
           </p>

@@ -14,7 +14,7 @@ interface UserData {
 
 export default function AdminHeader({
   title,
-  subtitle = 'Panel Administrasi LAZISMU Kabupaten Pemalang',
+  subtitle = 'Panel Administrasi Lazismu Pemalang',
 }: AdminHeaderProps) {
   const [user, setUser] = React.useState<UserData | null>(null)
 

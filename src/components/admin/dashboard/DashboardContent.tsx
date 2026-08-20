@@ -704,7 +704,7 @@ export default function DashboardContent() {
             </h1>
 
             <p className="mt-1 text-sm text-white/90">
-              Selamat datang di Panel Administrasi LAZISMU Kabupaten Pemalang.
+              Selamat datang di Panel Administrasi Lazismu Pemalang.
             </p>
           </div>
 
