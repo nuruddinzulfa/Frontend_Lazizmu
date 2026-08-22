@@ -81,6 +81,7 @@ function PillarIcon({
     /* --------------------------------------------------------
        PENDIDIKAN
     -------------------------------------------------------- */
+
     case 'Pendidikan':
       return (
         <svg
@@ -125,6 +126,7 @@ function PillarIcon({
     /* --------------------------------------------------------
        KESEHATAN
     -------------------------------------------------------- */
+
     case 'Kesehatan':
       return (
         <svg
@@ -151,6 +153,7 @@ function PillarIcon({
     /* --------------------------------------------------------
        EKONOMI
     -------------------------------------------------------- */
+
     case 'Ekonomi':
       return (
         <svg
@@ -208,6 +211,7 @@ function PillarIcon({
     /* --------------------------------------------------------
        SOSIAL DAKWAH
     -------------------------------------------------------- */
+
     case 'Sosial Dakwah':
       return (
         <svg
@@ -256,6 +260,7 @@ function PillarIcon({
     /* --------------------------------------------------------
        KEMANUSIAAN
     -------------------------------------------------------- */
+
     case 'Kemanusiaan':
       return (
         <svg
@@ -312,6 +317,7 @@ function PillarIcon({
     /* --------------------------------------------------------
        LINGKUNGAN
     -------------------------------------------------------- */
+
     case 'Lingkungan':
       return (
         <svg
@@ -398,9 +404,27 @@ function getThumbnailUrl(
 function formatRupiah(
   value: number | string
 ): string {
-  return `Rp ${Number(value).toLocaleString(
-    'id-ID'
-  )}`
+  return `Rp ${Number(value).toLocaleString('id-ID')}`
+}
+
+/* ============================================================
+   STRIP HTML
+   Dipakai hanya untuk alt gambar.
+   JANGAN digunakan untuk menampilkan Rich Text.
+============================================================ */
+
+function stripHtml(
+  html: string | null | undefined
+): string {
+  if (!html) {
+    return ''
+  }
+
+  return html
+    .replace(/<[^>]*>/g, '')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
 }
 
 /* ============================================================
@@ -457,7 +481,9 @@ export default function PillarDetail({
         const data =
           await getPublicCampaigns()
 
-        setCampaigns(data)
+        setCampaigns(
+          Array.isArray(data) ? data : []
+        )
       } catch (err) {
         console.error(
           'Gagal mengambil campaign:',
@@ -713,9 +739,9 @@ export default function PillarDetail({
                           {thumbnail ? (
                             <img
                               src={thumbnail}
-                              alt={
+                              alt={stripHtml(
                                 campaign.title
-                              }
+                              )}
                               className="h-full w-full object-cover transition duration-300 hover:scale-105"
                             />
                           ) : (
@@ -769,12 +795,46 @@ export default function PillarDetail({
                           </h3>
                         </button>
 
-                        {/* DESCRIPTION */}
-                        <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-gray-500">
-                          {
-                            campaign.short_description
-                          }
-                        </p>
+                        {/* ==================================================
+                            RICH TEXT DESCRIPTION
+                        ================================================== */}
+
+                        {campaign.short_description && (
+                          <div
+                            className="
+                              mt-2
+                              line-clamp-3
+                              text-sm
+                              leading-relaxed
+                              text-gray-500
+
+                              [&_p]:m-0
+                              [&_p]:mb-1
+
+                              [&_strong]:font-bold
+                              [&_b]:font-bold
+
+                              [&_em]:italic
+                              [&_i]:italic
+
+                              [&_u]:underline
+
+                              [&_ul]:my-2
+                              [&_ul]:list-disc
+                              [&_ul]:pl-5
+
+                              [&_ol]:my-2
+                              [&_ol]:list-decimal
+                              [&_ol]:pl-5
+
+                              [&_li]:mb-1
+                            "
+                            dangerouslySetInnerHTML={{
+                              __html:
+                                campaign.short_description,
+                            }}
+                          />
+                        )}
 
                         {/* ==================================================
                             PROGRESS
