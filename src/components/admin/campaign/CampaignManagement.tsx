@@ -16,6 +16,8 @@ import {
   type CampaignPayload,
 } from '@/service/campaign.service'
 
+import API_URL from '@/lib/api'
+
 /*
 |--------------------------------------------------------------------------
 | Helpers
@@ -65,7 +67,13 @@ const getThumbnailUrl = (
     return thumbnail
   }
 
-  return `http://127.0.0.1:8000/storage/${thumbnail}`
+  const baseUrl = API_URL.replace(/\/api\/?$/, '')
+
+  const cleanPath = thumbnail
+    .replace(/^\/+/, '')
+    .replace(/^storage\//, '')
+
+  return `${baseUrl}/storage/${cleanPath}`
 }
 
 /*
