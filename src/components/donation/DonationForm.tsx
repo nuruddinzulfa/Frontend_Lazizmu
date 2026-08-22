@@ -1400,18 +1400,23 @@ export default function DonationForm({
     const successAmount =
       lastDonation?.amount
 
+    const successZakatType =
+      lastDonation?.zakatType === 'maal'
+        ? 'Zakat Maal'
+        : 'Zakat Penghasilan'
+
     return (
-      <div className="min-h-screen bg-[#FFF8F2] px-4 pt-20 flex items-center justify-center">
-        <div className="w-full max-w-xl bg-white rounded-3xl border border-[#F3DEC8] shadow-xl overflow-hidden">
+      <div className="min-h-screen bg-[#FFF8F2] px-4 py-8 flex items-center justify-center">
+        <div className="w-full max-w-md bg-white rounded-3xl border border-[#F3DEC8] shadow-xl overflow-hidden">
 
-          <div className="bg-gradient-to-br from-[#F58220] to-[#D96D0A] px-8 py-10 text-center">
+          <div className="bg-gradient-to-br from-[#F58220] to-[#D96D0A] px-7 py-8 text-center">
 
-            <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-5">
+            <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4">
 
-              <div className="w-14 h-14 rounded-full bg-green-100 flex items-center justify-center">
+              <div className="w-11 h-11 rounded-full bg-green-100 flex items-center justify-center">
 
                 <svg
-                  className="w-8 h-8 text-green-600"
+                  className="w-6 h-6 text-green-600"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -1428,7 +1433,14 @@ export default function DonationForm({
 
             </div>
 
-            <h1 className="text-3xl font-bold text-white">
+            <div className="mb-3 inline-flex items-center rounded-full border border-white/60 bg-white/15 px-3 py-1 text-[10px] font-semibold text-white">
+              ✓{' '}
+              {isZakatTransaction
+                ? 'Pembayaran Zakat Berhasil'
+                : 'Pembayaran Donasi Berhasil'}
+            </div>
+
+            <h1 className="text-2xl font-bold leading-tight text-white">
               {isZakatTransaction
                 ? 'Alhamdulillah, Zakat Anda Telah Ditunaikan'
                 : 'Jazakumullahu Khairan'}
@@ -1436,19 +1448,25 @@ export default function DonationForm({
 
           </div>
 
-          <div className="p-7 sm:p-9 text-center">
+          <div className="p-6 text-center">
 
-            <p className="text-gray-600 leading-relaxed mb-6">
-              Terima kasih telah
-              mempercayakan kebaikan
-              melalui{' '}
+            <p className="text-xs leading-relaxed text-gray-500">
+              {isZakatTransaction
+                ? 'Terima kasih telah mempercayakan penunaian zakat melalui '
+                : 'Terima kasih telah mempercayakan kebaikan melalui '}
               <strong className="text-[#F58220]">
                 LAZISMU Pemalang
               </strong>
               .
             </p>
 
-            <div className="bg-[#FFF8F2] border border-[#F3DEC8] rounded-2xl p-5 mb-6 text-left space-y-4">
+            <p className="mt-5 text-xs leading-6 text-gray-500">
+              {isZakatTransaction
+                ? 'Zakat Anda telah berhasil diterima. Semoga Allah memberikan pahala atas zakat, infak, dan shodaqoh yang ditunaikan, memberikan keberkahan pada harta yang disimpan, dan menjadikannya sebagai pembersih (dosa).'
+                : 'Donasi Anda telah berhasil diterima. Semoga Allah memberikan pahala atas zakat, infak, dan shodaqoh yang ditunaikan, memberikan keberkahan pada harta yang disimpan, dan menjadikannya sebagai pembersih (dosa).'}
+            </p>
+
+            <div className="mt-5 rounded-2xl border border-[#F3DEC8] bg-[#FFF8F2] p-4 text-left">
 
               <Summary
                 label="Status"
@@ -1456,66 +1474,97 @@ export default function DonationForm({
                 valueClassName="text-green-600"
               />
 
-              {successAmount !==
-                undefined && (
-                <Summary
-                  label={
-                    isZakatTransaction
-                      ? 'Total Zakat'
-                      : 'Total Donasi'
-                  }
-                  value={formatRupiah(
-                    successAmount,
+              {isZakatTransaction ? (
+                <>
+                  <div className="my-3 border-t border-[#F3DEC8]" />
+
+                  <Summary
+                    label="Jenis Zakat"
+                    value={successZakatType}
+                  />
+                </>
+              ) : (
+                <>
+                  {lastDonation?.campaignTitle && (
+                    <>
+                      <div className="my-3 border-t border-[#F3DEC8]" />
+
+                      <Summary
+                        label="Program"
+                        value={lastDonation.campaignTitle}
+                      />
+                    </>
                   )}
-                  valueClassName="text-[#F58220]"
-                />
+
+                  {successAmount !== undefined && (
+                    <>
+                      <div className="my-3 border-t border-[#F3DEC8]" />
+
+                      <Summary
+                        label="Total Donasi"
+                        value={formatRupiah(successAmount)}
+                        valueClassName="text-[#F58220]"
+                      />
+                    </>
+                  )}
+                </>
               )}
 
-              {!isZakatTransaction &&
-                lastDonation?.campaignTitle && (
-                  <Summary
-                    label="Program"
-                    value={
-                      lastDonation.campaignTitle
-                    }
-                  />
-                )}
-
-              <div className="border-t border-[#F3DEC8]" />
+              <div className="my-3 border-t border-[#F3DEC8]" />
 
               <div>
-
-                <div className="text-xs text-gray-400 mb-1">
+                <div className="mb-1 text-[10px] text-gray-400">
                   Nomor Transaksi
                 </div>
 
-                <div className="font-mono text-xs font-semibold text-gray-700 break-all">
+                <div className="break-all font-mono text-[11px] font-semibold text-gray-700">
                   {successOrderId}
                 </div>
+              </div>
 
+            </div>
+
+            <div className="mt-4 flex gap-3 rounded-2xl border border-green-200 bg-green-50 p-4 text-left">
+
+              <div className="mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-green-100 text-xs font-bold text-green-600">
+                ✓
+              </div>
+
+              <div>
+                <p className="text-xs font-bold text-green-700">
+                  {isZakatTransaction
+                    ? 'Konfirmasi Zakat'
+                    : 'Konfirmasi Donasi'}
+                </p>
+
+                <p className="mt-1 text-[11px] leading-5 text-green-700">
+                  Konfirmasi transaksi akan dikirim melalui WhatsApp ke nomor yang Anda masukkan saat melakukan pembayaran.
+                </p>
               </div>
 
             </div>
 
             <button
               type="button"
-              onClick={
-                handleBackHome
-              }
-              className="btn-primary w-full py-4 font-bold"
+              onClick={handleBackHome}
+              className="btn-primary mt-5 w-full py-3.5 text-sm font-bold"
             >
               Kembali ke Website →
             </button>
 
             <button
               type="button"
-              onClick={
-                handleDonateAgain
-              }
-              className="w-full mt-3 py-3 text-sm font-semibold text-[#F58220]"
+              onClick={handleDonateAgain}
+              className="mt-2 w-full py-3 text-xs font-semibold text-[#F58220]"
             >
-              Donasi Lagi
+              {isZakatTransaction
+                ? 'Hitung & Bayar Zakat Lagi'
+                : 'Donasi Lagi'}
             </button>
+
+            <p className="mt-5 text-[9px] text-gray-300">
+              LAZISMU Pemalang — Amanah, Profesional, Transparan
+            </p>
 
           </div>
 
