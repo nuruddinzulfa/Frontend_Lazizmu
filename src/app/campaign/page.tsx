@@ -406,6 +406,41 @@ const formatRupiah = (
     Number(value || 0).toLocaleString('id-ID')
   )
 }
+const stripHtml = (
+  html: string | null | undefined
+): string => {
+  if (!html) return ''
+
+  return html
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#039;/g, "'")
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+const normalizeRichText = (
+  html: string | null | undefined
+): string => {
+  if (!html) return ''
+
+  let result = html
+
+  result = result
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/&quot;/gi, '"')
+    .replace(/&#039;/gi, "'")
+    .replace(/&#39;/gi, "'")
+    .replace(/&amp;/gi, '&')
+
+  return result
+}
 
 const getThumbnailUrl = (
   thumbnail: string | null | undefined
@@ -509,14 +544,14 @@ export default function ProgramPage({
       const keyword =
         search.toLowerCase().trim()
 
-      const matchSearch =
-        !keyword ||
-        campaign.title
-          .toLowerCase()
-          .includes(keyword) ||
-        campaign.short_description
-          .toLowerCase()
-          .includes(keyword)
+     const matchSearch =
+  !keyword ||
+  stripHtml(campaign.title)
+    .toLowerCase()
+    .includes(keyword) ||
+  stripHtml(campaign.short_description)
+    .toLowerCase()
+    .includes(keyword)
 
       return (
         matchCategory &&
@@ -945,13 +980,40 @@ export default function ProgramPage({
                           }
                         </h2>
 
-                        {/* DESCRIPTION */}
+                       {/* DESCRIPTION */}
 
-                        <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-gray-500">
-                          {
-                            campaign.short_description
-                          }
-                        </p>
+{campaign.short_description && (
+  <div
+    className="
+      mt-2
+      line-clamp-2
+      overflow-hidden
+      text-sm
+      leading-relaxed
+      text-gray-500
+
+      [&_p]:m-0
+      [&_p]:mb-1
+
+      [&_strong]:font-bold
+      [&_em]:italic
+      [&_u]:underline
+
+      [&_ol]:ml-5
+      [&_ol]:list-decimal
+
+      [&_ul]:ml-5
+      [&_ul]:list-disc
+
+      [&_li]:mb-1
+    "
+    dangerouslySetInnerHTML={{
+      __html: normalizeRichText(
+        campaign.short_description
+      ),
+    }}
+  />
+)}
 
                         {/* PROGRESS */}
 

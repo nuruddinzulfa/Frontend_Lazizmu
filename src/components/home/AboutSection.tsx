@@ -936,27 +936,49 @@ export default function AboutSection({
         {/* VISION */}
 
         {profileLoading ? (
-          <p className="text-sm text-white/70">
-            Memuat visi...
-          </p>
-        ) : (
-          <div
-            className="
-              prose
-              prose-invert
-              max-w-none
-              text-lg
-              leading-relaxed
-              text-white
-              sm:text-xl
-            "
-            dangerouslySetInnerHTML={{
-              __html:
-                profile?.vision ||
-                '<p>Visi belum tersedia.</p>',
-            }}
-          />
-        )}
+  <p className="text-sm text-white/70">
+    Memuat visi...
+  </p>
+) : (
+  <div
+    className="
+      max-w-none
+      text-lg
+      leading-relaxed
+      text-white
+      sm:text-xl
+
+      [&_p]:mb-3
+      [&_p:last-child]:mb-0
+
+      [&_strong]:font-bold
+      [&_em]:italic
+      [&_u]:underline
+
+      [&_ol]:my-3
+      [&_ol]:list-decimal
+      [&_ol]:pl-7
+
+      [&_ul]:my-3
+      [&_ul]:list-disc
+      [&_ul]:pl-7
+
+      [&_li]:mb-2
+      [&_li]:pl-1
+
+      [&_ol>li]:list-item
+      [&_ul>li]:list-item
+
+      [&_ol>li>p]:mb-0
+      [&_ul>li>p]:mb-0
+    "
+    dangerouslySetInnerHTML={{
+      __html:
+        profile?.vision ||
+        '<p>Visi belum tersedia.</p>',
+    }}
+  />
+)}
       </div>
     </div>
 
@@ -1046,34 +1068,51 @@ export default function AboutSection({
 
       {/* MISSION */}
 
-      {profileLoading ? (
-        <p className="text-sm text-gray-400">
-          Memuat misi...
-        </p>
-      ) : (
-        <div
-          className="
-            prose
-            prose-sm
-            max-w-none
-            text-gray-600
-            [&_ol]:list-decimal
-            [&_ol]:pl-6
-            [&_ol]:space-y-3
-            [&_ul]:list-disc
-            [&_ul]:pl-6
-            [&_ul]:space-y-3
-            [&_li]:pl-1
-            [&_p]:mb-3
-          "
-          dangerouslySetInnerHTML={{
-            __html:
-              profile?.mission ||
-              '<p>Misi belum tersedia.</p>',
-          }}
-        />
-      )}
+     {profileLoading ? (
+  <p className="text-sm text-gray-400">
+    Memuat misi...
+  </p>
+) : (
+  <div
+    className="
+      max-w-none
+      text-sm
+      leading-relaxed
+      text-gray-600
 
+      [&_p]:mb-3
+      [&_p:last-child]:mb-0
+
+      [&_strong]:font-bold
+      [&_em]:italic
+      [&_u]:underline
+
+      [&_ol]:my-3
+      [&_ol]:ml-0
+      [&_ol]:list-decimal
+      [&_ol]:pl-7
+
+      [&_ul]:my-3
+      [&_ul]:ml-0
+      [&_ul]:list-disc
+      [&_ul]:pl-7
+
+      [&_li]:mb-2
+      [&_li]:pl-1
+
+      [&_ol>li]:list-item
+      [&_ul>li]:list-item
+
+      [&_ol>li>p]:mb-0
+      [&_ul>li>p]:mb-0
+    "
+    dangerouslySetInnerHTML={{
+      __html:
+        profile?.mission ||
+        '<p>Misi belum tersedia.</p>',
+    }}
+  />
+)}
       {/* NILAI */}
 
       <div
@@ -1109,14 +1148,13 @@ export default function AboutSection({
           </span>
         ))}
       </div>
+         </div>
     </div>
   </div>
-</div>
 
         {/* ================================================================
             DIVIDER
         ================================================================ */}
-
         <div
           className="
             mb-20

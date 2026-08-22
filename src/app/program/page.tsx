@@ -37,6 +37,7 @@ interface Campaign {
   id: number
   title: string
   slug: string
+  short_description?: string | null
   description?: string | null
   image?: string | null
   thumbnail?: string | null
@@ -1814,19 +1815,34 @@ export default function ProgramPage({
                           {campaign.title}
                         </h3>
 
-                        <p
-                          className="
-                            mb-5
-                            line-clamp-3
-                            flex-1
-                            text-xs
-                            leading-relaxed
-                            text-gray-500
-                          "
-                        >
-                          {campaign.description ||
-                            'Campaign Amal Lazismu Pemalang.'}
-                        </p>
+                        <div
+  className="
+    campaign-description
+    mb-5
+    line-clamp-3
+    flex-1
+    text-xs
+    leading-relaxed
+    text-gray-500
+    [&_strong]:font-bold
+    [&_b]:font-bold
+    [&_em]:italic
+    [&_i]:italic
+    [&_u]:underline
+    [&_p]:m-0
+    [&_ul]:ml-4
+    [&_ul]:list-disc
+    [&_ol]:ml-4
+    [&_ol]:list-decimal
+    [&_li]:ml-1
+  "
+  dangerouslySetInnerHTML={{
+    __html:
+      campaign.short_description ||
+      campaign.description ||
+      '<p>Campaign Amal Lazismu Pemalang.</p>',
+  }}
+/>
 
                         {/* Progress */}
 
