@@ -802,16 +802,20 @@ export default function ProgramPage({
                       campaign.collected_amount || 0
                     )
 
-                  const percentage =
+                  const rawPercentage =
                     target > 0
-                      ? Math.min(
-                          Math.round(
-                            (collected /
-                              target) *
-                              100
-                          ),
-                          100
-                        )
+                      ? (collected / target) * 100
+                      : 0
+
+                  const percentage =
+                    Math.min(
+                      Number(rawPercentage.toFixed(2)),
+                      100
+                    )
+
+                  const progressWidth =
+                    collected > 0 && percentage > 0
+                      ? Math.max(percentage, 0.5)
                       : 0
 
                   const thumbnail =
@@ -991,36 +995,9 @@ export default function ProgramPage({
                        {/* DESCRIPTION */}
 
 {campaign.short_description && (
-  <div
-    className="
-      mt-2
-      line-clamp-2
-      overflow-hidden
-      text-sm
-      leading-relaxed
-      text-gray-500
-
-      [&_p]:m-0
-      [&_p]:mb-1
-
-      [&_strong]:font-bold
-      [&_em]:italic
-      [&_u]:underline
-
-      [&_ol]:ml-5
-      [&_ol]:list-decimal
-
-      [&_ul]:ml-5
-      [&_ul]:list-disc
-
-      [&_li]:mb-1
-    "
-    dangerouslySetInnerHTML={{
-      __html: normalizeRichText(
-        campaign.short_description
-      ),
-    }}
-  />
+  <p className="mt-2 line-clamp-2 overflow-hidden text-sm leading-relaxed text-gray-500">
+    {stripHtml(campaign.short_description)}
+  </p>
 )}
 
                         {/* PROGRESS */}
@@ -1052,7 +1029,7 @@ export default function ProgramPage({
                             <div
                               className="h-full rounded-full transition-all duration-500"
                               style={{
-                                width: `${percentage}%`,
+                                width: `${progressWidth}%`,
                                 backgroundColor:
                                   config.color,
                               }}

@@ -64,6 +64,26 @@ function formatRupiah(
   return `Rp ${amount.toLocaleString("id-ID")}`;
 }
 
+function stripHtml(
+  html: string | null | undefined
+): string {
+  if (!html) {
+    return "";
+  }
+
+  return html
+    .replace(/<[^>]*>/g, " ")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/&quot;/gi, '"')
+    .replace(/&#039;/gi, "'")
+    .replace(/&#39;/gi, "'")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 /* =========================================================
    THUMBNAIL URL
 ========================================================= */
@@ -153,14 +173,20 @@ function CampaignCard({
     campaign.target_amount ?? 0
   );
 
-  const percentage =
+  const rawPercentage =
     target > 0
-      ? Math.min(
-          100,
-          Math.round(
-            (collected / target) * 100
-          )
-        )
+      ? (collected / target) * 100
+      : 0;
+
+  const percentage =
+    Math.min(
+      Number(rawPercentage.toFixed(2)),
+      100
+    );
+
+  const progressWidth =
+    collected > 0 && percentage > 0
+      ? Math.max(percentage, 0.5)
       : 0;
 
   const thumbnailUrl = getThumbnailUrl(
@@ -301,7 +327,7 @@ function CampaignCard({
 
         {campaign.short_description && (
           <p className="mb-5 line-clamp-2 text-sm leading-6 text-gray-500">
-            {campaign.short_description}
+            {stripHtml(campaign.short_description)}
           </p>
         )}
 
@@ -322,7 +348,7 @@ function CampaignCard({
             <div
               className="h-full rounded-full bg-gradient-to-r from-[#F58220] via-[#F47716] to-[#D96808] transition-all duration-700"
               style={{
-                width: `${percentage}%`,
+                width: `${progressWidth}%`,
               }}
             />
           </div>

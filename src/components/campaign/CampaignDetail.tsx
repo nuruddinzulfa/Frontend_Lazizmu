@@ -297,14 +297,20 @@ export default function CampaignDetail({
   const collected =
     Number(campaign.collected_amount)
 
-  const percentage =
+  const rawPercentage =
     target > 0
-      ? Math.min(
-          Math.round(
-            (collected / target) * 100
-          ),
-          100
-        )
+      ? (collected / target) * 100
+      : 0
+
+  const percentage =
+    Math.min(
+      Number(rawPercentage.toFixed(2)),
+      100
+    )
+
+  const progressWidth =
+    collected > 0 && percentage > 0
+      ? Math.max(percentage, 0.5)
       : 0
 
   const thumbnail =
@@ -488,7 +494,7 @@ export default function CampaignDetail({
                 <div
                   className="h-full rounded-full bg-[#F58220] transition-all"
                   style={{
-                    width: `${percentage}%`,
+                    width: `${progressWidth}%`,
                   }}
                 />
 

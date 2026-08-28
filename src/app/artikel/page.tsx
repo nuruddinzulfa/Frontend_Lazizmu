@@ -113,12 +113,24 @@ function getThumbnailUrl(
     return thumbnail
   }
 
+  if (thumbnail.startsWith('/storage/')) {
+    return thumbnail
+  }
+
+  if (thumbnail.startsWith('storage/')) {
+    return `/${thumbnail}`
+  }
+
   const backendUrl = API_URL.replace(
     /\/api\/?$/,
     ''
   )
 
-  return `${backendUrl}/storage/${thumbnail}`
+  const cleanThumbnail = thumbnail
+    .replace(/^\/+/, '')
+    .replace(/^storage\//, '')
+
+  return `${backendUrl}/storage/${cleanThumbnail}`
 }
 
 export default function ArtikelPage({

@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { NavPage } from '../../App'
 import { getNews, type News } from '../../service/news.service'
-import API_URL from '../../lib/api'
 
 interface BeritaPageProps {
   onNavigate?: (page: NavPage) => void
@@ -27,21 +26,7 @@ const categoryColors: Record<string, string> = {
 function getThumbnailUrl(
   thumbnail: string | null
 ): string | null {
-  if (!thumbnail) {
-    return null
-  }
-
-  if (
-    thumbnail.startsWith('http://') ||
-    thumbnail.startsWith('https://')
-  ) {
-    return thumbnail
-  }
-
-  const backendUrl =
-    API_URL.replace(/\/api\/?$/, '')
-
-  return `${backendUrl}/storage/${thumbnail}`
+  return thumbnail || null
 }
 
 function formatDate(

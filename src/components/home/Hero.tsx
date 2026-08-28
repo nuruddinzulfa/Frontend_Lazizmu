@@ -309,14 +309,20 @@ export default function Hero({
       )
     : 0
 
-  const percentage =
+  const rawPercentage =
     target > 0
-      ? Math.min(
-          Math.round(
-            (collected / target) * 100
-          ),
-          100
-        )
+      ? (collected / target) * 100
+      : 0
+
+  const percentage =
+    Math.min(
+      Number(rawPercentage.toFixed(2)),
+      100
+    )
+
+  const progressWidth =
+    collected > 0 && percentage > 0
+      ? Math.max(percentage, 0.5)
       : 0
 
   /* ============================================================
@@ -1102,7 +1108,7 @@ export default function Hero({
                                 duration-700
                               "
                               style={{
-                                width: `${percentage}%`,
+                                width: `${progressWidth}%`,
                               }}
                             />
                           </div>

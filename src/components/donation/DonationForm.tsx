@@ -108,6 +108,16 @@ interface ZakatTransactionResponse {
   }
 }
 
+interface PaymentStatusResponse {
+  success: boolean
+  message?: string
+  data: {
+    id: number
+    order_id: string
+    payment_status: string
+  }
+}
+
 interface StoredDonation {
   donationId?: number
   transactionId?: number
@@ -496,13 +506,6 @@ export default function DonationForm({
   >(null)
 
   const [
-    statusCode,
-    setStatusCode,
-  ] = useState<
-    string | null
-  >(null)
-
-  const [
     returnedOrderId,
     setReturnedOrderId,
   ] = useState<
@@ -601,23 +604,25 @@ export default function DonationForm({
 
   const isPaymentSuccess =
     transactionStatus ===
-      'settlement' ||
-    transactionStatus ===
-      'capture'
+      'settlement'
 
   const isPaymentPending =
     transactionStatus ===
-    'pending'
+      'pending'
+
+  const isPaymentChecking =
+    transactionStatus ===
+      'checking'
 
   const isPaymentFailed =
     transactionStatus ===
-      'deny' ||
+      'failed' ||
     transactionStatus ===
-      'cancel' ||
+      'failure' ||
     transactionStatus ===
-      'expire' ||
+      'cancelled' ||
     transactionStatus ===
-      'failure'
+      'expired'
 
   const isZakatTransaction =
     lastDonation?.transactionType ===
@@ -915,7 +920,15 @@ export default function DonationForm({
 
   /*
   |--------------------------------------------------------------------------
-  | MIDTRANS QUERY
+  | DOKU RETURN / PAYMENT STATUS
+  |--------------------------------------------------------------------------
+  |
+  | DOKU hanya mengembalikan pengguna ke website.
+  | Status pembayaran yang dipercaya tetap berasal dari webhook DOKU
+  | yang sudah tersimpan di backend.
+  |
+  | Setelah kembali dari DOKU, transaksi terakhir dibaca dari sessionStorage
+  | lalu frontend mengecek status ke endpoint backend.
   |--------------------------------------------------------------------------
   */
 
@@ -927,61 +940,164 @@ export default function DonationForm({
       return
     }
 
-    const params =
-      new URLSearchParams(
-        window.location.search,
-      )
+    let cancelled = false
 
-    setTransactionStatus(
-      params.get(
-        'transaction_status',
-      ),
-    )
+    const checkPaymentStatus =
+      async () => {
+        try {
+          const stored =
+            sessionStorage.getItem(
+              'lastDonation',
+            )
 
-    setStatusCode(
-      params.get(
-        'status_code',
-      ),
-    )
+          if (!stored) {
+            return
+          }
 
-    setReturnedOrderId(
-      params.get(
-        'order_id',
-      ),
-    )
-  }, [])
+          const storedDonation =
+            JSON.parse(
+              stored,
+            ) as StoredDonation
 
-  /*
-  |--------------------------------------------------------------------------
-  | SESSION
-  |--------------------------------------------------------------------------
-  */
+          setLastDonation(
+            storedDonation,
+          )
 
-  useEffect(() => {
-    if (
-      typeof window ===
-      'undefined'
-    ) {
-      return
-    }
+          setReturnedOrderId(
+            storedDonation.orderId ??
+              null,
+          )
 
-    try {
-      const stored =
-        sessionStorage.getItem(
-          'lastDonation',
-        )
+          const isStoredZakat =
+            storedDonation.transactionType ===
+              'zakat' ||
+            storedDonation.orderId?.startsWith(
+              'ZKT-',
+            )
 
-      if (!stored) {
-        return
+          const transactionId =
+            isStoredZakat
+              ? storedDonation.transactionId
+              : storedDonation.donationId
+
+          if (!transactionId) {
+            return
+          }
+
+          setTransactionStatus(
+            'checking',
+          )
+
+          /*
+          |--------------------------------------------------------------------------
+          | Polling singkat
+          |--------------------------------------------------------------------------
+          |
+          | Redirect browser bisa kembali sedikit lebih cepat daripada webhook.
+          | Karena itu status dicek beberapa kali sebelum dianggap masih pending.
+          |--------------------------------------------------------------------------
+          */
+
+          for (
+            let attempt = 0;
+            attempt < 10;
+            attempt += 1
+          ) {
+            if (cancelled) {
+              return
+            }
+
+            const endpoint =
+              isStoredZakat
+                ? `/zakat-transactions/${transactionId}/status`
+                : `/donations/${transactionId}/status`
+
+            const response =
+              await api.get<PaymentStatusResponse>(
+                endpoint,
+              )
+
+            if (
+              !response.success
+            ) {
+              throw new Error(
+                response.message ||
+                  'Gagal memeriksa status pembayaran.',
+              )
+            }
+
+            const paymentStatus =
+              String(
+                response.data
+                  .payment_status ??
+                  'pending',
+              )
+                .toLowerCase()
+                .trim()
+
+            if (cancelled) {
+              return
+            }
+
+            setReturnedOrderId(
+              response.data.order_id ||
+                storedDonation.orderId ||
+                null,
+            )
+
+            if (
+              paymentStatus ===
+                'settlement' ||
+              paymentStatus ===
+                'failed' ||
+              paymentStatus ===
+                'failure' ||
+              paymentStatus ===
+                'cancelled' ||
+              paymentStatus ===
+                'expired'
+            ) {
+              setTransactionStatus(
+                paymentStatus,
+              )
+
+              return
+            }
+
+            if (attempt < 9) {
+              await new Promise(
+                (resolve) =>
+                  window.setTimeout(
+                    resolve,
+                    1500,
+                  ),
+              )
+            }
+          }
+
+          if (!cancelled) {
+            setTransactionStatus(
+              'pending',
+            )
+          }
+        } catch (error) {
+          console.error(
+            'DOKU STATUS ERROR:',
+            error,
+          )
+
+          if (!cancelled) {
+            setTransactionStatus(
+              'pending',
+            )
+          }
+        }
       }
 
-      setLastDonation(
-        JSON.parse(
-          stored,
-        ) as StoredDonation,
-      )
-    } catch {
-      setLastDonation(null)
+    checkPaymentStatus()
+
+    return () => {
+      cancelled = true
     }
   }, [])
 
@@ -1246,7 +1362,7 @@ export default function DonationForm({
           }
 
           throw new Error(
-            'Backend tidak mengembalikan metode pembayaran Midtrans.',
+            'Backend tidak mengembalikan URL pembayaran DOKU.',
           )
         }
 
@@ -1340,7 +1456,7 @@ export default function DonationForm({
         }
 
         throw new Error(
-          'Backend tidak mengembalikan metode pembayaran Midtrans.',
+          'Backend tidak mengembalikan URL pembayaran DOKU.',
         )
       } catch (error) {
         console.error(
@@ -1384,6 +1500,36 @@ export default function DonationForm({
       window.location.href =
         '/donasi'
     }
+
+  /*
+  |--------------------------------------------------------------------------
+  | CHECKING PAYMENT
+  |--------------------------------------------------------------------------
+  */
+
+  if (isPaymentChecking) {
+    return (
+      <div className="min-h-screen bg-[#FFF8F2] px-4 py-8 flex items-center justify-center">
+
+        <div className="max-w-md w-full bg-white rounded-3xl border border-[#F3DEC8] shadow-lg p-10 text-center">
+
+          <div className="w-10 h-10 border-4 border-[#F58220] border-t-transparent rounded-full animate-spin mx-auto mb-5" />
+
+          <h1 className="text-xl font-bold text-gray-900 mb-3">
+            Memverifikasi Pembayaran
+          </h1>
+
+          <p className="text-gray-500 text-sm leading-6">
+            Mohon tunggu sebentar. Kami sedang
+            mencocokkan status pembayaran DOKU
+            dengan sistem LAZISMU Pemalang.
+          </p>
+
+        </div>
+
+      </div>
+    )
+  }
 
   /*
   |--------------------------------------------------------------------------
@@ -1655,12 +1801,6 @@ export default function DonationForm({
             kembali.
           </p>
 
-          {statusCode && (
-            <p className="text-xs text-gray-400 mb-5">
-              Status code: {statusCode}
-            </p>
-          )}
-
           <button
             type="button"
             onClick={
@@ -1746,10 +1886,10 @@ export default function DonationForm({
 
           <p className="text-white/75 text-sm">
             {isZakat
-              ? 'Isi data muzaki, periksa nominal zakat, kemudian lanjutkan pembayaran melalui Midtrans.'
+              ? 'Isi data muzaki, periksa nominal zakat, kemudian lanjutkan pembayaran melalui DOKU.'
               : step === 1
                 ? 'Pilih program donasi terlebih dahulu, kemudian isi data dan nominal donasi.'
-                : 'Isi data donatur, tentukan nominal, kemudian lanjutkan pembayaran melalui Midtrans.'}
+                : 'Isi data donatur, tentukan nominal, kemudian lanjutkan pembayaran melalui DOKU.'}
           </p>
 
         </div>
@@ -2487,7 +2627,7 @@ export default function DonationForm({
                 Setelah menekan tombol
                 bayar, Anda akan diarahkan
                 ke halaman pembayaran
-                Midtrans.
+                DOKU.
               </div>
 
               {submitError && (
