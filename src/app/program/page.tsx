@@ -1,62 +1,10 @@
 'use client'
 
-import {
-  useEffect,
-  useMemo,
-  useState,
-} from 'react'
-
 import type { NavPage } from '../../App'
-import { api } from '../../services/api'
 
 interface ProgramPageProps {
   onNavigate?: (page: NavPage) => void
-  onDonateProgram?: (program: string) => void
   onOpenPillar?: (category: string) => void
-}
-
-interface Program {
-  id: number
-  title: string
-  slug: string
-  excerpt?: string | null
-  thumbnail?: string | null
-  pillar?: string | null
-  published_at?: string | null
-  views?: number | null
-  sort_order?: number | null
-}
-
-interface ProgramResponse {
-  success: boolean
-  message?: string
-  data: Program[]
-}
-
-interface Campaign {
-  id: number
-  title: string
-  slug: string
-  short_description?: string | null
-  description?: string | null
-  image?: string | null
-  thumbnail?: string | null
-  category?: string | null
-  target_amount?: number | string | null
-  collected_amount?: number | string | null
-  donor_count?: number | null
-  status?: string
-  featured?: boolean | number
-}
-
-interface CampaignResponse {
-  success: boolean
-  message?: string
-  data:
-    | Campaign[]
-    | {
-        data: Campaign[]
-      }
 }
 
 /* =========================================================
@@ -386,195 +334,17 @@ const pillars = [
 ]
 
 /* =========================================================
-   HELPERS
-========================================================= */
-
-function getProgramCategory(
-  program: Program
-) {
-  const title =
-    program.title.toLowerCase()
-
-  if (
-    title.includes('kemanusiaan')
-  ) {
-    return 'Kemanusiaan'
-  }
-
-  if (
-    title.includes('sosial') &&
-    title.includes('dakwah')
-  ) {
-    return 'Sosial Dakwah'
-  }
-
-  return (
-    program.pillar ||
-    program.title
-  )
-}
-
-function getCategoryColor(
-  category?: string | null
-) {
-  const value =
-    category?.toLowerCase() ?? ''
-
-  if (
-    value.includes('pendidikan')
-  ) {
-    return 'bg-orange-100 text-orange-700'
-  }
-
-  if (
-    value.includes('kesehatan')
-  ) {
-    return 'bg-red-100 text-red-700'
-  }
-
-  if (
-    value.includes('ekonomi')
-  ) {
-    return 'bg-red-100 text-red-800'
-  }
-
-  if (
-    value.includes('sosial') ||
-    value.includes('dakwah')
-  ) {
-    return 'bg-yellow-100 text-yellow-700'
-  }
-
-  if (
-    value.includes('kemanusiaan')
-  ) {
-    return 'bg-lime-100 text-lime-700'
-  }
-
-  if (
-    value.includes('lingkungan')
-  ) {
-    return 'bg-lime-200 text-lime-800'
-  }
-
-  return 'bg-gray-100 text-gray-700'
-}
-
-function formatRupiah(
-  value:
-    | number
-    | string
-    | null
-    | undefined
-) {
-  const number =
-    Number(value ?? 0)
-
-  return new Intl.NumberFormat(
-    'id-ID',
-    {
-      style: 'currency',
-      currency: 'IDR',
-      maximumFractionDigits: 0,
-    }
-  ).format(
-    Number.isFinite(number)
-      ? number
-      : 0
-  )
-}
-
-function calculateProgress(
-  collected: number,
-  target: number
-) {
-  if (target <= 0) {
-    return 0
-  }
-
-  return Math.min(
-    100,
-    Math.round(
-      (collected / target) * 100
-    )
-  )
-}
-
-function getImageUrl(
-  image:
-    | string
-    | null
-    | undefined
-) {
-  if (!image) {
-    return null
-  }
-
-  if (
-    image.startsWith('http://') ||
-    image.startsWith('https://')
-  ) {
-    return image
-  }
-
-  if (
-    image.startsWith('/storage/')
-  ) {
-    return image
-  }
-
-  if (
-    image.startsWith('storage/')
-  ) {
-    return `/${image}`
-  }
-
-  return `/storage/${image.replace(
-    /^\/+/,
-    ''
-  )}`
-}
-
-/* =========================================================
    PAGE
 ========================================================= */
 
 export default function ProgramPage({
-  onDonateProgram,
   onOpenPillar,
 }: ProgramPageProps) {
-  const [
-    activeFilter,
-    setActiveFilter,
-  ] = useState('Semua')
-
-  const [
-    programs,
-    setPrograms,
-  ] = useState<Program[]>([])
-
-  const [
-    campaigns,
-    setCampaigns,
-  ] = useState<Campaign[]>([])
-
-  const [
-    loading,
-    setLoading,
-  ] = useState(true)
-
-  const [
-    error,
-    setError,
-  ] = useState('')
-
   /* =======================================================
      OPEN PILAR
   ======================================================= */
 
-  const handleOpenPillar = (
-    category: string
-  ) => {
+  const handleOpenPillar = (category: string) => {
     if (!onOpenPillar) {
       console.warn(
         '[ProgramPage] onOpenPillar belum diberikan dari App.tsx'
@@ -584,198 +354,6 @@ export default function ProgramPage({
     }
 
     onOpenPillar(category)
-  }
-
-  /* =======================================================
-     FETCH DATA
-  ======================================================= */
-
-  useEffect(() => {
-    const fetchData =
-      async () => {
-        try {
-          setLoading(true)
-          setError('')
-
-          const [
-            programResponse,
-            campaignResponse,
-          ] = await Promise.all([
-            api.get<ProgramResponse>(
-              '/programs'
-            ),
-
-            api.get<CampaignResponse>(
-              '/campaigns'
-            ),
-          ])
-
-          if (
-            !programResponse.success
-          ) {
-            throw new Error(
-              programResponse.message ||
-                'Gagal mengambil data program.'
-            )
-          }
-
-          const programData =
-            Array.isArray(
-              programResponse.data
-            )
-              ? programResponse.data
-              : []
-
-          const sortedPrograms =
-            [...programData].sort(
-              (a, b) =>
-                Number(
-                  a.sort_order ?? 0
-                ) -
-                Number(
-                  b.sort_order ?? 0
-                )
-            )
-
-          setPrograms(
-            sortedPrograms
-          )
-
-          if (
-            !campaignResponse.success
-          ) {
-            throw new Error(
-              campaignResponse.message ||
-                'Gagal mengambil data Campaign.'
-            )
-          }
-
-          let campaignData:
-            Campaign[] = []
-
-          if (
-            Array.isArray(
-              campaignResponse.data
-            )
-          ) {
-            campaignData =
-              campaignResponse.data
-          } else if (
-            campaignResponse.data &&
-            Array.isArray(
-              campaignResponse.data
-                .data
-            )
-          ) {
-            campaignData =
-              campaignResponse.data
-                .data
-          }
-
-          setCampaigns(
-            campaignData.filter(
-              (campaign) =>
-                !campaign.status ||
-                campaign.status ===
-                  'published'
-            )
-          )
-        } catch (
-          fetchError
-        ) {
-          console.error(
-            'PROGRAM PAGE ERROR:',
-            fetchError
-          )
-
-          setError(
-            fetchError instanceof
-              Error
-              ? fetchError.message
-              : 'Terjadi kesalahan saat mengambil data.'
-          )
-        } finally {
-          setLoading(false)
-        }
-      }
-
-    fetchData()
-  }, [])
-
-  /* =======================================================
-     FILTER
-  ======================================================= */
-
-  const filteredPrograms =
-    useMemo(() => {
-      if (
-        activeFilter ===
-        'Semua'
-      ) {
-        return programs
-      }
-
-      return programs.filter(
-        (program) =>
-          getProgramCategory(
-            program
-          ) === activeFilter
-      )
-    }, [
-      programs,
-      activeFilter,
-    ])
-
-  const filteredCampaigns =
-    useMemo(() => {
-      if (
-        activeFilter ===
-        'Semua'
-      ) {
-        return campaigns
-      }
-
-      return campaigns.filter(
-        (campaign) =>
-          campaign.category ===
-          activeFilter
-      )
-    }, [
-      campaigns,
-      activeFilter,
-    ])
-
-  /* =======================================================
-     LOADING
-  ======================================================= */
-
-  if (loading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-[#FFF8F2]">
-        <div className="text-center">
-
-          <div
-            className="
-              mx-auto
-              mb-4
-              h-10
-              w-10
-              animate-spin
-              rounded-full
-              border-4
-              border-[#F58220]
-              border-t-transparent
-            "
-          />
-
-          <p className="text-sm text-gray-500">
-            Mengambil data program
-            dan campaign...
-          </p>
-
-        </div>
-      </div>
-    )
   }
 
   return (
@@ -886,8 +464,7 @@ export default function ProgramPage({
         style={{
           backgroundImage:
             'radial-gradient(#F58220 1.5px, transparent 1.5px)',
-          backgroundSize:
-            '12px 12px',
+          backgroundSize: '12px 12px',
         }}
       />
 
@@ -906,8 +483,7 @@ export default function ProgramPage({
         style={{
           backgroundImage:
             'radial-gradient(#F58220 1.5px, transparent 1.5px)',
-          backgroundSize:
-            '12px 12px',
+          backgroundSize: '12px 12px',
         }}
       />
 
@@ -1001,7 +577,7 @@ export default function ProgramPage({
               </span>
 
               <span>
-                Program & Campaign
+                Program
               </span>
             </div>
 
@@ -1017,7 +593,7 @@ export default function ProgramPage({
                   "'Plus Jakarta Sans', sans-serif",
               }}
             >
-              Program & Campaign
+              Program
             </h1>
 
             <p
@@ -1033,44 +609,13 @@ export default function ProgramPage({
               Lazismu Pemalang dan
               berbagai bentuk kebaikan
               yang diwujudkan melalui
-              program serta campaign
-              nyata untuk masyarakat.
+              program nyata untuk
+              masyarakat.
             </p>
 
           </div>
 
         </section>
-
-        {/* ===================================================
-            ERROR
-        =================================================== */}
-
-        {error && (
-          <div
-            className="
-              mx-auto
-              max-w-7xl
-              px-4
-              pt-8
-              sm:px-6
-              lg:px-8
-            "
-          >
-            <div
-              className="
-                rounded-2xl
-                border
-                border-red-200
-                bg-red-50
-                p-5
-                text-sm
-                text-red-600
-              "
-            >
-              {error}
-            </div>
-          </div>
-        )}
 
         {/* ===================================================
             6 PILAR
@@ -1208,227 +753,134 @@ export default function ProgramPage({
               "
             >
 
-              {pillars.map(
-                (
-                  pillar,
-                  index
-                ) => (
-                  <button
-                    key={
-                      pillar.name
-                    }
-                    type="button"
-                    onClick={() =>
-                      handleOpenPillar(
-                        pillar.name
-                      )
-                    }
+              {pillars.map((pillar, index) => (
+                <button
+                  key={pillar.name}
+                  type="button"
+                  onClick={() =>
+                    handleOpenPillar(pillar.name)
+                  }
+                  className="
+                    group
+                    relative
+                    w-full
+                    overflow-hidden
+                    rounded-[28px]
+                    border
+                    border-[#F1D9C1]
+                    bg-white
+                    p-6
+                    text-left
+                    shadow-[0_8px_30px_rgba(120,70,30,0.06)]
+                    transition-all
+                    duration-300
+                    hover:-translate-y-2
+                    hover:border-[#F58220]/40
+                    hover:shadow-[0_20px_45px_rgba(120,70,30,0.13)]
+                    sm:p-7
+                  "
+                >
+
+                  {/* Glow card */}
+
+                  <div
+                    aria-hidden="true"
                     className="
-                      group
-                      relative
-                      w-full
-                      overflow-hidden
-                      rounded-[28px]
-                      border
-                      border-[#F1D9C1]
-                      bg-white
-                      p-6
-                      text-left
-                      shadow-[0_8px_30px_rgba(120,70,30,0.06)]
-                      transition-all
+                      pointer-events-none
+                      absolute
+                      -right-14
+                      -top-14
+                      h-36
+                      w-36
+                      rounded-full
+                      opacity-0
+                      blur-2xl
+                      transition-opacity
                       duration-300
-                      hover:-translate-y-2
-                      hover:border-[#F58220]/40
-                      hover:shadow-[0_20px_45px_rgba(120,70,30,0.13)]
-                      sm:p-7
+                      group-hover:opacity-100
+                    "
+                    style={{
+                      backgroundColor: pillar.color,
+                    }}
+                  />
+
+                  {/* Number */}
+
+                  <div
+                    className="
+                      absolute
+                      right-5
+                      top-4
+                      text-5xl
+                      font-black
+                      text-gray-100
+                      transition-colors
+                      duration-300
+                      group-hover:text-[#F58220]/10
+                    "
+                  >
+                    {String(index + 1).padStart(2, '0')}
+                  </div>
+
+                  {/* Header card */}
+
+                  <div
+                    className="
+                      relative
+                      flex
+                      items-start
+                      justify-between
                     "
                   >
 
-                    {/* Glow card */}
-
-                    <div
-                      aria-hidden="true"
-                      className="
-                        pointer-events-none
-                        absolute
-                        -right-14
-                        -top-14
-                        h-36
-                        w-36
-                        rounded-full
-                        opacity-0
-                        blur-2xl
-                        transition-opacity
-                        duration-300
-                        group-hover:opacity-100
-                      "
-                      style={{
-                        backgroundColor:
-                          pillar.color,
-                      }}
-                    />
-
-                    {/* Number */}
-
                     <div
                       className="
-                        absolute
-                        right-5
-                        top-4
-                        text-5xl
-                        font-black
-                        text-gray-100
-                        transition-colors
-                        duration-300
-                        group-hover:text-[#F58220]/10
-                      "
-                    >
-                      {String(
-                        index + 1
-                      ).padStart(
-                        2,
-                        '0'
-                      )}
-                    </div>
-
-                    {/* Header card */}
-
-                    <div
-                      className="
-                        relative
                         flex
-                        items-start
-                        justify-between
-                      "
-                    >
-
-                      <div
-                        className="
-                          flex
-                          h-16
-                          w-16
-                          items-center
-                          justify-center
-                          rounded-2xl
-                          shadow-md
-                          transition-all
-                          duration-300
-                          group-hover:scale-105
-                          group-hover:rotate-2
-                          group-hover:shadow-lg
-                        "
-                        style={{
-                          backgroundColor:
-                            pillar.color,
-                        }}
-                      >
-                        <PillarIcon
-                          name={
-                            pillar.name
-                          }
-                          className="h-12 w-12"
-                        />
-                      </div>
-
-                      <div
-                        className="
-                          flex
-                          h-10
-                          w-10
-                          items-center
-                          justify-center
-                          rounded-full
-                          bg-[#FFF8F2]
-                          text-[#F58220]
-                          transition-all
-                          duration-300
-                          group-hover:bg-[#F58220]
-                          group-hover:text-white
-                        "
-                      >
-                        <svg
-                          className="
-                            h-4
-                            w-4
-                            transition-transform
-                            duration-300
-                            group-hover:translate-x-0.5
-                          "
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M9 5l7 7-7 7"
-                          />
-                        </svg>
-                      </div>
-
-                    </div>
-
-                    {/* Title */}
-
-                    <h3
-                      className="
-                        relative
-                        mt-6
-                        text-lg
-                        font-bold
-                        text-gray-900
-                        transition-colors
-                        duration-200
-                        group-hover:text-[#F58220]
-                      "
-                      style={{
-                        fontFamily:
-                          "'Plus Jakarta Sans', sans-serif",
-                      }}
-                    >
-                      {pillar.name}
-                    </h3>
-
-                    {/* Description */}
-
-                    <p
-                      className="
-                        relative
-                        mt-3
-                        text-sm
-                        leading-7
-                        text-gray-500
-                      "
-                    >
-                      {pillar.desc}
-                    </p>
-
-                    {/* Action */}
-
-                    <div
-                      className="
-                        relative
-                        mt-6
-                        flex
+                        h-16
+                        w-16
                         items-center
-                        gap-2
-                        text-sm
-                        font-bold
+                        justify-center
+                        rounded-2xl
+                        shadow-md
+                        transition-all
+                        duration-300
+                        group-hover:scale-105
+                        group-hover:rotate-2
+                        group-hover:shadow-lg
+                      "
+                      style={{
+                        backgroundColor: pillar.color,
+                      }}
+                    >
+                      <PillarIcon
+                        name={pillar.name}
+                        className="h-12 w-12"
+                      />
+                    </div>
+
+                    <div
+                      className="
+                        flex
+                        h-10
+                        w-10
+                        items-center
+                        justify-center
+                        rounded-full
+                        bg-[#FFF8F2]
                         text-[#F58220]
+                        transition-all
+                        duration-300
+                        group-hover:bg-[#F58220]
+                        group-hover:text-white
                       "
                     >
-                      <span>
-                        Lihat Program
-                      </span>
-
                       <svg
                         className="
                           h-4
                           w-4
                           transition-transform
                           duration-300
-                          group-hover:translate-x-1
+                          group-hover:translate-x-0.5
                         "
                         fill="none"
                         stroke="currentColor"
@@ -1438,545 +890,118 @@ export default function ProgramPage({
                           strokeLinecap="round"
                           strokeLinejoin="round"
                           strokeWidth={2}
-                          d="M5 12h14"
-                        />
-
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M13 6l6 6-6 6"
+                          d="M9 5l7 7-7 7"
                         />
                       </svg>
                     </div>
 
-                    {/* Bottom accent */}
+                  </div>
 
-                    <div
+                  {/* Title */}
+
+                  <h3
+                    className="
+                      relative
+                      mt-6
+                      text-lg
+                      font-bold
+                      text-gray-900
+                      transition-colors
+                      duration-200
+                      group-hover:text-[#F58220]
+                    "
+                    style={{
+                      fontFamily:
+                        "'Plus Jakarta Sans', sans-serif",
+                    }}
+                  >
+                    {pillar.name}
+                  </h3>
+
+                  {/* Description */}
+
+                  <p
+                    className="
+                      relative
+                      mt-3
+                      text-sm
+                      leading-7
+                      text-gray-500
+                    "
+                  >
+                    {pillar.desc}
+                  </p>
+
+                  {/* Action */}
+
+                  <div
+                    className="
+                      relative
+                      mt-6
+                      flex
+                      items-center
+                      gap-2
+                      text-sm
+                      font-bold
+                      text-[#F58220]
+                    "
+                  >
+                    <span>
+                      Lihat Program
+                    </span>
+
+                    <svg
                       className="
-                        absolute
-                        bottom-0
-                        left-0
-                        h-1
-                        w-0
-                        transition-all
+                        h-4
+                        w-4
+                        transition-transform
                         duration-300
-                        group-hover:w-full
+                        group-hover:translate-x-1
                       "
-                      style={{
-                        backgroundColor:
-                          pillar.color,
-                      }}
-                    />
-
-                  </button>
-                )
-              )}
-
-            </div>
-
-          </div>
-
-        </section>
-
-        {/* ===================================================
-            CAMPAIGN
-        =================================================== */}
-
-        <section
-          className="
-            relative
-            mx-auto
-            max-w-7xl
-            px-4
-            pb-20
-            sm:px-6
-            lg:px-8
-          "
-        >
-
-          {/* Campaign header */}
-
-          <div
-            className="
-              relative
-              mb-10
-              text-center
-            "
-          >
-
-            <div
-              className="
-                mb-4
-                inline-flex
-                items-center
-                gap-2
-                rounded-full
-                bg-[#F58220]
-                px-4
-                py-1.5
-                text-xs
-                font-bold
-                uppercase
-                tracking-wide
-                text-white
-                shadow-sm
-              "
-            >
-              Campaign
-            </div>
-
-            <h2
-              className="
-                text-3xl
-                font-bold
-                text-gray-900
-              "
-              style={{
-                fontFamily:
-                  "'Plus Jakarta Sans', sans-serif",
-              }}
-            >
-              Campaign Amal
-            </h2>
-
-            <div
-              className="
-                mx-auto
-                mt-4
-                h-1
-                w-12
-                rounded-full
-                bg-[#F58220]
-              "
-            />
-
-            <p
-              className="
-                mx-auto
-                mt-4
-                max-w-xl
-                text-sm
-                leading-relaxed
-                text-gray-500
-              "
-            >
-              Dukung campaign aktif
-              Lazismu Pemalang dan
-              bersama-sama wujudkan
-              manfaat bagi masyarakat.
-            </p>
-
-          </div>
-
-          {/* Campaign cards */}
-
-          {filteredCampaigns.length ===
-          0 ? (
-            <div
-              className="
-                rounded-2xl
-                border
-                border-[#F3DEC8]
-                bg-white
-                p-10
-                text-center
-                shadow-sm
-              "
-            >
-
-              <div className="mb-3 text-4xl">
-                🤲
-              </div>
-
-              <p className="text-sm text-gray-500">
-                Belum ada campaign aktif
-                untuk kategori ini.
-              </p>
-
-            </div>
-          ) : (
-            <div
-              className="
-                grid
-                grid-cols-1
-                gap-6
-                sm:grid-cols-2
-                lg:grid-cols-4
-              "
-            >
-
-              {filteredCampaigns.map(
-                (campaign) => {
-                  const collected =
-                    Number(
-                      campaign.collected_amount ??
-                        0
-                    )
-
-                  const target =
-                    Number(
-                      campaign.target_amount ??
-                        0
-                    )
-
-                  const progress =
-                    calculateProgress(
-                      collected,
-                      target
-                    )
-
-                  const category =
-                    campaign.category ||
-                    'Campaign'
-
-                  const image =
-                    campaign.image ||
-                    campaign.thumbnail ||
-                    null
-
-                  const imageUrl =
-                    getImageUrl(
-                      image
-                    )
-
-                  return (
-                    <div
-                      key={
-                        campaign.id
-                      }
-                      className="
-                        group
-                        flex
-                        flex-col
-                        overflow-hidden
-                        rounded-2xl
-                        border
-                        border-[#F3DEC8]
-                        bg-white
-                        shadow-[0_8px_25px_rgba(120,70,30,0.05)]
-                        transition-all
-                        duration-300
-                        hover:-translate-y-1
-                        hover:shadow-[0_16px_35px_rgba(120,70,30,0.12)]
-                      "
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
                     >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 12h14"
+                      />
 
-                      {/* Image */}
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M13 6l6 6-6 6"
+                      />
+                    </svg>
+                  </div>
 
-                      <div
-                        className="
-                          relative
-                          h-48
-                          overflow-hidden
-                          bg-[#FEF0E4]
-                        "
-                      >
+                  {/* Bottom accent */}
 
-                        {imageUrl ? (
-                          <img
-                            src={
-                              imageUrl
-                            }
-                            alt={
-                              campaign.title
-                            }
-                            className="
-                              h-full
-                              w-full
-                              object-cover
-                              transition-transform
-                              duration-500
-                              group-hover:scale-105
-                            "
-                          />
-                        ) : (
-                          <div
-                            className="
-                              flex
-                              h-full
-                              w-full
-                              items-center
-                              justify-center
-                              bg-gradient-to-br
-                              from-[#FEF0E4]
-                              to-[#FFF8F2]
-                            "
-                          >
+                  <div
+                    className="
+                      absolute
+                      bottom-0
+                      left-0
+                      h-1
+                      w-0
+                      transition-all
+                      duration-300
+                      group-hover:w-full
+                    "
+                    style={{
+                      backgroundColor: pillar.color,
+                    }}
+                  />
 
-                            <div className="flex flex-col items-center">
-
-                              <div
-                                className="
-                                  flex
-                                  h-20
-                                  w-20
-                                  items-center
-                                  justify-center
-                                  rounded-2xl
-                                  bg-[#F58220]
-                                  shadow-md
-                                "
-                              >
-                                <PillarIcon
-                                  name={
-                                    category
-                                  }
-                                  className="h-12 w-12"
-                                />
-                              </div>
-
-                              <div
-                                className="
-                                  mt-3
-                                  text-xs
-                                  font-semibold
-                                  text-[#F58220]
-                                "
-                              >
-                                Lazismu Pemalang
-                              </div>
-
-                            </div>
-
-                          </div>
-                        )}
-
-                        {/* Category */}
-
-                        <span
-                          className={`
-                            absolute
-                            left-3
-                            top-3
-                            flex
-                            items-center
-                            gap-2
-                            rounded-full
-                            px-2.5
-                            py-1.5
-                            text-xs
-                            font-semibold
-                            shadow-sm
-                            ${getCategoryColor(
-                              category
-                            )}
-                          `}
-                        >
-
-                          <span
-                            className="
-                              flex
-                              h-5
-                              w-5
-                              items-center
-                              justify-center
-                              rounded-full
-                              bg-white/70
-                            "
-                          >
-                            <PillarIcon
-                              name={
-                                category
-                              }
-                              className="h-3.5 w-3.5"
-                            />
-                          </span>
-
-                          {category}
-
-                        </span>
-
-                      </div>
-
-                      {/* Content */}
-
-                      <div
-                        className="
-                          flex
-                          flex-1
-                          flex-col
-                          p-5
-                        "
-                      >
-
-                        <h3
-                          className="
-                            mb-2
-                            text-sm
-                            font-bold
-                            text-gray-900
-                          "
-                          style={{
-                            fontFamily:
-                              "'Plus Jakarta Sans', sans-serif",
-                          }}
-                        >
-                          {campaign.title}
-                        </h3>
-
-                        <div
-  className="
-    campaign-description
-    mb-5
-    line-clamp-3
-    flex-1
-    text-xs
-    leading-relaxed
-    text-gray-500
-    [&_strong]:font-bold
-    [&_b]:font-bold
-    [&_em]:italic
-    [&_i]:italic
-    [&_u]:underline
-    [&_p]:m-0
-    [&_ul]:ml-4
-    [&_ul]:list-disc
-    [&_ol]:ml-4
-    [&_ol]:list-decimal
-    [&_li]:ml-1
-  "
-  dangerouslySetInnerHTML={{
-    __html:
-      campaign.short_description ||
-      campaign.description ||
-      '<p>Campaign Amal Lazismu Pemalang.</p>',
-  }}
-/>
-
-                        {/* Progress */}
-
-                        <div className="mb-4 space-y-2">
-
-                          <div
-                            className="
-                              flex
-                              justify-between
-                              text-xs
-                              text-gray-500
-                            "
-                          >
-
-                            <span>
-                              Terkumpul
-                            </span>
-
-                            <span
-                              className="
-                                font-semibold
-                                text-[#F58220]
-                              "
-                            >
-                              {progress}%
-                            </span>
-
-                          </div>
-
-                          <div
-                            className="
-                              h-2
-                              w-full
-                              overflow-hidden
-                              rounded-full
-                              bg-gray-100
-                            "
-                          >
-                            <div
-                              className="
-                                h-2
-                                rounded-full
-                                bg-[#F58220]
-                                transition-all
-                              "
-                              style={{
-                                width: `${progress}%`,
-                              }}
-                            />
-                          </div>
-
-                          <div
-                            className="
-                              flex
-                              justify-between
-                              gap-2
-                              text-xs
-                            "
-                          >
-
-                            <span className="text-gray-500">
-                              {formatRupiah(
-                                collected
-                              )}
-                            </span>
-
-                            {target >
-                              0 && (
-                              <span className="text-right text-gray-400">
-                                dari{' '}
-                                {formatRupiah(
-                                  target
-                                )}
-                              </span>
-                            )}
-
-                          </div>
-
-                        </div>
-
-                        {/* Donor */}
-
-                        {campaign.donor_count !==
-                          undefined &&
-                          campaign.donor_count !==
-                            null && (
-                            <div
-                              className="
-                                mb-4
-                                text-xs
-                                text-gray-400
-                              "
-                            >
-                              {
-                                campaign.donor_count
-                              }{' '}
-                              donatur
-                            </div>
-                          )}
-
-                        {/* Button */}
-
-                        <button
-                          type="button"
-                          className="
-                            btn-primary
-                            mt-auto
-                            w-full
-                            rounded-xl
-                            py-2.5
-                            text-sm
-                            font-semibold
-                            transition-all
-                            duration-200
-                            hover:-translate-y-0.5
-                          "
-                          onClick={() =>
-                            onDonateProgram?.(
-                              campaign.title
-                            )
-                          }
-                        >
-                          Donasi Sekarang
-                        </button>
-
-                      </div>
-
-                    </div>
-                  )
-                }
-              )}
+                </button>
+              ))}
 
             </div>
-          )}
+
+          </div>
 
         </section>
 
@@ -2040,8 +1065,7 @@ export default function ProgramPage({
               style={{
                 backgroundImage:
                   'radial-gradient(#F58220 1.3px, transparent 1.3px)',
-                backgroundSize:
-                  '10px 10px',
+                backgroundSize: '10px 10px',
               }}
             />
 
@@ -2074,8 +1098,7 @@ export default function ProgramPage({
                 }}
               >
                 Setiap pilar diwujudkan
-                melalui program dan
-                campaign nyata.
+                melalui program nyata.
               </h3>
 
               <p
@@ -2089,10 +1112,9 @@ export default function ProgramPage({
               >
                 Pilih salah satu pilar
                 untuk melihat detail
-                program. Kamu juga dapat
-                memilih campaign untuk
-                langsung menunaikan
-                donasi.
+                program yang sedang
+                berjalan di Lazismu
+                Pemalang.
               </p>
 
             </div>
