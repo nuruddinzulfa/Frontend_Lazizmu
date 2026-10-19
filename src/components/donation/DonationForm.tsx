@@ -1552,8 +1552,8 @@ export default function DonationForm({
         : 'Zakat Penghasilan'
 
     return (
-      <div className="min-h-screen bg-[#FFF8F2] px-4 py-8 flex items-center justify-center">
-        <div className="w-full max-w-md bg-white rounded-3xl border border-[#F3DEC8] shadow-xl overflow-hidden">
+      <div className="min-h-[100svh] bg-[#FFF8F2] px-4 pt-28 pb-10 flex flex-col items-center">
+        <div className="my-auto w-full max-w-md bg-white rounded-3xl border border-[#F3DEC8] shadow-xl overflow-hidden">
 
           <div className="bg-gradient-to-br from-[#F58220] to-[#D96D0A] px-7 py-8 text-center">
 

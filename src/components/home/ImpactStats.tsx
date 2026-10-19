@@ -338,7 +338,7 @@ export default function ImpactStats() {
   }
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-[#F58220] via-[#EE7411] to-[#D96D0A] py-20 sm:py-24">
+    <section className="relative overflow-hidden bg-[#202631] py-20 sm:py-24">
 
       {/* =====================================================
           BACKGROUND GLOW

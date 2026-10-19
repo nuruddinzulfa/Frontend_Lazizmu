@@ -243,7 +243,7 @@ export default function FinancialTransparency() {
   return (
     <section
       id="transparency"
-      className="relative overflow-hidden bg-gradient-to-br from-[#FFF9F4] via-[#FFF1E5] to-[#FFE4CC] py-20 sm:py-24"
+      className="relative overflow-hidden bg-[#FFFAF6] py-20 sm:py-24"
     >
 
       {/* =====================================================

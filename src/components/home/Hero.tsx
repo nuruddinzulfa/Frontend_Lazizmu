@@ -425,9 +425,9 @@ export default function Hero({
 
       <div className="absolute inset-0">
 
-        {/* LOADING = HITAM POLOS */}
+        {/* Keep the first frame calm while campaign media loads. */}
         {isLoading ? (
-          <div className="h-full w-full bg-black" />
+          <div className="h-full w-full bg-gradient-to-br from-[#342820] via-[#59402F] to-[#8A470E]" />
         ) : banner?.media_type === 'video' &&
           heroVideo ? (
 

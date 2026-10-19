@@ -102,8 +102,9 @@ export default function AdminSidebar({
         w-52
         flex-col
         border-r
-        border-[#F3DEC8]
-        bg-white
+        border-[#EDE1D4]
+        bg-[#FFFEFC]
+        shadow-[8px_0_28px_rgba(32,38,49,0.035)]
       "
     >
       {/* LOGO */}

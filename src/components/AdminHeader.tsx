@@ -42,8 +42,8 @@ export default function AdminHeader({
         : 'Dashboard Super Admin')
 
   return (
-    <header className="sticky top-0 z-30 border-b border-orange-100 bg-white">
-      <div className="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
+    <header className="sticky top-0 z-30 border-b border-[#EDE1D4] bg-white/95 shadow-[0_5px_22px_rgba(32,38,49,0.035)] backdrop-blur-xl">
+          <div className="flex h-[72px] items-center justify-between px-4 sm:px-6 lg:px-8">
 
         {/* ============================================================
             LEFT - PAGE IDENTITY
@@ -51,7 +51,7 @@ export default function AdminHeader({
 
         <div className="min-w-0">
           <h1
-            className="truncate text-lg font-bold text-gray-900"
+            className="truncate text-lg font-bold tracking-[-0.025em] text-[#202631]"
             style={{
               fontFamily: "'Plus Jakarta Sans', sans-serif",
             }}

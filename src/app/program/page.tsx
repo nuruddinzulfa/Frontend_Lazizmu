@@ -356,32 +356,32 @@ const pillars = [
   {
     name: 'Pendidikan',
     color: '#F58220',
-    desc: 'Pendidikan adalah kunci utama untuk membuka pintu masa depan yang cerah. Lazismu terus berupaya memberikan akses pendidikan berkualitas bagi seluruh lapisan masyarakat, terutama mereka yang kurang beruntung.',
+    desc: 'Membuka akses pendidikan berkualitas bagi masyarakat yang membutuhkan dan membantu mereka membangun masa depan yang lebih baik.',
   },
   {
     name: 'Kesehatan',
     color: '#E94224',
-    desc: 'Kesehatan menjadi aset yang tak ternilai. Lazismu hadir dengan komitmen untuk membantu masyarakat memperoleh akses layanan kesehatan yang layak dan mewujudkan masyarakat yang sehat dan sejahtera.',
+    desc: 'Mendukung masyarakat memperoleh layanan kesehatan yang layak demi kehidupan yang lebih sehat dan sejahtera.',
   },
   {
     name: 'Ekonomi',
     color: '#D21F26',
-    desc: 'Melalui Pilar Ekonomi, Lazismu berkomitmen memberdayakan masyarakat, khususnya mereka yang berada di garis kemiskinan, agar mampu meningkatkan taraf hidup dan kemandirian ekonomi.',
+    desc: 'Memberdayakan masyarakat prasejahtera agar taraf hidup meningkat dan kemandirian ekonomi dapat tumbuh.',
   },
   {
     name: 'Sosial Dakwah',
     color: '#F9B233',
-    desc: 'Pilar Sosial Dakwah berfokus pada penguatan kehidupan sosial dan dakwah dengan menebarkan kebaikan, kepedulian, serta membangun masyarakat yang lebih baik.',
+    desc: 'Menguatkan kehidupan sosial dan dakwah melalui semangat kebaikan, kepedulian, dan kebersamaan.',
   },
   {
     name: 'Kemanusiaan',
     color: '#94C11F',
-    desc: 'Lazismu senantiasa hadir di tengah masyarakat untuk memberikan bantuan dan dukungan. Pilar Kemanusiaan menjadi wujud nyata komitmen untuk meringankan beban sesama.',
+    desc: 'Hadir memberi bantuan dan dukungan untuk meringankan beban sesama.',
   },
   {
     name: 'Lingkungan',
     color: '#C8D52D',
-    desc: 'Pilar Lingkungan berfokus pada kepedulian terhadap kelestarian alam serta kontribusi positif bagi lingkungan dan generasi yang akan datang.',
+    desc: 'Mendorong kepedulian terhadap kelestarian alam demi lingkungan yang lebih baik bagi generasi mendatang.',
   },
 ]
 
@@ -1210,8 +1210,7 @@ export default function ProgramPage({
 
               {pillars.map(
                 (
-                  pillar,
-                  index
+                  pillar
                 ) => (
                   <button
                     key={
@@ -1226,41 +1225,37 @@ export default function ProgramPage({
                     className="
                       group
                       relative
+                      flex
+                      h-full
+                      min-h-[350px]
+                      flex-col
                       w-full
                       overflow-hidden
-                      rounded-[28px]
+                      rounded-3xl
                       border
                       border-[#F1D9C1]
                       bg-white
                       p-6
                       text-left
-                      shadow-[0_8px_30px_rgba(120,70,30,0.06)]
+                      shadow-[0_10px_35px_rgba(70,45,24,0.055)]
                       transition-all
                       duration-300
-                      hover:-translate-y-2
-                      hover:border-[#F58220]/40
-                      hover:shadow-[0_20px_45px_rgba(120,70,30,0.13)]
+                      hover:-translate-y-1
+                      hover:border-[#E8C4A2]
+                      hover:shadow-[0_18px_42px_rgba(70,45,24,0.1)]
                       sm:p-7
                     "
                   >
 
-                    {/* Glow card */}
-
                     <div
                       aria-hidden="true"
                       className="
-                        pointer-events-none
                         absolute
-                        -right-14
-                        -top-14
-                        h-36
-                        w-36
+                        inset-x-7
+                        top-0
+                        h-[3px]
                         rounded-full
-                        opacity-0
-                        blur-2xl
-                        transition-opacity
-                        duration-300
-                        group-hover:opacity-100
+                        opacity-80
                       "
                       style={{
                         backgroundColor:
@@ -1268,36 +1263,13 @@ export default function ProgramPage({
                       }}
                     />
 
-                    {/* Number */}
-
-                    <div
-                      className="
-                        absolute
-                        right-5
-                        top-4
-                        text-5xl
-                        font-black
-                        text-gray-100
-                        transition-colors
-                        duration-300
-                        group-hover:text-[#F58220]/10
-                      "
-                    >
-                      {String(
-                        index + 1
-                      ).padStart(
-                        2,
-                        '0'
-                      )}
-                    </div>
-
                     {/* Header card */}
 
                     <div
                       className="
                         relative
                         flex
-                        items-start
+                        items-center
                         justify-between
                       "
                     >
@@ -1305,17 +1277,15 @@ export default function ProgramPage({
                       <div
                         className="
                           flex
-                          h-16
-                          w-16
+                          h-14
+                          w-14
                           items-center
                           justify-center
-                          rounded-2xl
-                          shadow-md
-                          transition-all
+                          rounded-[18px]
+                          shadow-[0_6px_14px_rgba(70,45,24,0.12)]
+                          transition-transform
                           duration-300
-                          group-hover:scale-105
-                          group-hover:rotate-2
-                          group-hover:shadow-lg
+                          group-hover:scale-[1.03]
                         "
                         style={{
                           backgroundColor:
@@ -1326,45 +1296,8 @@ export default function ProgramPage({
                           name={
                             pillar.name
                           }
-                          className="h-12 w-12"
+                          className="h-10 w-10"
                         />
-                      </div>
-
-                      <div
-                        className="
-                          flex
-                          h-10
-                          w-10
-                          items-center
-                          justify-center
-                          rounded-full
-                          bg-[#FFF8F2]
-                          text-[#F58220]
-                          transition-all
-                          duration-300
-                          group-hover:bg-[#F58220]
-                          group-hover:text-white
-                        "
-                      >
-                        <svg
-                          className="
-                            h-4
-                            w-4
-                            transition-transform
-                            duration-300
-                            group-hover:translate-x-0.5
-                          "
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M9 5l7 7-7 7"
-                          />
-                        </svg>
                       </div>
 
                     </div>
@@ -1374,13 +1307,14 @@ export default function ProgramPage({
                     <h3
                       className="
                         relative
-                        mt-6
-                        text-lg
-                        font-bold
-                        text-gray-900
+                        mt-7
+                        text-xl
+                        font-semibold
+                        tracking-[-0.02em]
+                        text-[#1E293B]
                         transition-colors
                         duration-200
-                        group-hover:text-[#F58220]
+                        group-hover:text-[#C96513]
                       "
                       style={{
                         fontFamily:
@@ -1396,9 +1330,10 @@ export default function ProgramPage({
                       className="
                         relative
                         mt-3
+                        flex-1
                         text-sm
                         leading-7
-                        text-gray-500
+                        text-[#64748B]
                       "
                     >
                       {pillar.desc}
@@ -1412,14 +1347,17 @@ export default function ProgramPage({
                         mt-6
                         flex
                         items-center
-                        gap-2
+                        justify-between
+                        border-t
+                        border-[#F1E6DC]
+                        pt-5
                         text-sm
-                        font-bold
-                        text-[#F58220]
+                        font-semibold
+                        text-[#C96513]
                       "
                     >
                       <span>
-                        Lihat Program
+                        Jelajahi pilar
                       </span>
 
                       <svg
@@ -1449,25 +1387,6 @@ export default function ProgramPage({
                         />
                       </svg>
                     </div>
-
-                    {/* Bottom accent */}
-
-                    <div
-                      className="
-                        absolute
-                        bottom-0
-                        left-0
-                        h-1
-                        w-0
-                        transition-all
-                        duration-300
-                        group-hover:w-full
-                      "
-                      style={{
-                        backgroundColor:
-                          pillar.color,
-                      }}
-                    />
 
                   </button>
                 )

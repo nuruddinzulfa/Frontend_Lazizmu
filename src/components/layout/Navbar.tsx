@@ -184,12 +184,12 @@ export default function Navbar({
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled
-          ? "bg-white/95 backdrop-blur-sm shadow-sm border-b border-[#F3DEC8]"
-          : "bg-white/90 backdrop-blur-sm"
+          ? "bg-white/95 backdrop-blur-xl shadow-[0_8px_30px_rgba(32,38,49,0.06)] border-b border-[#EDE1D4]"
+          : "bg-white/92 backdrop-blur-xl border-b border-black/[0.035]"
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-14 sm:h-16 lg:h-20">
+        <div className="flex items-center justify-between h-14 sm:h-16 lg:h-[76px]">
 
           {/* Logo */}
           <button
@@ -217,7 +217,7 @@ export default function Navbar({
                       link.page
                     )
                   }
-                  className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
+                  className={`px-4 py-2 text-[13px] font-medium rounded-xl transition-all duration-200 ${
                     currentPage ===
                     link.page
                       ? "bg-[#FEF0E4] text-[#F58220]"
@@ -239,7 +239,7 @@ export default function Navbar({
                   "zakat"
                 )
               }
-              className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
+              className={`px-4 py-2 text-[13px] font-medium rounded-xl transition-all duration-200 ${
                 currentPage ===
                 "zakat"
                   ? "bg-[#FEF0E4] text-[#F58220]"

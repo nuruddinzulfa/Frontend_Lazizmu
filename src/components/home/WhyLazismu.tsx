@@ -127,7 +127,7 @@ export default function WhyLazismu() {
   const { inView, ref } = useInView()
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-[#FFF9F4] via-[#FFF1E5] to-[#FFE4CC] py-20 sm:py-24">
+    <section className="relative overflow-hidden bg-white py-20 sm:py-24">
 
       {/* =====================================================
           BACKGROUND DECORATION

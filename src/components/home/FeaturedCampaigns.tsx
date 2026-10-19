@@ -480,7 +480,7 @@ export default function FeaturedCampaigns({
   return (
     <section
       id="campaigns"
-      className="relative overflow-hidden bg-gradient-to-br from-[#FFF9F4] via-[#FFF1E5] to-[#FFE1C4] py-20 sm:py-24"
+      className="relative overflow-hidden bg-[#FFFAF6] py-20 sm:py-24"
     >
       {/* =====================================================
           BACKGROUND DECORATION

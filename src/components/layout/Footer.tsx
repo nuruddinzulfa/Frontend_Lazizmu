@@ -51,22 +51,15 @@ const socialLinks = [
 
 export default function Footer({ onNavigate }: FooterProps) {
   return (
-    <footer className="bg-gray-900 text-gray-300">
-      {/* Mountain silhouette divider */}
-      <div className="w-full overflow-hidden bg-[#FFF8F2]">
-        <svg viewBox="0 0 1440 80" fill="none" preserveAspectRatio="none" className="w-full block">
-          <path d="M0 0 L0 60 L180 30 L360 50 L540 15 L720 45 L900 20 L1080 48 L1260 25 L1440 40 L1440 0 Z" fill="#111827" />
-        </svg>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-12">
+    <footer className="bg-[#171D28] text-gray-300">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-8">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
           {/* Brand */}
           <div className="lg:col-span-1">
             <div className="mb-4">
               <img src={logo} alt="Lazismu Pemalang" className="h-14 w-auto object-contain" />
             </div>
-            <p className="text-sm text-gray-400 leading-relaxed mb-5">
+            <p className="max-w-xs text-sm text-gray-400 leading-7 mb-6">
               Lembaga Amil Zakat, Infak, dan Sedekah Muhammadiyah Pemalang.
               Amanah, transparan, dan berdampak.
             </p>
@@ -76,7 +69,7 @@ export default function Footer({ onNavigate }: FooterProps) {
                   key={s.label}
                   href={s.href}
                   aria-label={s.label}
-                  className="w-9 h-9 rounded-xl bg-gray-800 text-gray-400 hover:bg-[#F58220] hover:text-white flex items-center justify-center transition-all duration-200"
+                  className="w-10 h-10 rounded-full border border-white/10 bg-white/[0.045] text-gray-400 hover:border-[#F58220]/50 hover:bg-[#F58220] hover:text-white flex items-center justify-center transition-all duration-200"
                 >
                   {s.icon}
                 </a>
@@ -146,20 +139,11 @@ export default function Footer({ onNavigate }: FooterProps) {
             </ul>
 
 
-            <div>
-              <div></div>
-              <div>
-                <button>
-                  <svg >
-                  </svg>
-                </button>
-              </div>
-            </div>
           </div>
         </div>
 
         {/* Bottom bar */}
-        <div className="border-t border-gray-800 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-500">
+        <div className="border-t border-white/10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-500">
           <div>© 2025 Lazismu Kabupaten Pemalang. Semua hak dilindungi.</div>
           <div className="flex gap-4">
             <a href="#" className="hover:text-[#F58220] transition-colors">Kebijakan Privasi</a>

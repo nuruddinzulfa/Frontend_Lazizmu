@@ -77,7 +77,7 @@ export default function QuickDonation({
   return (
     <section
       id="quick-donation"
-      className="relative overflow-hidden bg-gradient-to-br from-[#FFF8F2] via-[#FFF1E5] to-[#FFE3CA] py-20 sm:py-24"
+      className="relative overflow-hidden bg-[#FFFAF6] py-20 sm:py-24"
     >
 
       {/* =====================================================
