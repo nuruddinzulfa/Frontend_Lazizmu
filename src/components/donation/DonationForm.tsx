@@ -19,6 +19,7 @@ import API_URL from '@/lib/api'
 
 interface DonasiPageProps {
   initialZakatAmount?: number
+  initialZakatEligible?: boolean
   initialZakatType?: 'profesi' | 'maal'
   initialProgram?: string
 
@@ -317,6 +318,7 @@ function getStepFromUrl(): DonationStep {
 
 export default function DonationForm({
   initialZakatAmount,
+  initialZakatEligible,
   initialZakatType,
   initialProgram,
   initialCampaignId = null,
@@ -328,11 +330,17 @@ export default function DonationForm({
   |--------------------------------------------------------------------------
   */
 
-  const isZakat =
+  const hasCalculatedZakatAmount =
     Boolean(
       initialZakatAmount &&
         initialZakatAmount > 0,
     )
+
+  // Jenis zakat tetap menandai formulir sebagai transaksi zakat,
+  // meskipun kalkulator menyatakan belum wajib dan nominal belum ditentukan.
+  const isZakat =
+    Boolean(initialZakatType) ||
+    hasCalculatedZakatAmount
 
   const zakatType =
     initialZakatType ??
@@ -2245,15 +2253,10 @@ export default function DonationForm({
               {initialZakatAmount &&
                 initialZakatAmount >
                   0 && (
-                  <div className="bg-green-50 border border-green-200 text-green-700 rounded-xl p-4 mb-6 text-sm">
-                    Nominal zakat{' '}
-                    <strong>
-                      {formatRupiah(
-                        initialZakatAmount,
-                      )}
-                    </strong>{' '}
-                    otomatis terisi dari
-                    Kalkulator Zakat.
+                  <div className={`${initialZakatEligible === false ? 'bg-amber-50 border-amber-200 text-amber-800' : 'bg-green-50 border-green-200 text-green-700'} border rounded-xl p-4 mb-6 text-sm`}>
+                    {initialZakatEligible === false
+                      ? <>Status kalkulator menunjukkan belum wajib zakat. Estimasi kontribusi sukarela sebesar{' '}<strong>{formatRupiah(initialZakatAmount)}</strong>{' '}otomatis terisi. Anda dapat menyesuaikan nominal sebelum melanjutkan.</>
+                      : <>Nominal zakat{' '}<strong>{formatRupiah(initialZakatAmount)}</strong>{' '}otomatis terisi dari Kalkulator Zakat.</>}
                   </div>
                 )}
 
@@ -2392,6 +2395,12 @@ export default function DonationForm({
                       : 'Nominal Donasi'}
                   </label>
 
+                  {isZakat && !hasCalculatedZakatAmount && (
+                    <div className="mb-3 bg-amber-50 border border-amber-200 text-amber-800 rounded-xl p-3 text-sm leading-relaxed">
+                      Hasil kalkulator menunjukkan bahwa Anda belum wajib zakat. Jika tetap ingin melanjutkan, isi nominal yang ingin disalurkan. Untuk memastikan klasifikasi penyaluran, Anda dapat mengonfirmasikannya kepada petugas LAZISMU.
+                    </div>
+                  )}
+
                   {!isZakat && (
                     <div className="grid grid-cols-3 gap-2 mb-3">
 
@@ -2452,7 +2461,8 @@ export default function DonationForm({
                         handleCustomAmount
                       }
                       readOnly={
-                        isZakat
+                        isZakat &&
+                        hasCalculatedZakatAmount
                       }
                       onFocus={() => {
                         if (
@@ -2475,7 +2485,9 @@ export default function DonationForm({
                       }}
                       placeholder={
                         isZakat
-                          ? 'Nominal dari kalkulator zakat'
+                          ? hasCalculatedZakatAmount
+                            ? 'Nominal dari kalkulator zakat'
+                            : 'Masukkan nominal yang ingin dibayarkan'
                           : 'Nominal lainnya'
                       }
                       className="w-full bg-white border border-[#F3DEC8] rounded-xl pl-12 pr-4 py-3 text-sm focus:outline-none focus:border-[#F58220]"
@@ -2554,7 +2566,9 @@ export default function DonationForm({
               <h2 className="text-xl font-bold text-gray-800 mb-6">
                 Konfirmasi{' '}
                 {isZakat
-                  ? 'Zakat'
+                  ? initialZakatEligible === false
+                    ? 'Kontribusi Sukarela'
+                    : 'Zakat'
                   : 'Donasi'}
               </h2>
 
@@ -2609,7 +2623,9 @@ export default function DonationForm({
 
                   <span className="font-semibold text-gray-600">
                     {isZakat
-                      ? 'Total Zakat'
+                      ? (initialZakatEligible === false
+                        ? 'Total Kontribusi'
+                        : 'Total Zakat')
                       : 'Total Donasi'}
                   </span>
 

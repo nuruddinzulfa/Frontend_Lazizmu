@@ -4,7 +4,8 @@ import { api } from "@/services/api";
 interface ZakatCalculatorProps {
   onPayZakat: (
     amount: number,
-    type: "profesi" | "maal"
+    type: "profesi" | "maal",
+    eligible: boolean
   ) => void;
 }
 
@@ -459,6 +460,20 @@ export default function ZakatCalculator({
         ? result.net_income
         : result.net_assets;
 
+    // Jika belum memenuhi nisab/haul, tampilkan estimasi 2,5% sebagai
+    // kontribusi sukarela. Nilai ini bukan penetapan kewajiban zakat.
+    const zakatRate =
+      Number(result.zakat_rate) > 0
+        ? Number(result.zakat_rate)
+        : 2.5;
+    const estimatedAmount = Math.max(
+      0,
+      Math.round(Number(income || 0) * (zakatRate / 100)),
+    );
+    const paymentAmount = result.eligible
+      ? Math.max(0, Number(result.zakat_amount || 0))
+      : estimatedAmount;
+
     return (
       <div className="space-y-4">
         <div
@@ -548,7 +563,8 @@ export default function ZakatCalculator({
                   Number(
                     result.zakat_amount
                   ),
-                  zakatType
+                  zakatType,
+                  true
                 )
               }
               className="btn-primary w-full text-center py-3 text-sm font-bold"
@@ -557,13 +573,43 @@ export default function ZakatCalculator({
             </button>
           </>
         ) : (
-          <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
-            <p className="text-sm text-gray-500 leading-relaxed">
-              {"haul_met" in result && !result.haul_met
-                ? "Harta belum memenuhi satu haul, sehingga pada kalkulator maal ini belum dihitung wajib zakat."
-                : "Nilai belum mencapai nisab zakat."}
-            </p>
-          </div>
+          <>
+            <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
+              <p className="text-sm text-gray-600 leading-relaxed">
+                {"haul_met" in result && !result.haul_met
+                  ? "Harta belum memenuhi satu haul, sehingga berdasarkan perhitungan ini belum wajib zakat."
+                  : "Penghasilan atau harta belum mencapai nisab, sehingga berdasarkan perhitungan ini belum wajib zakat."}
+              </p>
+              <p className="text-sm text-gray-500 leading-relaxed mt-2">
+                Anda tetap dapat melanjutkan secara sukarela. Nominal di bawah merupakan estimasi sebesar {zakatRate}% dari nilai bersih yang dihitung, bukan kewajiban zakat.
+              </p>
+            </div>
+
+            <div className="bg-[#FFF8F2] border border-[#F58220]/30 rounded-xl p-4">
+              <div className="text-xs text-gray-500 mb-1">
+                Estimasi kontribusi sukarela ({zakatRate}%)
+              </div>
+              <div
+                className="text-2xl font-bold text-[#F58220]"
+                style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+              >
+                {formatRupiah(paymentAmount)}
+              </div>
+              <p className="text-xs text-gray-500 mt-2">
+                Nominal ini akan terisi otomatis di formulir dan dapat disesuaikan sebelum pembayaran.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={() =>
+                onPayZakat(paymentAmount, zakatType, false)
+              }
+              className="btn-primary w-full text-center py-3 text-sm font-bold"
+            >
+              Lanjutkan Pembayaran Sukarela →
+            </button>
+          </>
         )}
       </div>
     );

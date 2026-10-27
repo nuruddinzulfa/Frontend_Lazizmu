@@ -2,6 +2,7 @@ import DonationForm from '../../components/donation/DonationForm'
 
 interface DonasiPageWrapperProps {
   initialZakatAmount?: number
+  initialZakatEligible?: boolean
   initialZakatType?: 'profesi' | 'maal'
   initialProgram?: string
 
@@ -11,6 +12,7 @@ interface DonasiPageWrapperProps {
 
 export default function DonasiPageWrapper({
   initialZakatAmount,
+  initialZakatEligible,
   initialZakatType,
   initialProgram,
   initialCampaignId,
@@ -20,6 +22,9 @@ export default function DonasiPageWrapper({
     <DonationForm
       initialZakatAmount={
         initialZakatAmount
+      }
+      initialZakatEligible={
+        initialZakatEligible
       }
       initialZakatType={
         initialZakatType

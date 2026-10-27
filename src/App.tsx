@@ -115,6 +115,9 @@ export default function App() {
       'profesi' | 'maal' | null
     >(null)
 
+  const [zakatEligible, setZakatEligible] =
+    useState<boolean | null>(null)
+
   const [selectedProgram, setSelectedProgram] =
     useState<string | null>(null)
 
@@ -943,12 +946,14 @@ const [donationStep, setDonationStep] =
     amount: number,
     type:
       | 'profesi'
-      | 'maal'
+      | 'maal',
+    eligible: boolean,
   ) => {
     saveCurrentScrollPosition()
 
     setZakatAmount(amount)
     setZakatType(type)
+    setZakatEligible(eligible)
 
     setCurrentContent(null)
     setCurrentPillar(null)
@@ -1597,6 +1602,10 @@ const [donationStep, setDonationStep] =
           <DonationForm
             initialZakatAmount={
               zakatAmount ??
+              undefined
+            }
+            initialZakatEligible={
+              zakatEligible ??
               undefined
             }
             initialZakatType={
