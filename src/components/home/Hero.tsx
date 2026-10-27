@@ -309,20 +309,14 @@ export default function Hero({
       )
     : 0
 
-  const rawPercentage =
-    target > 0
-      ? (collected / target) * 100
-      : 0
-
   const percentage =
-    Math.min(
-      Number(rawPercentage.toFixed(2)),
-      100
-    )
-
-  const progressWidth =
-    collected > 0 && percentage > 0
-      ? Math.max(percentage, 0.5)
+    target > 0
+      ? Math.min(
+          Math.round(
+            (collected / target) * 100
+          ),
+          100
+        )
       : 0
 
   /* ============================================================
@@ -406,6 +400,7 @@ export default function Hero({
     <section
       id="hero"
       className="
+        editorial-hero
         relative
         flex
         min-h-[calc(100vh-3.5rem)]
@@ -425,9 +420,9 @@ export default function Hero({
 
       <div className="absolute inset-0">
 
-        {/* Keep the first frame calm while campaign media loads. */}
+        {/* LOADING = HITAM POLOS */}
         {isLoading ? (
-          <div className="h-full w-full bg-gradient-to-br from-[#342820] via-[#59402F] to-[#8A470E]" />
+          <div className="h-full w-full bg-black" />
         ) : banner?.media_type === 'video' &&
           heroVideo ? (
 
@@ -861,6 +856,7 @@ export default function Hero({
 
                     <div
                       className="
+                        hero-impact-card
                         relative
                         h-[640px]
                         w-full
@@ -1108,7 +1104,7 @@ export default function Hero({
                                 duration-700
                               "
                               style={{
-                                width: `${progressWidth}%`,
+                                width: `${percentage}%`,
                               }}
                             />
                           </div>

@@ -25,7 +25,7 @@ function PillarIcon({
           viewBox="0 0 64 64"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
-          className="h-10 w-10"
+          className="h-12 w-12"
         >
           <path
             d="M8 21L32 12L56 21L32 30L8 21Z"
@@ -66,7 +66,7 @@ function PillarIcon({
           viewBox="0 0 64 64"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
-          className="h-10 w-10"
+          className="h-12 w-12"
         >
           <path
             d="M32 51C30.8 49.9 13 35.2 13 23.5C13 16.8 17.7 12 24 12C27.8 12 30.6 14 32 17C33.4 14 36.2 12 40 12C46.3 12 51 16.8 51 23.5C51 35.2 33.2 49.9 32 51Z"
@@ -89,7 +89,7 @@ function PillarIcon({
           viewBox="0 0 64 64"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
-          className="h-10 w-10"
+          className="h-12 w-12"
         >
           <path
             d="M10 48H55"
@@ -143,7 +143,7 @@ function PillarIcon({
           viewBox="0 0 64 64"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
-          className="h-10 w-10"
+          className="h-12 w-12"
         >
           <path
             d="M17 31C18.5 21 24 15 32 15C40 15 45.5 21 47 31H17Z"
@@ -202,7 +202,7 @@ function PillarIcon({
           viewBox="0 0 64 64"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
-          className="h-10 w-10"
+          className="h-12 w-12"
         >
           <circle
             cx="32"
@@ -255,7 +255,7 @@ function PillarIcon({
           viewBox="0 0 64 64"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
-          className="h-10 w-10"
+          className="h-12 w-12"
         >
           <circle
             cx="32"
@@ -320,32 +320,32 @@ const pillars = [
   {
     name: 'Pendidikan',
     color: '#F58220',
-    desc: 'Membuka akses pendidikan berkualitas bagi masyarakat yang membutuhkan dan membantu mereka membangun masa depan yang lebih baik.',
+    desc: 'Pendidikan adalah kunci utama untuk membuka pintu masa depan yang cerah. Lazismu terus berupaya memberikan akses pendidikan berkualitas bagi seluruh lapisan masyarakat, terutama mereka yang kurang beruntung.',
   },
   {
     name: 'Kesehatan',
     color: '#E94224',
-    desc: 'Mendukung masyarakat memperoleh layanan kesehatan yang layak demi kehidupan yang lebih sehat dan sejahtera.',
+    desc: 'Kesehatan menjadi aset yang tak ternilai. Lazismu hadir dengan komitmen untuk membantu masyarakat memperoleh akses layanan kesehatan yang layak dan mewujudkan masyarakat yang sehat dan sejahtera.',
   },
   {
     name: 'Ekonomi',
     color: '#D21F26',
-    desc: 'Memberdayakan masyarakat prasejahtera agar taraf hidup meningkat dan kemandirian ekonomi dapat tumbuh.',
+    desc: 'Melalui Pilar Ekonomi, Lazismu berkomitmen memberdayakan masyarakat, khususnya mereka yang berada di garis kemiskinan, agar mampu meningkatkan taraf hidup dan kemandirian ekonomi.',
   },
   {
     name: 'Sosial Dakwah',
     color: '#F9B233',
-    desc: 'Menguatkan kehidupan sosial dan dakwah melalui semangat kebaikan, kepedulian, dan kebersamaan.',
+    desc: 'Pilar Sosial Dakwah berfokus pada penguatan kehidupan sosial dan dakwah dengan menebarkan kebaikan, kepedulian, serta membangun masyarakat yang lebih baik.',
   },
   {
     name: 'Kemanusiaan',
     color: '#94C11F',
-    desc: 'Hadir memberi bantuan dan dukungan untuk meringankan beban sesama.',
+    desc: 'Lazismu senantiasa hadir di tengah masyarakat untuk memberikan bantuan dan dukungan. Pilar Kemanusiaan menjadi wujud nyata komitmen untuk meringankan beban sesama.',
   },
   {
     name: 'Lingkungan',
     color: '#C8D52D',
-    desc: 'Mendorong kepedulian terhadap kelestarian alam demi lingkungan yang lebih baik bagi generasi mendatang.',
+    desc: 'Pilar Lingkungan berfokus pada kepedulian terhadap kelestarian alam serta kontribusi positif bagi lingkungan dan generasi yang akan datang.',
   },
 ]
 
@@ -381,7 +381,7 @@ export default function Programs({
   return (
     <section
       id="programs"
-      className="relative overflow-hidden bg-white py-20 sm:py-24"
+      className="relative overflow-hidden bg-gradient-to-br from-[#FFF9F4] via-[#FFF1E5] to-[#FFE3CA] py-20 sm:py-24"
     >
 
       {/* =====================================================
@@ -479,7 +479,7 @@ export default function Programs({
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
 
           {pillars.map(
-            (pillar) => (
+            (pillar, index) => (
               <button
                 key={pillar.name}
                 type="button"
@@ -488,26 +488,36 @@ export default function Programs({
                     pillar.name
                   )
                 }
-                className="group relative flex h-full min-h-[350px] w-full flex-col overflow-hidden rounded-3xl border border-[#F1D9C1] bg-white p-6 text-left shadow-[0_10px_35px_rgba(70,45,24,0.055)] transition-all duration-300 hover:-translate-y-1 hover:border-[#E8C4A2] hover:shadow-[0_18px_42px_rgba(70,45,24,0.1)] sm:p-7"
+                className="group relative w-full overflow-hidden rounded-[28px] border border-[#F1D9C1] bg-white p-6 text-left shadow-[0_8px_30px_rgba(120,70,30,0.06)] transition-all duration-300 hover:-translate-y-2 hover:border-[#F58220]/40 hover:shadow-[0_20px_45px_rgba(120,70,30,0.13)] sm:p-7"
               >
+
+                {/* CARD GLOW */}
 
                 <div
                   aria-hidden="true"
-                  className="absolute inset-x-7 top-0 h-[3px] rounded-full opacity-80"
+                  className="pointer-events-none absolute -right-14 -top-14 h-36 w-36 rounded-full opacity-0 blur-2xl transition-opacity duration-300 group-hover:opacity-100"
                   style={{
                     backgroundColor:
                       pillar.color,
                   }}
                 />
 
+                {/* NUMBER */}
+
+                <div className="absolute right-5 top-4 text-5xl font-black text-gray-100 transition-colors duration-300 group-hover:text-[#F58220]/10">
+                  {String(
+                    index + 1
+                  ).padStart(2, '0')}
+                </div>
+
                 {/* HEADER */}
 
-                <div className="relative flex items-center justify-between">
+                <div className="relative flex items-start justify-between">
 
                   {/* ICON */}
 
                   <div
-                    className="flex h-14 w-14 items-center justify-center rounded-[18px] shadow-[0_6px_14px_rgba(70,45,24,0.12)] transition-transform duration-300 group-hover:scale-[1.03]"
+                    className="flex h-16 w-16 items-center justify-center rounded-2xl shadow-md transition-all duration-300 group-hover:scale-105 group-hover:rotate-2 group-hover:shadow-lg"
                     style={{
                       backgroundColor:
                         pillar.color,
@@ -525,7 +535,7 @@ export default function Programs({
                 {/* TITLE */}
 
                 <h3
-                  className="relative mt-7 text-xl font-semibold tracking-[-0.02em] text-[#1E293B] transition-colors duration-200 group-hover:text-[#C96513]"
+                  className="relative mt-6 text-lg font-bold text-gray-900 transition-colors duration-200 group-hover:text-[#F58220]"
                   style={{
                     fontFamily:
                       "'Plus Jakarta Sans', sans-serif",
@@ -536,16 +546,16 @@ export default function Programs({
 
                 {/* DESCRIPTION */}
 
-                <p className="relative mt-3 flex-1 text-sm leading-7 text-[#64748B]">
+                <p className="relative mt-3 text-sm leading-7 text-gray-500">
                   {pillar.desc}
                 </p>
 
                 {/* ACTION */}
 
-                <div className="relative mt-6 flex items-center justify-between border-t border-[#F1E6DC] pt-5 text-sm font-semibold text-[#C96513]">
+                <div className="relative mt-6 flex items-center gap-2 text-sm font-bold text-[#F58220]">
 
                   <span>
-                    Jelajahi pilar
+                    Lihat Program
                   </span>
 
                   <svg
@@ -570,6 +580,16 @@ export default function Programs({
                   </svg>
 
                 </div>
+
+                {/* BOTTOM ACCENT */}
+
+                <div
+                  className="absolute bottom-0 left-0 h-1 w-0 transition-all duration-300 group-hover:w-full"
+                  style={{
+                    backgroundColor:
+                      pillar.color,
+                  }}
+                />
 
               </button>
             )

@@ -115,9 +115,6 @@ export default function App() {
       'profesi' | 'maal' | null
     >(null)
 
-  const [zakatEligible, setZakatEligible] =
-    useState<boolean | null>(null)
-
   const [selectedProgram, setSelectedProgram] =
     useState<string | null>(null)
 
@@ -946,14 +943,12 @@ const [donationStep, setDonationStep] =
     amount: number,
     type:
       | 'profesi'
-      | 'maal',
-    eligible: boolean,
+      | 'maal'
   ) => {
     saveCurrentScrollPosition()
 
     setZakatAmount(amount)
     setZakatType(type)
-    setZakatEligible(eligible)
 
     setCurrentContent(null)
     setCurrentPillar(null)
@@ -1604,10 +1599,6 @@ const [donationStep, setDonationStep] =
               zakatAmount ??
               undefined
             }
-            initialZakatEligible={
-              zakatEligible ??
-              undefined
-            }
             initialZakatType={
               zakatType ??
               undefined
@@ -1907,13 +1898,7 @@ const [donationStep, setDonationStep] =
 
   return (
     <div
-      className="min-h-screen"
-      style={{
-        backgroundColor:
-          '#FFF8F2',
-        fontFamily:
-          "'Inter', sans-serif",
-      }}
+      className={`min-h-screen ${page === 'dashboard' ? '' : 'public-site'}`}
     >
 
       {page !==

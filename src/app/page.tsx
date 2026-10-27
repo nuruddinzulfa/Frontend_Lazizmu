@@ -26,7 +26,7 @@ export default function HomePage({
   onOpenContent,
 }: HomePageProps) {
   return (
-    <>
+    <main className="home-editorial">
       <Hero onNavigate={onNavigate} />
 
       <FeaturedCampaigns
@@ -60,6 +60,6 @@ export default function HomePage({
       />
 
       <FAQ />
-    </>
+    </main>
   )
 }
