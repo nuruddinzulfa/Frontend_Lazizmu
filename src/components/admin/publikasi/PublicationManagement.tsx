@@ -516,7 +516,7 @@ export default function PublicationManagement() {
             className="text-lg font-bold text-gray-900"
             style={{
               fontFamily:
-                "'Plus Jakarta Sans', sans-serif",
+                "'Times New Roman', sans-serif",
             }}
           >
             Publikasi
@@ -639,7 +639,7 @@ export default function PublicationManagement() {
             className="font-bold text-gray-900"
             style={{
               fontFamily:
-                "'Plus Jakarta Sans', sans-serif",
+                "'Times New Roman', sans-serif",
             }}
           >
             Ringkasan Publikasi
@@ -694,7 +694,7 @@ export default function PublicationManagement() {
             className="font-bold text-gray-900"
             style={{
               fontFamily:
-                "'Plus Jakarta Sans', sans-serif",
+                "'Times New Roman', sans-serif",
             }}
           >
             Jenis Publikasi
@@ -833,7 +833,7 @@ export default function PublicationManagement() {
             className="font-bold text-gray-900"
             style={{
               fontFamily:
-                "'Plus Jakarta Sans', sans-serif",
+                "'Times New Roman', sans-serif",
             }}
           >
             Daftar Publikasi

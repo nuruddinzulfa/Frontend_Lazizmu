@@ -584,7 +584,7 @@ formData.append(
             className="text-lg font-bold text-gray-900"
             style={{
               fontFamily:
-                "'Plus Jakarta Sans', sans-serif",
+                "'Times New Roman', sans-serif",
             }}
           >
             Banner / Hero
@@ -730,7 +730,7 @@ formData.append(
             className="font-bold text-gray-900"
             style={{
               fontFamily:
-                "'Plus Jakarta Sans', sans-serif",
+                "'Times New Roman', sans-serif",
             }}
           >
             Daftar Banner

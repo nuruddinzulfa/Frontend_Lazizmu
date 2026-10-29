@@ -1,4 +1,4 @@
-import logo from '../../imports/4.png'
+import logo from '../../imports/3.png'
 import type { NavPage } from '../../App'
 
 interface FooterProps {

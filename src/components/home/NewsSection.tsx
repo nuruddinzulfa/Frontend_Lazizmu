@@ -200,7 +200,7 @@ function NewsCard({
               absolute
               inset-0
 
-              bg-black/60
+              bg-black/10
 
 
             "
@@ -441,7 +441,7 @@ function NewsCard({
             absolute
             inset-0
 
-            bg-black/60
+            bg-black/10
 
 
           "

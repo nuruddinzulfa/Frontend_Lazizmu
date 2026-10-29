@@ -435,7 +435,7 @@ export default function ArticleManagement() {
             className="text-lg font-bold text-gray-900"
             style={{
               fontFamily:
-                "'Plus Jakarta Sans', sans-serif",
+                "'Times New Roman', sans-serif",
             }}
           >
             Artikel
@@ -586,7 +586,7 @@ export default function ArticleManagement() {
             className="font-bold text-gray-900"
             style={{
               fontFamily:
-                "'Plus Jakarta Sans', sans-serif",
+                "'Times New Roman', sans-serif",
             }}
           >
             Daftar Artikel

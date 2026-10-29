@@ -61,7 +61,7 @@ function PillarIcon({
 
           <path
             d="M32 30V48"
-            stroke="#176B4D"
+            stroke="#e48b25"
             strokeWidth="2"
             strokeLinecap="round"
           />
@@ -101,7 +101,7 @@ function PillarIcon({
 
           <path
             d="M17 31H25L29 23L34 39L39 29L42 31H48"
-            stroke="#2F855A"
+            stroke="#d88314"
             strokeWidth="3"
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -601,7 +601,7 @@ export default function ProgramPage({
                 "'Fraunces', serif",
             }}
           >
-            Kampanye Kebaikan
+            Campaign 
           </h1>
 
           <p className="mx-auto mt-3 max-w-2xl text-sm leading-relaxed text-gray-500 sm:text-base">

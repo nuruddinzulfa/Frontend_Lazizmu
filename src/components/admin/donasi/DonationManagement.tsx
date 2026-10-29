@@ -392,7 +392,7 @@ export default function DonationManagement() {
             className="text-xl font-bold text-gray-900"
             style={{
               fontFamily:
-                "'Plus Jakarta Sans', sans-serif",
+                "'Times New Roman', sans-serif",
             }}
           >
             Donasi & Transaksi

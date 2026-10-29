@@ -19,6 +19,7 @@
 }
 
 :root {
+  color-scheme: light;
   --background: #FFF8EA;
   --background-subtle: #FFF0D0;
   --surface: #FFFDF2;
@@ -50,26 +51,6 @@
   --orb: color-mix(in srgb, #EA6113 12%, transparent);
 }
 
-html[data-theme='dark'] {
-  --orb: color-mix(in srgb, #FBB931 9%, transparent);
-  --background: #1B120E;
-  --background-subtle: #2A1A13;
-  --surface: #241710;
-  --surface-raised: #332219;
-  --text-primary: #FFE3B3;
-  --text-secondary: #F3C78A;
-  --text-muted: #D4A66F;
-  --border: #6B4935;
-  --border-strong: #8A634B;
-  --brand-primary: #FBB931;
-  --brand-primary-hover: #FFE3B3;
-  --brand-secondary: #F88F22;
-  --accent: #FBB931;
-  --accent-soft: #5A381E;
-  --focus-ring: #FBB931;
-  --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.24);
-  --shadow-card-hover: 0 16px 40px rgba(0, 0, 0, 0.34);
-}
 
 html {
   scroll-behavior: smooth;
@@ -642,33 +623,6 @@ html[data-theme='dark'] .site-footer [class~='text-gray-500'] {
 html[data-theme='dark'] .site-footer .footer-bottom {
   border-color: #6B4935;
   color: #D4A66F;
-}
-
-.theme-toggle {
-  display: inline-grid;
-  width: 2.75rem;
-  aspect-ratio: 1;
-  place-items: center;
-  border: 1px solid var(--border-strong);
-  border-radius: 50%;
-  background: var(--surface);
-  color: var(--text-primary);
-  transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
-}
-
-.theme-toggle:hover {
-  background: var(--accent);
-  color: #2B1A12;
-  transform: rotate(8deg);
-}
-
-.theme-toggle svg {
-  width: 1.25rem;
-  fill: none;
-  stroke: currentColor;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-width: 1.8;
 }
 
 html[data-theme='dark'] .app-shell [class*='bg-white'],

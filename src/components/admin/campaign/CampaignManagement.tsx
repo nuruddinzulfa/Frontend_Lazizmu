@@ -635,7 +635,7 @@ export default function CampaignManagement() {
             className="text-lg font-bold text-gray-900"
             style={{
               fontFamily:
-                "'Plus Jakarta Sans', sans-serif",
+                "'Times New Roman', sans-serif",
             }}
           >
             Campaign
@@ -1224,7 +1224,7 @@ export default function CampaignManagement() {
             className="font-bold text-gray-900"
             style={{
               fontFamily:
-                "'Plus Jakarta Sans', sans-serif",
+                "'Times New Roman', sans-serif",
             }}
           >
             Daftar Campaign

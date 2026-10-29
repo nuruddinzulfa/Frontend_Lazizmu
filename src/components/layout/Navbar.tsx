@@ -59,23 +59,12 @@ export default function Navbar({
   const [isLoggingOut, setIsLoggingOut] =
     useState(false);
 
-  const [theme, setTheme] = useState<"light" | "dark">(() => {
-    const savedTheme = localStorage.getItem("lazismu-theme");
-
-    if (savedTheme === "light" || savedTheme === "dark") {
-      return savedTheme;
-    }
-
-    return window.matchMedia("(prefers-color-scheme: dark)").matches
-      ? "dark"
-      : "light";
-  });
-
+  // Paksa aplikasi selalu menggunakan tema terang.
   useEffect(() => {
-    document.documentElement.dataset.theme = theme;
-    document.documentElement.style.colorScheme = theme;
-    localStorage.setItem("lazismu-theme", theme);
-  }, [theme]);
+    document.documentElement.dataset.theme = "light";
+    document.documentElement.style.colorScheme = "light";
+    localStorage.removeItem("lazismu-theme");
+  }, []);
 
   /*
   |--------------------------------------------------------------------------
@@ -280,26 +269,6 @@ export default function Navbar({
 
           {/* Desktop CTA */}
           <div className="hidden lg:flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() =>
-                setTheme((current) => current === "light" ? "dark" : "light")
-              }
-              className="theme-toggle"
-              aria-label={`Aktifkan mode ${theme === "light" ? "gelap" : "terang"}`}
-              title={`Mode ${theme === "light" ? "gelap" : "terang"}`}
-            >
-              {theme === "light" ? (
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M20.5 15.2A8.5 8.5 0 0 1 8.8 3.5 8.5 8.5 0 1 0 20.5 15.2Z" />
-                </svg>
-              ) : (
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <circle cx="12" cy="12" r="4" />
-                  <path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4" />
-                </svg>
-              )}
-            </button>
 
             {isLoggedIn ? (
               <>
@@ -369,25 +338,6 @@ export default function Navbar({
 
           {/* Mobile */}
           <div className="lg:hidden flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() =>
-                setTheme((current) => current === "light" ? "dark" : "light")
-              }
-              className="theme-toggle"
-              aria-label={`Aktifkan mode ${theme === "light" ? "gelap" : "terang"}`}
-            >
-              {theme === "light" ? (
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M20.5 15.2A8.5 8.5 0 0 1 8.8 3.5 8.5 8.5 0 1 0 20.5 15.2Z" />
-                </svg>
-              ) : (
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <circle cx="12" cy="12" r="4" />
-                  <path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4" />
-                </svg>
-              )}
-            </button>
 
             <button
               onClick={() => {

@@ -342,7 +342,7 @@ export default function NewsManagement() {
           <h1
             className="text-lg font-bold text-gray-900"
             style={{
-              fontFamily: "'Plus Jakarta Sans', sans-serif",
+              fontFamily: "'Times New Roman', sans-serif",
             }}
           >
             Berita
@@ -717,7 +717,7 @@ export default function NewsManagement() {
           <h2
             className="font-bold text-gray-900"
             style={{
-              fontFamily: "'Plus Jakarta Sans', sans-serif",
+              fontFamily: "'Times New Roman', sans-serif",
             }}
           >
             Daftar Berita
