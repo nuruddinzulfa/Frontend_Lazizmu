@@ -443,7 +443,7 @@ export default function ZakatCalculator({
         <div className="text-center py-10">
           <div className="w-16 h-16 rounded-full bg-[#FEF0E4] flex items-center justify-center mx-auto mb-4">
             <span className="text-2xl">
-              🧮
+              
             </span>
           </div>
 
@@ -623,21 +623,19 @@ export default function ZakatCalculator({
         <div className="absolute inset-0 islamic-geo-bg opacity-20" />
 
         <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
-          <div className="inline-flex items-center gap-2 bg-white/20 border border-white/30 rounded-full px-4 py-2 mb-6 text-white text-xs font-semibold">
-            <span>🕌</span>
-            Kalkulator Zakat LAZISMU
-            Pemalang
-          </div>
+          <div className="inline-flex items-center gap-2 bg-white/20 border border-white/30 rounded-full px-4 py-2 mb-6 !text-white text-xs font-semibold">
+  <span></span>
+  Kalkulator Zakat LAZISMU Pemalang
+</div>
 
-          <h1
-            className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4"
-            style={{
-              fontFamily:
-                "'Plus Jakarta Sans', sans-serif",
-            }}
-          >
-            Hitung Zakat Anda
-          </h1>
+         <h1
+  className="text-3xl sm:text-4xl lg:text-5xl font-bold !text-white mb-4"
+  style={{
+    fontFamily: "'Playfair Display', serif",
+  }}
+>
+  Hitung Zakat Anda
+</h1>
 
           {goldLoading ? (
             <p className="text-white/80 text-sm">
@@ -721,10 +719,9 @@ export default function ZakatCalculator({
                 }
                 className="bg-white rounded-2xl border border-[#F3DEC8] p-8 shadow-sm"
               >
-                <h2 className="text-xl font-bold text-gray-800 mb-2">
-                  Zakat Profesi /
-                  Penghasilan
-                </h2>
+   <h2 className="text-xl font-bold !text-black mb-2">
+  Zakat Profesi / Penghasilan
+</h2>
 
                 <p className="text-gray-400 text-sm mb-8">
                   Masukkan penghasilan
@@ -805,9 +802,9 @@ export default function ZakatCalculator({
                 }
                 className="bg-white rounded-2xl border border-[#F3DEC8] p-8 shadow-sm"
               >
-                <h2 className="text-xl font-bold text-gray-800 mb-2">
-                  Zakat Maal / Harta
-                </h2>
+                <h2 className="text-xl font-bold !text-black mb-2">
+  Zakat Maal / Harta
+</h2>
 
                 <p className="text-gray-400 text-sm mb-8">
                   Masukkan nilai harta
@@ -862,7 +859,7 @@ export default function ZakatCalculator({
                     )}
                   />
 
-                  <label className="flex items-start gap-3 rounded-xl border border-[#F3DEC8] bg-[#FFF8F2] p-4">
+                  <label className="block text-sm font-semibold !text-black mb-2">
                     <input
                       type="checkbox"
                       checked={haulMet}
@@ -904,9 +901,9 @@ export default function ZakatCalculator({
 
             <div className="lg:col-span-2">
               <div className="bg-white rounded-2xl border border-[#F3DEC8] p-6 shadow-sm sticky top-24">
-                <h3 className="font-bold text-gray-800 mb-5">
-                  Hasil Perhitungan
-                </h3>
+                <h3 className="font-bold !text-black mb-5">
+  Hasil Perhitungan
+</h3>
 
                 {renderResult(
                   hartaResult,

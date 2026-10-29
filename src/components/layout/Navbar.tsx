@@ -22,8 +22,12 @@ const pageNavLinks: {
     page: "about",
   },
   {
-    label: "Program & Campaign",
+    label: "Program",
     page: "program",
+  },
+  {
+    label: "Campaign",
+    page: "campaign",
   },
   {
     label: "Berita",
@@ -54,6 +58,24 @@ export default function Navbar({
 
   const [isLoggingOut, setIsLoggingOut] =
     useState(false);
+
+  const [theme, setTheme] = useState<"light" | "dark">(() => {
+    const savedTheme = localStorage.getItem("lazismu-theme");
+
+    if (savedTheme === "light" || savedTheme === "dark") {
+      return savedTheme;
+    }
+
+    return window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "light";
+  });
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    document.documentElement.style.colorScheme = theme;
+    localStorage.setItem("lazismu-theme", theme);
+  }, [theme]);
 
   /*
   |--------------------------------------------------------------------------
@@ -184,8 +206,8 @@ export default function Navbar({
     <header
       className={`site-header fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled
-          ? "bg-white/95 backdrop-blur-sm shadow-sm border-b border-[#F3DEC8]"
-          : "bg-white/90 backdrop-blur-sm"
+          ? "shadow-sm"
+          : ""
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -207,7 +229,7 @@ export default function Navbar({
           </button>
 
           {/* Desktop Navigation */}
-          <nav className="site-nav hidden lg:flex items-center gap-1">
+          <nav className="site-nav hidden lg:flex items-center gap-1" aria-label="Navigasi utama">
             {pageNavLinks.map(
               (link) => (
                 <button
@@ -217,15 +239,16 @@ export default function Navbar({
                       link.page
                     )
                   }
+                  aria-current={currentPage === link.page ? "page" : undefined}
                   className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
                     currentPage ===
                     link.page
-                      ? "bg-[#FEF0E4] text-[#F58220]"
-                      : "text-gray-600 hover:text-[#F58220] hover:bg-[#FEF0E4]"
+                      ? "bg-[#E7F2D8] text-[#176B4D]"
+                      : "text-gray-600 hover:text-[#176B4D] hover:bg-[#E7F2D8]"
                   }`}
                   style={{
                     fontFamily:
-                      "'Inter', sans-serif",
+                      "'Manrope', sans-serif",
                   }}
                 >
                   {link.label}
@@ -239,15 +262,16 @@ export default function Navbar({
                   "zakat"
                 )
               }
+              aria-current={currentPage === "zakat" ? "page" : undefined}
               className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
                 currentPage ===
                 "zakat"
-                  ? "bg-[#FEF0E4] text-[#F58220]"
-                  : "text-gray-600 hover:text-[#F58220] hover:bg-[#FEF0E4]"
+                  ? "bg-[#E7F2D8] text-[#176B4D]"
+                  : "text-gray-600 hover:text-[#176B4D] hover:bg-[#E7F2D8]"
               }`}
               style={{
                 fontFamily:
-                  "'Inter', sans-serif",
+                  "'Manrope', sans-serif",
               }}
             >
               Kalkulator Zakat
@@ -256,6 +280,27 @@ export default function Navbar({
 
           {/* Desktop CTA */}
           <div className="hidden lg:flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() =>
+                setTheme((current) => current === "light" ? "dark" : "light")
+              }
+              className="theme-toggle"
+              aria-label={`Aktifkan mode ${theme === "light" ? "gelap" : "terang"}`}
+              title={`Mode ${theme === "light" ? "gelap" : "terang"}`}
+            >
+              {theme === "light" ? (
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M20.5 15.2A8.5 8.5 0 0 1 8.8 3.5 8.5 8.5 0 1 0 20.5 15.2Z" />
+                </svg>
+              ) : (
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <circle cx="12" cy="12" r="4" />
+                  <path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4" />
+                </svg>
+              )}
+            </button>
+
             {isLoggedIn ? (
               <>
                 <button
@@ -267,8 +312,8 @@ export default function Navbar({
                   className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
                     currentPage ===
                     "dashboard"
-                      ? "bg-[#FEF0E4] text-[#F58220]"
-                      : "text-gray-600 hover:text-[#F58220] hover:bg-[#FEF0E4]"
+                      ? "bg-[#E7F2D8] text-[#176B4D]"
+                      : "text-gray-600 hover:text-[#176B4D] hover:bg-[#E7F2D8]"
                   }`}
                 >
                   Dashboard
@@ -298,11 +343,11 @@ export default function Navbar({
                 className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
                   currentPage ===
                   "login"
-                    ? "bg-[#FEF0E4] text-[#F58220]"
-                    : "text-gray-600 hover:text-[#F58220] hover:bg-[#FEF0E4]"
+                    ? "bg-[#E7F2D8] text-[#176B4D]"
+                    : "text-gray-600 hover:text-[#176B4D] hover:bg-[#E7F2D8]"
                 }`}
               >
-                Masuk
+                Portal Admin
               </button>
             )}
 
@@ -315,7 +360,7 @@ export default function Navbar({
               className="btn-primary px-5 py-2.5 text-sm font-semibold"
               style={{
                 fontFamily:
-                  "'Plus Jakarta Sans', sans-serif",
+                  "'Fraunces', serif",
               }}
             >
               Donasi Sekarang
@@ -324,6 +369,26 @@ export default function Navbar({
 
           {/* Mobile */}
           <div className="lg:hidden flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() =>
+                setTheme((current) => current === "light" ? "dark" : "light")
+              }
+              className="theme-toggle"
+              aria-label={`Aktifkan mode ${theme === "light" ? "gelap" : "terang"}`}
+            >
+              {theme === "light" ? (
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M20.5 15.2A8.5 8.5 0 0 1 8.8 3.5 8.5 8.5 0 1 0 20.5 15.2Z" />
+                </svg>
+              ) : (
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <circle cx="12" cy="12" r="4" />
+                  <path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4" />
+                </svg>
+              )}
+            </button>
+
             <button
               onClick={() => {
                 setMobileOpen(
@@ -337,14 +402,14 @@ export default function Navbar({
               className="btn-primary px-3 py-1.5 text-xs font-semibold rounded-lg"
               style={{
                 fontFamily:
-                  "'Plus Jakarta Sans', sans-serif",
+                  "'Fraunces', serif",
               }}
             >
               Donasi
             </button>
 
             <button
-              className="p-1.5 rounded-lg text-gray-600 hover:bg-[#FEF0E4] transition-colors"
+              className="p-1.5 rounded-lg text-gray-600 hover:bg-[#E7F2D8] transition-colors"
               onClick={() =>
                 setMobileOpen(
                   !mobileOpen
@@ -392,7 +457,7 @@ export default function Navbar({
 
       {/* Mobile Menu */}
       {mobileOpen && (
-        <div className="site-mobile-menu lg:hidden bg-white border-t border-[#F3DEC8] px-4 py-3 space-y-1 shadow-lg">
+        <div className="lg:hidden bg-[#FFFDF8] border-t border-[#D7DCC0] px-4 py-3 space-y-1 shadow-lg">
 
           {pageNavLinks.map(
             (link) => (
@@ -406,8 +471,8 @@ export default function Navbar({
                 className={`block w-full text-left px-4 py-2.5 text-sm font-medium rounded-lg transition-colors ${
                   currentPage ===
                   link.page
-                    ? "bg-[#FEF0E4] text-[#F58220]"
-                    : "text-gray-700 hover:text-[#F58220] hover:bg-[#FEF0E4]"
+                    ? "bg-[#E7F2D8] text-[#176B4D]"
+                    : "text-gray-700 hover:text-[#176B4D] hover:bg-[#E7F2D8]"
                 }`}
               >
                 {link.label}
@@ -421,7 +486,7 @@ export default function Navbar({
                 "zakat"
               )
             }
-            className="block w-full text-left px-4 py-2.5 text-sm font-medium text-gray-700 hover:text-[#F58220] hover:bg-[#FEF0E4] rounded-lg transition-colors"
+            className="block w-full text-left px-4 py-2.5 text-sm font-medium text-gray-700 hover:text-[#176B4D] hover:bg-[#E7F2D8] rounded-lg transition-colors"
           >
             Kalkulator Zakat
           </button>
@@ -437,8 +502,8 @@ export default function Navbar({
                 className={`block w-full text-left px-4 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 ${
                   currentPage ===
                   "dashboard"
-                    ? "bg-[#FEF0E4] text-[#F58220]"
-                    : "text-gray-600 hover:text-[#F58220] hover:bg-[#FEF0E4]"
+                    ? "bg-[#E7F2D8] text-[#176B4D]"
+                    : "text-gray-600 hover:text-[#176B4D] hover:bg-[#E7F2D8]"
                 }`}
               >
                 Dashboard
@@ -468,11 +533,11 @@ export default function Navbar({
               className={`block w-full text-left px-4 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 ${
                 currentPage ===
                 "login"
-                  ? "bg-[#FEF0E4] text-[#F58220]"
-                  : "text-gray-600 hover:text-[#F58220] hover:bg-[#FEF0E4]"
+                  ? "bg-[#E7F2D8] text-[#176B4D]"
+                  : "text-gray-600 hover:text-[#176B4D] hover:bg-[#E7F2D8]"
               }`}
             >
-              Masuk
+              Portal Admin
             </button>
           )}
 

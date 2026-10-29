@@ -81,8 +81,8 @@ export default function LoginPage({
   };
 
   return (
-    <div className="min-h-screen bg-[#FFF8F2] flex items-center justify-center px-4 py-24">
-      <div className="w-full max-w-md bg-white border border-[#F3DEC8] rounded-2xl shadow-sm p-8">
+    <div className="min-h-screen bg-[#F7F6E8] flex items-center justify-center px-4 py-24">
+      <div className="w-full max-w-md bg-white border border-[#D7DCC0] rounded-2xl shadow-sm p-8">
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
             <img
@@ -93,18 +93,17 @@ export default function LoginPage({
           </div>
 
           <h1
-            className="text-2xl font-bold text-gray-900 mt-4"
+            className="text-2xl font-bold text-gray-900 mt-3"
             style={{
               fontFamily:
-                "'Plus Jakarta Sans', sans-serif",
+                "'Fraunces', serif",
             }}
           >
-            Masuk ke Akun Anda
+            Hallo Semangat Yaa!
           </h1>
 
           <p className="text-sm text-gray-500 mt-1">
-            Masukkan kredensial Anda untuk
-            melanjutkan
+            Lazismu Memberi Untuk Negri
           </p>
         </div>
 
@@ -131,7 +130,7 @@ export default function LoginPage({
               }
               placeholder="email@anda.com"
               autoComplete="email"
-              className="w-full px-4 py-3 border border-[#F3DEC8] rounded-xl text-sm focus:outline-none focus:border-[#F58220] focus:ring-2 focus:ring-[#FEF0E4] transition-all"
+              className="w-full px-4 py-3 border border-[#D7DCC0] rounded-xl text-sm focus:outline-none focus:border-[#176B4D] focus:ring-2 focus:ring-[#E7F2D8] transition-all"
             />
           </div>
 
@@ -148,7 +147,7 @@ export default function LoginPage({
               }
               placeholder="••••••••"
               autoComplete="current-password"
-              className="w-full px-4 py-3 border border-[#F3DEC8] rounded-xl text-sm focus:outline-none focus:border-[#F58220] focus:ring-2 focus:ring-[#FEF0E4] transition-all"
+              className="w-full px-4 py-3 border border-[#D7DCC0] rounded-xl text-sm focus:outline-none focus:border-[#176B4D] focus:ring-2 focus:ring-[#E7F2D8] transition-all"
             />
           </div>
 

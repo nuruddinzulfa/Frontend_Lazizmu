@@ -133,7 +133,7 @@ export default function Partners() {
   }, []);
 
   return (
-    <section className="py-16 bg-white border-t border-[#F3DEC8]">
+    <section className="landing-section landing-section--surface landing-section--compact">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         <div
@@ -154,7 +154,7 @@ export default function Partners() {
 
         {loading && (
           <div className="flex flex-col items-center justify-center py-8">
-            <div className="w-8 h-8 border-4 border-[#F58220] border-t-transparent rounded-full animate-spin mb-3" />
+            <div className="w-8 h-8 border-4 border-[#EA6113] border-t-transparent rounded-full animate-spin mb-3" />
 
             <p className="text-sm text-gray-400">
               Mengambil data mitra...
@@ -202,9 +202,9 @@ export default function Partners() {
                     );
 
                   const content = (
-                    <div className="flex flex-col items-center gap-3 p-4 rounded-xl hover:bg-[#FFF8F2] transition-colors duration-200 group h-full">
+                    <div className="flex flex-col items-center gap-3 p-4 rounded-xl hover:bg-[#FFF8EA] transition-colors duration-200 group h-full">
 
-                      <div className="w-16 h-16 rounded-xl bg-gray-100 group-hover:bg-[#FEF0E4] transition-colors flex items-center justify-center overflow-hidden">
+                      <div className="w-16 h-16 rounded-xl bg-gray-100 group-hover:bg-[#FFE3B3] transition-colors flex items-center justify-center overflow-hidden">
 
                         {logo ? (
                           <img
@@ -216,10 +216,10 @@ export default function Partners() {
                           />
                         ) : (
                           <span
-                            className="text-xs font-bold text-gray-400 group-hover:text-[#F58220] transition-colors text-center leading-tight px-1"
+                            className="text-xs font-bold text-gray-400 group-hover:text-[#EA6113] transition-colors text-center leading-tight px-1"
                             style={{
                               fontFamily:
-                                "'Plus Jakarta Sans', sans-serif",
+                                "'Fraunces', serif",
                             }}
                           >
                             {getInitials(

@@ -290,15 +290,43 @@ function paymentStatusLabel(status: string) {
 
 function paymentStatusClass(status: string) {
   if (SUCCESS_PAYMENT_STATUSES.has(status)) {
-    return 'bg-green-100 text-green-700'
+    return 'bg-green-50 text-green-800 ring-green-600/25'
   }
 
   if (status === 'pending') {
-    return 'bg-yellow-100 text-yellow-700'
+    return 'bg-amber-50 text-amber-900 ring-amber-600/30'
   }
 
-  return 'bg-red-100 text-red-700'
+  if (
+    status === 'failed' ||
+    status === 'expire' ||
+    status === 'cancel' ||
+    status === 'deny'
+  ) {
+    return 'bg-red-50 text-red-800 ring-red-600/25'
+  }
+
+  // Status tidak dikenali: tampilkan netral, label tetap memakai nilai asli.
+  return 'bg-gray-100 text-gray-700 ring-gray-500/25'
 }
+
+type StatIconName =
+  | 'rupiah'
+  | 'transactions'
+  | 'campaign'
+  | 'users'
+
+// Design tokens (class string statis agar terdeteksi Tailwind)
+const FOCUS_RING =
+  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B84E08] focus-visible:ring-offset-2'
+const CARD =
+  'rounded-2xl border border-[#F3DEC8] bg-white shadow-sm'
+const SECTION_TITLE =
+  'text-lg font-semibold leading-snug text-gray-900'
+const SECTION_DESC = 'mt-1 text-sm text-gray-500'
+const TH =
+  'px-4 py-3 text-left text-xs font-semibold text-gray-600 sm:px-5'
+const TD = 'px-4 py-3.5 sm:px-5'
 
 export default function DashboardContent() {
   const [donations, setDonations] = useState<Donation[]>([])
@@ -311,6 +339,7 @@ export default function DashboardContent() {
   const [users, setUsers] = useState<AdminUser[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [hasLoaded, setHasLoaded] = useState(false)
 
   const loadDashboard = useCallback(async () => {
     try {
@@ -342,6 +371,7 @@ export default function DashboardContent() {
       setNews(newsData)
       setArticles(articleData)
       setUsers(userData)
+      setHasLoaded(true)
     } catch (err) {
       console.error(err)
 
@@ -550,7 +580,7 @@ export default function DashboardContent() {
             ? 'Zakat Maal'
             : 'Zakat Penghasilan',
         timestamp: latestZakat.created_at,
-        dotClass: 'bg-emerald-500',
+        dotClass: 'bg-emerald-600',
       })
     }
 
@@ -577,7 +607,7 @@ export default function DashboardContent() {
           latestProgram.updated_at ||
           latestProgram.created_at ||
           '',
-        dotClass: 'bg-blue-500',
+        dotClass: 'bg-sky-600',
       })
     }
 
@@ -593,7 +623,7 @@ export default function DashboardContent() {
         label: 'Pengguna terbaru',
         description: latestUser.name,
         timestamp: latestUser.created_at,
-        dotClass: 'bg-green-500',
+        dotClass: 'bg-gray-500',
       })
     }
 
@@ -620,7 +650,7 @@ export default function DashboardContent() {
           latestArticle.updated_at ||
           latestArticle.created_at ||
           '',
-        dotClass: 'bg-purple-500',
+        dotClass: 'bg-violet-500',
       })
     }
 
@@ -640,47 +670,65 @@ export default function DashboardContent() {
     articles,
   ])
 
-  const adminStats = [
+  const adminStats: {
+    label: string
+    value: string
+    description: string
+    icon: StatIconName
+    iconClass: string
+  }[] = [
     {
       label: 'Total Dana Berhasil',
       value: formatRupiah(totalSuccessfulAmount),
       description:
         `${successfulTransactionCount} transaksi berhasil`,
-      color: 'text-[#F58220]',
-      bg: 'bg-[#FEF0E4]',
+      icon: 'rupiah',
+      iconClass: 'bg-[#FEF0E4] text-[#B84E08]',
     },
     {
       label: 'Total Transaksi',
       value: String(totalTransactions),
       description: 'Seluruh transaksi tercatat',
-      color: 'text-blue-600',
-      bg: 'bg-blue-50',
+      icon: 'transactions',
+      iconClass: 'bg-[#FEF0E4] text-[#B84E08]',
     },
     {
       label: 'Campaign Aktif',
       value: String(activeCampaigns),
       description:
         'Campaign berstatus aktif/terbit',
-      color: 'text-green-600',
-      bg: 'bg-green-50',
+      icon: 'campaign',
+      iconClass: 'bg-emerald-50 text-emerald-700',
     },
     {
       label: 'Total Pengguna',
       value: String(users.length),
       description:
         `${activeUsers} pengguna aktif`,
-      color: 'text-purple-600',
-      bg: 'bg-purple-50',
+      icon: 'users',
+      iconClass: 'bg-gray-100 text-gray-700',
     },
   ]
 
-  if (loading) {
-    return (
-      <div className="flex min-h-[420px] items-center justify-center">
-        <div className="text-center">
-          <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-orange-200 border-t-[#F58220]" />
+  // Gagal memuat dan belum pernah ada data: jangan tampilkan angka 0 seolah valid.
+  const dataUnavailable = Boolean(error) && !hasLoaded
+  const show = (value: number | string) =>
+    dataUnavailable ? '—' : value
 
-          <p className="text-sm text-gray-500">
+  if (loading && !hasLoaded) {
+    return (
+      <div
+        role="status"
+        aria-live="polite"
+        className="flex min-h-[420px] items-center justify-center font-['Plus_Jakarta_Sans',sans-serif]"
+      >
+        <div className="text-center">
+          <div
+            aria-hidden="true"
+            className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-orange-200 border-t-[#F58220] motion-reduce:animate-none"
+          />
+
+          <p className="text-sm text-gray-600">
             Memuat dashboard...
           </p>
         </div>
@@ -689,21 +737,21 @@ export default function DashboardContent() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="rounded-2xl bg-gradient-to-r from-[#F58220] to-[#E87516] p-6 text-white shadow-sm">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <div>
+    <div className="space-y-6 font-['Plus_Jakarta_Sans',sans-serif] text-gray-900 antialiased">
+      <section
+        aria-labelledby="dashboard-title"
+        className="rounded-2xl bg-gradient-to-r from-[#C85A0A] to-[#A94608] p-5 text-white shadow-sm sm:p-6"
+      >
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0">
             <h1
-              className="text-xl font-bold"
-              style={{
-                fontFamily:
-                  "'Plus Jakarta Sans', sans-serif",
-              }}
+              id="dashboard-title"
+              className="text-2xl font-bold leading-tight tracking-tight"
             >
               Assalamu&apos;alaikum, Super Admin
             </h1>
 
-            <p className="mt-1 text-sm text-white/90">
+            <p className="mt-1.5 text-sm leading-relaxed text-white/90 sm:text-base">
               Selamat datang di Panel Administrasi Lazismu Pemalang.
             </p>
           </div>
@@ -711,142 +759,185 @@ export default function DashboardContent() {
           <button
             type="button"
             onClick={loadDashboard}
-            className="rounded-xl bg-white/15 px-4 py-2 text-xs font-semibold transition hover:bg-white/20"
+            disabled={loading}
+            aria-busy={loading}
+            className={`inline-flex shrink-0 items-center justify-center gap-2 self-start rounded-xl border border-white/40 bg-white/15 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-white/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#A94608] disabled:cursor-wait disabled:opacity-80 sm:self-center`}
           >
-            Muat Ulang Data
+            {loading && (
+              <span
+                aria-hidden="true"
+                className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white motion-reduce:animate-none"
+              />
+            )}
+            {loading ? 'Memuat...' : 'Muat Ulang Data'}
           </button>
         </div>
-      </div>
+      </section>
+
+      {loading && (
+        <p role="status" className="sr-only">
+          Memuat ulang data dashboard...
+        </p>
+      )}
 
       {error && (
-        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          {error}
+        <div
+          role="alert"
+          className="flex flex-col gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 sm:flex-row sm:items-center sm:justify-between"
+        >
+          <p className="min-w-0 break-words">
+            <span className="font-semibold">
+              Data tidak dapat dimuat.
+            </span>{' '}
+            {error}
+          </p>
+
+          <button
+            type="button"
+            onClick={loadDashboard}
+            disabled={loading}
+            className={`shrink-0 self-start rounded-lg border border-red-300 bg-white px-3 py-1.5 text-sm font-semibold text-red-800 transition-colors hover:bg-red-100 disabled:cursor-wait disabled:opacity-70 sm:self-auto ${FOCUS_RING}`}
+          >
+            Coba lagi
+          </button>
         </div>
       )}
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <section
+        aria-label="Statistik utama"
+        className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4"
+      >
         {adminStats.map((stat) => (
           <div
             key={stat.label}
-            className="rounded-2xl border border-[#F3DEC8] bg-white p-5 shadow-sm"
+            className={`${CARD} flex h-full flex-col p-5`}
           >
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <p className="text-xs font-medium text-gray-500">
-                  {stat.label}
-                </p>
-
-                <p
-                  className={`mt-2 text-xl font-bold ${stat.color}`}
-                  style={{
-                    fontFamily:
-                      "'Plus Jakarta Sans', sans-serif",
-                  }}
-                >
-                  {stat.value}
-                </p>
-
-                <p className="mt-1 text-xs text-gray-400">
-                  {stat.description}
-                </p>
-              </div>
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-sm font-medium text-gray-600">
+                {stat.label}
+              </p>
 
               <div
-                className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${stat.bg}`}
+                className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${stat.iconClass}`}
               >
-                <div
-                  className={`h-2.5 w-2.5 rounded-full ${
-                    stat.color === 'text-[#F58220]'
-                      ? 'bg-[#F58220]'
-                      : stat.color === 'text-blue-600'
-                        ? 'bg-blue-600'
-                        : stat.color === 'text-green-600'
-                          ? 'bg-green-600'
-                          : 'bg-purple-600'
-                  }`}
-                />
+                <StatIcon name={stat.icon} />
               </div>
             </div>
+
+            <p className="mt-3 break-words text-2xl font-bold leading-tight tracking-tight text-gray-900 tabular-nums">
+              {show(stat.value)}
+            </p>
+
+            <p className="mt-1.5 text-sm text-gray-500">
+              {dataUnavailable
+                ? 'Data belum dapat dimuat'
+                : stat.description}
+            </p>
           </div>
         ))}
-      </div>
+      </section>
 
-      <div className="overflow-hidden rounded-2xl border border-[#F3DEC8] bg-white shadow-sm">
-        <div className="border-b border-gray-100 px-5 py-4">
+      <section
+        aria-labelledby="recent-transactions-title"
+        className={`${CARD} overflow-hidden`}
+      >
+        <div className="border-b border-gray-100 px-4 py-4 sm:px-5">
           <h2
-            className="font-bold text-gray-900"
-            style={{
-              fontFamily:
-                "'Plus Jakarta Sans', sans-serif",
-            }}
+            id="recent-transactions-title"
+            className={SECTION_TITLE}
           >
             Transaksi Terbaru
           </h2>
 
-          <p className="mt-1 text-xs text-gray-400">
+          <p className={SECTION_DESC}>
             Data transaksi terbaru langsung dari sistem
           </p>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[760px] text-sm">
+        <div
+          role="region"
+          aria-labelledby="recent-transactions-title"
+          tabIndex={0}
+          className={`overflow-x-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#B84E08]`}
+        >
+          <table className="w-full min-w-[820px] text-sm">
+            <caption className="sr-only">
+              Daftar transaksi donasi dan zakat terbaru
+            </caption>
+
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                <th scope="col" className={TH}>
                   Tanggal
                 </th>
-                <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                <th scope="col" className={TH}>
                   Nama
                 </th>
-                <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                <th scope="col" className={TH}>
                   Program / Jenis Zakat
                 </th>
-                <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                <th scope="col" className={TH}>
+                  Jenis
+                </th>
+                <th
+                  scope="col"
+                  className={`${TH} text-right`}
+                >
                   Jumlah
                 </th>
-                <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                <th scope="col" className={TH}>
                   Status
                 </th>
               </tr>
             </thead>
 
-            <tbody className="divide-y divide-gray-50">
+            <tbody className="divide-y divide-gray-100">
               {recentTransactions.map((transaction) => (
                 <tr
                   key={transaction.key}
                   className="transition-colors hover:bg-gray-50"
                 >
-                  <td className="px-5 py-3.5 text-xs text-gray-500">
+                  <td
+                    className={`${TD} whitespace-nowrap text-gray-600 tabular-nums`}
+                  >
                     {formatDate(transaction.created_at)}
                   </td>
 
-                  <td className="px-5 py-3.5 font-medium text-gray-900">
+                  <td
+                    className={`${TD} max-w-[220px] truncate font-medium text-gray-900`}
+                    title={transaction.name}
+                  >
                     {transaction.name}
                   </td>
 
-                  <td className="px-5 py-3.5 text-gray-700">
+                  <td
+                    className={`${TD} max-w-[260px] truncate text-gray-700`}
+                    title={transaction.source}
+                  >
                     {transaction.source}
                   </td>
 
-                  <td className="px-5 py-3.5">
+                  <td className={TD}>
                     <span
-                      className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
+                      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ring-1 ring-inset ${
                         transaction.type === 'Zakat'
-                          ? 'bg-orange-100 text-orange-700'
-                          : 'bg-gray-100 text-gray-600'
+                          ? 'bg-orange-50 text-orange-900 ring-orange-600/25'
+                          : 'bg-gray-100 text-gray-700 ring-gray-500/25'
                       }`}
                     >
                       {transaction.type}
                     </span>
                   </td>
 
-                  <td className="px-5 py-3.5 font-semibold text-[#F58220]">
+                  <td
+                    className={`${TD} whitespace-nowrap text-right font-semibold text-gray-900 tabular-nums`}
+                  >
                     {formatRupiah(transaction.amount)}
                   </td>
 
-                  <td className="px-5 py-3.5">
+                  <td className={TD}>
                     <span
-                      className={`rounded-full px-2.5 py-1 text-xs font-semibold ${paymentStatusClass(
+                      className={`inline-flex items-center whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-semibold ring-1 ring-inset ${paymentStatusClass(
                         transaction.payment_status
                       )}`}
                     >
@@ -862,174 +953,238 @@ export default function DashboardContent() {
                 <tr>
                   <td
                     colSpan={6}
-                    className="px-5 py-10 text-center text-sm text-gray-400"
+                    className="px-5 py-12 text-center text-sm text-gray-500"
                   >
-                    Belum ada transaksi.
+                    {dataUnavailable
+                      ? 'Data transaksi tidak dapat dimuat.'
+                      : 'Belum ada transaksi.'}
                   </td>
                 </tr>
               )}
             </tbody>
           </table>
         </div>
-      </div>
+      </section>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <div className="rounded-2xl border border-[#F3DEC8] bg-white p-5 shadow-sm">
-          <div className="mb-5">
+        <section
+          aria-labelledby="system-summary-title"
+          className={`${CARD} p-5`}
+        >
+          <div className="mb-3">
             <h2
-              className="font-bold text-gray-900"
-              style={{
-                fontFamily:
-                  "'Plus Jakarta Sans', sans-serif",
-              }}
+              id="system-summary-title"
+              className={SECTION_TITLE}
             >
               Ringkasan Sistem
             </h2>
 
-            <p className="mt-1 text-xs text-gray-400">
+            <p className={SECTION_DESC}>
               Gambaran umum data administrasi
             </p>
           </div>
 
-          <div className="space-y-4">
+          <dl className="divide-y divide-gray-100">
             <SummaryRow
               label="Total Program"
-              value={programs.length}
-              detail={`${publishedPrograms} terbit`}
+              value={show(programs.length)}
+              detail={
+                dataUnavailable
+                  ? undefined
+                  : `${publishedPrograms} terbit`
+              }
             />
-            <Divider />
             <SummaryRow
               label="Campaign Aktif"
-              value={activeCampaigns}
-              detail={`${campaigns.length} total`}
+              value={show(activeCampaigns)}
+              detail={
+                dataUnavailable
+                  ? undefined
+                  : `${campaigns.length} total`
+              }
             />
-            <Divider />
             <SummaryRow
               label="Berita Terbit"
-              value={publishedNews}
-              detail={`${news.length} total`}
+              value={show(publishedNews)}
+              detail={
+                dataUnavailable
+                  ? undefined
+                  : `${news.length} total`
+              }
             />
-            <Divider />
             <SummaryRow
               label="Artikel Terbit"
-              value={publishedArticles}
-              detail={`${articles.length} total`}
+              value={show(publishedArticles)}
+              detail={
+                dataUnavailable
+                  ? undefined
+                  : `${articles.length} total`
+              }
             />
-            <Divider />
             <SummaryRow
               label="Total Pengguna"
-              value={users.length}
-              detail={`${activeUsers} aktif`}
+              value={show(users.length)}
+              detail={
+                dataUnavailable
+                  ? undefined
+                  : `${activeUsers} aktif`
+              }
             />
-          </div>
-        </div>
+          </dl>
+        </section>
 
-        <div className="rounded-2xl border border-[#F3DEC8] bg-white p-5 shadow-sm">
-          <div className="mb-5">
+        <section
+          aria-labelledby="recent-activity-title"
+          className={`${CARD} p-5`}
+        >
+          <div className="mb-4">
             <h2
-              className="font-bold text-gray-900"
-              style={{
-                fontFamily:
-                  "'Plus Jakarta Sans', sans-serif",
-              }}
+              id="recent-activity-title"
+              className={SECTION_TITLE}
             >
               Aktivitas Data Terbaru
             </h2>
 
-            <p className="mt-1 text-xs text-gray-400">
+            <p className={SECTION_DESC}>
               Dibentuk dari data terbaru yang tersedia di sistem
             </p>
           </div>
 
-          <div className="space-y-4">
-            {activities.map((activity) => (
-              <div
-                key={activity.key}
-                className="flex items-start gap-3"
-              >
-                <div
-                  className={`mt-1 h-2.5 w-2.5 shrink-0 rounded-full ${activity.dotClass}`}
-                />
+          {activities.length > 0 && (
+            <ol className="space-y-4">
+              {activities.map((activity) => (
+                <li
+                  key={activity.key}
+                  className="flex items-start gap-3"
+                >
+                  <span
+                    aria-hidden="true"
+                    className={`mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full ${activity.dotClass}`}
+                  />
 
-                <div className="min-w-0">
-                  <p className="text-sm font-medium text-gray-700">
-                    {activity.label}
-                  </p>
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-gray-900">
+                      {activity.label}
+                    </p>
 
-                  <p className="mt-0.5 truncate text-xs text-gray-500">
-                    {activity.description}
-                  </p>
+                    <p className="mt-0.5 break-words text-sm text-gray-600">
+                      {activity.description}
+                    </p>
 
-                  <p className="mt-1 text-xs text-gray-400">
-                    {formatRelativeTime(activity.timestamp)}
-                  </p>
-                </div>
-              </div>
-            ))}
+                    <time
+                      dateTime={activity.timestamp}
+                      title={formatDate(activity.timestamp)}
+                      className="mt-1 block text-xs text-gray-500"
+                    >
+                      {formatRelativeTime(activity.timestamp)}
+                    </time>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          )}
 
-            {activities.length === 0 && (
-              <p className="text-sm text-gray-400">
-                Belum ada aktivitas data yang dapat ditampilkan.
-              </p>
-            )}
-          </div>
-        </div>
+          {activities.length === 0 && (
+            <p className="text-sm text-gray-500">
+              {dataUnavailable
+                ? 'Data aktivitas tidak dapat dimuat.'
+                : 'Belum ada aktivitas data yang dapat ditampilkan.'}
+            </p>
+          )}
+        </section>
       </div>
 
-      <div className="rounded-2xl border border-[#F3DEC8] bg-white p-5 shadow-sm">
-        <div className="mb-5">
-          <h2
-            className="font-bold text-gray-900"
-            style={{
-              fontFamily:
-                "'Plus Jakarta Sans', sans-serif",
-            }}
-          >
+      <section
+        aria-labelledby="attention-title"
+        className={`${CARD} p-5`}
+      >
+        <div className="mb-4">
+          <h2 id="attention-title" className={SECTION_TITLE}>
             Perlu Perhatian
           </h2>
 
-          <p className="mt-1 text-xs text-gray-400">
+          <p className={SECTION_DESC}>
             Ringkasan kondisi berdasarkan data aktual
           </p>
         </div>
 
         <div className="grid gap-3 md:grid-cols-3">
-          <div className="rounded-xl border border-yellow-100 bg-yellow-50 p-4">
-            <div className="text-sm font-semibold text-yellow-800">
-              Transaksi Pending
-            </div>
+          <AttentionItem
+            tone="warning"
+            title="Transaksi Pending"
+            value={show(pendingTransactions)}
+            description="transaksi masih menunggu pembayaran"
+            hideDescription={dataUnavailable}
+          />
 
-            <div className="mt-1 text-xs text-yellow-700">
-              {pendingTransactions}{' '}
-              transaksi masih menunggu pembayaran
-            </div>
-          </div>
+          <AttentionItem
+            tone="success"
+            title="Campaign Aktif"
+            value={show(activeCampaigns)}
+            description="campaign sedang aktif/terbit"
+            hideDescription={dataUnavailable}
+          />
 
-          <div className="rounded-xl border border-blue-100 bg-blue-50 p-4">
-            <div className="text-sm font-semibold text-blue-800">
-              Campaign Aktif
-            </div>
-
-            <div className="mt-1 text-xs text-blue-700">
-              {activeCampaigns}{' '}
-              campaign sedang aktif/terbit
-            </div>
-          </div>
-
-          <div className="rounded-xl border border-purple-100 bg-purple-50 p-4">
-            <div className="text-sm font-semibold text-purple-800">
-              Pengguna
-            </div>
-
-            <div className="mt-1 text-xs text-purple-700">
-              {users.length}{' '}
-              pengguna terdaftar,{' '}
-              {activeUsers} aktif
-            </div>
-          </div>
+          <AttentionItem
+            tone="neutral"
+            title="Pengguna"
+            value={show(users.length)}
+            description={`pengguna terdaftar, ${activeUsers} aktif`}
+            hideDescription={dataUnavailable}
+          />
         </div>
-      </div>
+      </section>
     </div>
+  )
+}
+
+function StatIcon({ name }: { name: StatIconName }) {
+  if (name === 'rupiah') {
+    return (
+      <span
+        aria-hidden="true"
+        className="text-sm font-bold leading-none"
+      >
+        Rp
+      </span>
+    )
+  }
+
+  const common = {
+    width: 20,
+    height: 20,
+    viewBox: '0 0 24 24',
+    fill: 'none',
+    stroke: 'currentColor',
+    strokeWidth: 1.8,
+    strokeLinecap: 'round' as const,
+    strokeLinejoin: 'round' as const,
+    'aria-hidden': true,
+  }
+
+  if (name === 'transactions') {
+    return (
+      <svg {...common}>
+        <path d="M7 7h13M16 3l4 4-4 4M17 17H4M8 13l-4 4 4 4" />
+      </svg>
+    )
+  }
+
+  if (name === 'campaign') {
+    return (
+      <svg {...common}>
+        <path d="M5 21V4M5 4h12l-2.5 4.5L17 13H5" />
+      </svg>
+    )
+  }
+
+  return (
+    <svg {...common}>
+      <circle cx="9" cy="8" r="3.5" />
+      <path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6" />
+      <circle cx="17" cy="9" r="2.5" />
+      <path d="M17 14.5c2.6 0 4.5 1.8 4.5 4.5" />
+    </svg>
   )
 }
 
@@ -1039,30 +1194,70 @@ function SummaryRow({
   detail,
 }: {
   label: string
-  value: number
+  value: number | string
   detail?: string
 }) {
   return (
-    <div className="flex items-center justify-between gap-4">
-      <span className="text-sm text-gray-500">
-        {label}
-      </span>
+    <div className="flex items-center justify-between gap-4 py-3 first:pt-0 last:pb-0">
+      <dt className="text-sm text-gray-600">{label}</dt>
 
-      <div className="text-right">
-        <span className="font-semibold text-gray-900">
+      <dd className="text-right">
+        <span className="text-lg font-semibold text-gray-900 tabular-nums">
           {value}
         </span>
 
         {detail && (
-          <p className="mt-0.5 text-[11px] text-gray-400">
+          <span className="block text-xs text-gray-500">
             {detail}
-          </p>
+          </span>
         )}
-      </div>
+      </dd>
     </div>
   )
 }
 
-function Divider() {
-  return <div className="h-px bg-gray-100" />
+function AttentionItem({
+  tone,
+  title,
+  value,
+  description,
+  hideDescription,
+}: {
+  tone: 'warning' | 'success' | 'neutral'
+  title: string
+  value: number | string
+  description: string
+  hideDescription?: boolean
+}) {
+  const toneClass =
+    tone === 'warning'
+      ? 'border-amber-200 bg-amber-50'
+      : 'border-gray-200 bg-gray-50'
+
+  const valueClass =
+    tone === 'warning'
+      ? 'text-amber-900'
+      : tone === 'success'
+        ? 'text-emerald-700'
+        : 'text-gray-900'
+
+  return (
+    <div className={`rounded-xl border p-4 ${toneClass}`}>
+      <h3 className="text-sm font-semibold text-gray-900">
+        {title}
+      </h3>
+
+      <p
+        className={`mt-2 text-2xl font-bold leading-none tabular-nums ${valueClass}`}
+      >
+        {value}
+      </p>
+
+      {!hideDescription && (
+        <p className="mt-1.5 text-sm text-gray-600">
+          {description}
+        </p>
+      )}
+    </div>
+  )
 }

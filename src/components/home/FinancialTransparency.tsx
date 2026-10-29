@@ -243,54 +243,8 @@ export default function FinancialTransparency() {
   return (
     <section
       id="transparency"
-      className="relative overflow-hidden bg-[#FFFAF6] py-20 sm:py-24"
+      className="landing-section landing-section--soft landing-section--orb-r"
     >
-
-      {/* =====================================================
-          BACKGROUND DECORATION
-      ===================================================== */}
-
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -left-40 -top-40 h-[430px] w-[430px] rounded-full bg-[#F58220]/10 blur-3xl"
-      />
-
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -right-40 bottom-[-120px] h-[500px] w-[500px] rounded-full bg-[#F58220]/10 blur-3xl"
-      />
-
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -right-20 -top-20 h-[320px] w-[320px] rounded-full border-2 border-[#F58220]/10"
-      />
-
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute right-10 top-[-60px] h-[210px] w-[210px] rounded-full border-2 border-[#F58220]/10"
-      />
-
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute left-8 top-40 h-24 w-24 opacity-25"
-        style={{
-          backgroundImage:
-            "radial-gradient(#F58220 1.5px, transparent 1.5px)",
-          backgroundSize:
-            "12px 12px",
-        }}
-      />
-
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute bottom-24 right-12 h-24 w-24 opacity-20"
-        style={{
-          backgroundImage:
-            "radial-gradient(#F58220 1.5px, transparent 1.5px)",
-          backgroundSize:
-            "12px 12px",
-        }}
-      />
 
       {/* =====================================================
           CONTENT
@@ -313,13 +267,13 @@ export default function FinancialTransparency() {
           }`}
         >
 
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[#F58220]/15 bg-white/80 px-4 py-2 shadow-sm backdrop-blur-sm">
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[#EA6113]/15 bg-white/80 px-4 py-2 shadow-sm ">
 
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#FFF0E4] text-sm text-[#F58220]">
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#FFE3B3] text-sm text-[#EA6113]">
               ✓
             </span>
 
-            <span className="text-xs font-bold uppercase tracking-[0.14em] text-[#F58220]">
+            <span className="text-xs font-bold uppercase tracking-[0.14em] text-[#EA6113]">
               Transparansi
             </span>
 
@@ -329,13 +283,13 @@ export default function FinancialTransparency() {
             className="text-3xl font-bold leading-tight text-gray-900 sm:text-4xl"
             style={{
               fontFamily:
-                "'Plus Jakarta Sans', sans-serif",
+                "'Fraunces', serif",
             }}
           >
             Transparansi Laporan
           </h2>
 
-          <div className="mx-auto mt-4 h-1 w-14 rounded-full bg-gradient-to-r from-[#F58220] to-[#D96808]" />
+          <div className="mx-auto mt-4 h-1 w-14 rounded-full  bg-[#EA6113] " />
 
           <p className="mx-auto mt-5 text-sm leading-7 text-gray-600 sm:text-base">
             Lazismu Pemalang berkomitmen
@@ -374,8 +328,8 @@ export default function FinancialTransparency() {
                     className={`rounded-full border px-4 py-2 text-xs font-semibold transition-all duration-200 ${
                       activeType ===
                       type
-                        ? "border-[#F58220] bg-[#F58220] text-white shadow-md shadow-orange-100"
-                        : "border-[#F1D9C1] bg-white/80 text-gray-600 hover:border-[#F58220] hover:text-[#F58220]"
+                        ? "border-[#EA6113] bg-[#EA6113] text-white shadow-md "
+                        : "border-[#E8CDAA] bg-white/80 text-gray-600 hover:border-[#EA6113] hover:text-[#EA6113]"
                     }`}
                   >
                     {type}
@@ -403,9 +357,9 @@ export default function FinancialTransparency() {
           ================================================= */}
 
           {loading && (
-            <div className="rounded-[28px] border border-[#F1D9C1] bg-white/80 py-14 text-center shadow-sm backdrop-blur-sm">
+            <div className="rounded-[28px] border border-[#E8CDAA] bg-white/80 py-14 text-center shadow-sm ">
 
-              <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-4 border-[#F58220] border-t-transparent" />
+              <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-4 border-[#EA6113] border-t-transparent" />
 
               <p className="text-sm font-medium text-gray-500">
                 Mengambil laporan...
@@ -441,9 +395,9 @@ export default function FinancialTransparency() {
             !error &&
             reports.length ===
               0 && (
-              <div className="mx-auto max-w-xl rounded-[28px] border border-[#F1D9C1] bg-white/85 p-10 text-center shadow-sm backdrop-blur-sm">
+              <div className="mx-auto max-w-xl rounded-[28px] border border-[#E8CDAA] bg-white/85 p-10 text-center shadow-sm ">
 
-                <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#FFF0E4] text-3xl shadow-sm">
+                <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#FFE3B3] text-3xl shadow-sm">
                   📄
                 </div>
 
@@ -451,7 +405,7 @@ export default function FinancialTransparency() {
                   className="mb-2 font-bold text-gray-800"
                   style={{
                     fontFamily:
-                      "'Plus Jakarta Sans', sans-serif",
+                      "'Fraunces', serif",
                   }}
                 >
                   Belum ada laporan
@@ -475,9 +429,9 @@ export default function FinancialTransparency() {
             reports.length > 0 &&
             filteredReports.length ===
               0 && (
-              <div className="mx-auto max-w-xl rounded-[28px] border border-[#F1D9C1] bg-white/85 p-10 text-center shadow-sm backdrop-blur-sm">
+              <div className="mx-auto max-w-xl rounded-[28px] border border-[#E8CDAA] bg-white/85 p-10 text-center shadow-sm ">
 
-                <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#FFF0E4] text-3xl shadow-sm">
+                <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#FFE3B3] text-3xl shadow-sm">
                   📄
                 </div>
 
@@ -485,7 +439,7 @@ export default function FinancialTransparency() {
                   className="mb-2 font-bold text-gray-800"
                   style={{
                     fontFamily:
-                      "'Plus Jakarta Sans', sans-serif",
+                      "'Fraunces', serif",
                   }}
                 >
                   Belum ada laporan
@@ -494,7 +448,7 @@ export default function FinancialTransparency() {
                 <p className="text-sm leading-6 text-gray-400">
                   Belum ada laporan untuk
                   kategori{" "}
-                  <span className="font-semibold text-[#F58220]">
+                  <span className="font-semibold text-[#EA6113]">
                     {activeType}
                   </span>
                   .
@@ -525,21 +479,21 @@ export default function FinancialTransparency() {
                         key={
                           report.id
                         }
-                        className="group relative flex h-full flex-col overflow-hidden rounded-[26px] border border-[#F1D9C1] bg-white shadow-[0_8px_28px_rgba(120,70,30,0.06)] transition-all duration-300 hover:-translate-y-2 hover:border-[#F58220]/40 hover:shadow-[0_18px_45px_rgba(120,70,30,0.12)]"
+                        className="group relative flex h-full flex-col overflow-hidden rounded-[26px] border border-[#E8CDAA] bg-white shadow-sm transition-all duration-300 hover:-translate-y-2 hover:border-[#EA6113]/40 shadow-sm"
                       >
 
                         {/* CARD GLOW */}
 
                         <div
                           aria-hidden="true"
-                          className="pointer-events-none absolute -right-14 -top-14 h-36 w-36 rounded-full bg-[#F58220]/5 blur-2xl transition-all duration-300 group-hover:bg-[#F58220]/10"
+                          className="pointer-events-none absolute -right-14 -top-14 h-36 w-36 rounded-full bg-[#EA6113]/5  transition-all duration-300 group-hover:bg-[#EA6113]/10"
                         />
 
                         {/* =================================================
                             THUMBNAIL
                         ================================================= */}
 
-                        <div className="relative h-52 overflow-hidden bg-[#FEF0E4]">
+                        <div className="relative h-52 overflow-hidden bg-[#FFE3B3]">
 
                           {thumbnail ? (
                             <img
@@ -552,7 +506,7 @@ export default function FinancialTransparency() {
                               className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                             />
                           ) : (
-                            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#FEF0E4] via-[#FFF8F2] to-[#FFE4CC]">
+                            <div className="flex h-full w-full items-center justify-center  bg-[#FFF8EA]  ">
 
                               <div className="text-center">
 
@@ -560,7 +514,7 @@ export default function FinancialTransparency() {
                                   📄
                                 </div>
 
-                                <div className="text-xs font-bold uppercase tracking-wider text-[#F58220]">
+                                <div className="text-xs font-bold uppercase tracking-wider text-[#EA6113]">
                                   Lazismu
                                   Pemalang
                                 </div>
@@ -572,13 +526,13 @@ export default function FinancialTransparency() {
 
                           {/* IMAGE OVERLAY */}
 
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent" />
+                          <div className="absolute inset-0  bg-black/60  " />
 
                           {/* TYPE */}
 
                           <div className="absolute left-4 top-4">
 
-                            <span className="rounded-full border border-white/60 bg-white/90 px-3 py-1.5 text-xs font-bold text-[#F58220] shadow-sm backdrop-blur-sm">
+                            <span className="rounded-full border border-white/60 bg-white/90 px-3 py-1.5 text-xs font-bold text-[#EA6113] shadow-sm ">
                               {report.type}
                             </span>
 
@@ -588,7 +542,7 @@ export default function FinancialTransparency() {
 
                           <div className="absolute right-4 top-4">
 
-                            <span className="rounded-full bg-[#F58220] px-3 py-1.5 text-xs font-bold text-white shadow-md">
+                            <span className="rounded-full bg-[#EA6113] px-3 py-1.5 text-xs font-bold text-white shadow-md">
                               {report.year}
                             </span>
 
@@ -603,10 +557,10 @@ export default function FinancialTransparency() {
                         <div className="relative flex flex-1 flex-col p-6">
 
                           <h3
-                            className="mb-3 line-clamp-2 text-base font-bold leading-6 text-gray-900 transition-colors duration-200 group-hover:text-[#F58220]"
+                            className="mb-3 line-clamp-2 text-base font-bold leading-6 text-gray-900 transition-colors duration-200 group-hover:text-[#EA6113]"
                             style={{
                               fontFamily:
-                                "'Plus Jakarta Sans', sans-serif",
+                                "'Fraunces', serif",
                             }}
                           >
                             {report.title}
@@ -619,10 +573,10 @@ export default function FinancialTransparency() {
 
                           {/* DATE */}
 
-                          <div className="mb-5 flex items-center gap-2 border-t border-[#F3DEC8] pt-4">
+                          <div className="mb-5 flex items-center gap-2 border-t border-[#E8CDAA] pt-4">
 
                             <svg
-                              className="h-4 w-4 text-[#F58220]"
+                              className="h-4 w-4 text-[#EA6113]"
                               fill="none"
                               stroke="currentColor"
                               viewBox="0 0 24 24"
@@ -653,10 +607,10 @@ export default function FinancialTransparency() {
                                 report
                               )
                             }
-                            className="group/button flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#F58220] to-[#D96D0A] py-3.5 text-sm font-bold text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
+                            className="group/button flex w-full items-center justify-center gap-2 rounded-xl  bg-[#EA6113]  py-3.5 text-sm font-bold text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
                             style={{
                               fontFamily:
-                                "'Plus Jakarta Sans', sans-serif",
+                                "'Fraunces', serif",
                             }}
                           >
 
@@ -682,7 +636,7 @@ export default function FinancialTransparency() {
 
                         {/* BOTTOM ACCENT */}
 
-                        <div className="absolute bottom-0 left-0 h-1 w-0 bg-[#F58220] transition-all duration-300 group-hover:w-full" />
+                        <div className="absolute bottom-0 left-0 h-1 w-0 bg-[#EA6113] transition-all duration-300 group-hover:w-full" />
 
                       </article>
                     );
@@ -700,16 +654,16 @@ export default function FinancialTransparency() {
             !error &&
             filteredReports.length >
               0 && (
-              <div className="relative mt-8 overflow-hidden rounded-[24px] border border-[#F1D9C1] bg-white/75 p-6 shadow-sm backdrop-blur-sm">
+              <div className="relative mt-8 overflow-hidden rounded-[24px] border border-[#E8CDAA] bg-white/75 p-6 shadow-sm ">
 
                 <div
                   aria-hidden="true"
-                  className="absolute -right-10 -top-10 h-28 w-28 rounded-full bg-[#F58220]/5 blur-2xl"
+                  className="absolute -right-10 -top-10 h-28 w-28 rounded-full bg-[#EA6113]/5 "
                 />
 
                 <div className="relative flex flex-col items-center gap-3 text-center sm:flex-row sm:justify-center">
 
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#FFF0E4] text-[#F58220]">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#FFE3B3] text-[#EA6113]">
                     ✓
                   </div>
 
@@ -725,7 +679,7 @@ export default function FinancialTransparency() {
                       "Semua" && (
                       <>
                         kategori{" "}
-                        <span className="font-semibold text-[#F58220]">
+                        <span className="font-semibold text-[#EA6113]">
                           {activeType}
                         </span>
                       </>

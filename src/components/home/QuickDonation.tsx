@@ -77,52 +77,8 @@ export default function QuickDonation({
   return (
     <section
       id="quick-donation"
-      className="relative overflow-hidden bg-[#FFFAF6] py-20 sm:py-24"
+      className="landing-section landing-section--surface landing-section--orb-l"
     >
-
-      {/* =====================================================
-          BACKGROUND DECORATION
-      ===================================================== */}
-
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -left-40 -top-40 h-[430px] w-[430px] rounded-full bg-[#F58220]/10 blur-3xl"
-      />
-
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -right-40 bottom-[-100px] h-[500px] w-[500px] rounded-full bg-[#F58220]/10 blur-3xl"
-      />
-
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute right-[-100px] top-[-120px] h-[340px] w-[340px] rounded-full border-2 border-[#F58220]/10"
-      />
-
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute right-[-30px] top-[-50px] h-[220px] w-[220px] rounded-full border-2 border-[#F58220]/10"
-      />
-
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute left-10 top-28 h-24 w-24 opacity-25"
-        style={{
-          backgroundImage:
-            'radial-gradient(#F58220 1.5px, transparent 1.5px)',
-          backgroundSize: '12px 12px',
-        }}
-      />
-
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute bottom-20 right-16 h-24 w-24 opacity-20"
-        style={{
-          backgroundImage:
-            'radial-gradient(#F58220 1.5px, transparent 1.5px)',
-          backgroundSize: '12px 12px',
-        }}
-      />
 
       {/* =====================================================
           CONTENT
@@ -149,23 +105,27 @@ export default function QuickDonation({
 
             {/* ICON */}
 
-            <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-white shadow-lg shadow-orange-100">
+            <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-white shadow-lg ">
 
               <svg
                 viewBox="0 0 80 80"
                 fill="none"
                 className="h-12 w-12"
               >
-                <polygon
-                  points="40,5 75,22 75,58 40,75 5,58 5,22"
-                  stroke="#F58220"
+                <circle
+                  cx="40"
+                  cy="40"
+                  r="34"
+                  stroke="#EA6113"
                   strokeWidth="2"
                   opacity="0.4"
                 />
 
-                <polygon
-                  points="40,18 62,29 62,51 40,62 18,51 18,29"
-                  stroke="#F58220"
+                <circle
+                  cx="40"
+                  cy="40"
+                  r="22"
+                  stroke="#EA6113"
                   strokeWidth="1.5"
                   opacity="0.3"
                 />
@@ -174,7 +134,7 @@ export default function QuickDonation({
                   cx="40"
                   cy="40"
                   r="12"
-                  stroke="#F58220"
+                  stroke="#EA6113"
                   strokeWidth="2"
                   opacity="0.5"
                 />
@@ -183,7 +143,7 @@ export default function QuickDonation({
                   cx="40"
                   cy="40"
                   r="4"
-                  fill="#F58220"
+                  fill="#EA6113"
                   opacity="0.8"
                 />
               </svg>
@@ -193,7 +153,7 @@ export default function QuickDonation({
 
             {/* LABEL */}
 
-            <span className="text-sm font-bold uppercase tracking-[0.14em] text-[#F58220]">
+            <span className="text-sm font-bold uppercase tracking-[0.14em] text-[#EA6113]">
               Donasi Mudah
             </span>
 
@@ -204,13 +164,13 @@ export default function QuickDonation({
               className="mt-2 mb-5 text-3xl font-bold leading-tight text-gray-900 sm:text-4xl"
               style={{
                 fontFamily:
-                  "'Plus Jakarta Sans', sans-serif",
+                  "'Fraunces', serif",
               }}
             >
               Tunaikan Kebaikan
               <br />
 
-              <span className="orange-gradient-text">
+              <span className="accent-text">
                 dalam 3 Langkah
               </span>
             </h2>
@@ -232,7 +192,7 @@ export default function QuickDonation({
 
               {/* CONNECTING LINE */}
 
-              <div className="absolute bottom-12 left-6 top-12 w-px bg-gradient-to-b from-[#F58220]/30 via-[#F58220]/20 to-transparent" />
+              <div className="absolute bottom-12 left-6 top-12 w-px  bg-[#EA6113]  " />
 
               {steps.map(
                 (step, index) => (
@@ -243,7 +203,7 @@ export default function QuickDonation({
 
                     {/* ICON */}
 
-                    <div className="relative z-10 flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl border border-[#F3DEC8] bg-white text-[#F58220] shadow-sm transition-all duration-300 group-hover:border-[#F58220] group-hover:bg-[#F58220] group-hover:text-white group-hover:shadow-md">
+                    <div className="relative z-10 flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl border border-[#E8CDAA] bg-white text-[#EA6113] shadow-sm transition-all duration-300 group-hover:border-[#EA6113] group-hover:bg-[#EA6113] group-hover:text-white group-hover:shadow-md">
                       {step.icon}
                     </div>
 
@@ -255,10 +215,10 @@ export default function QuickDonation({
                       <div className="mb-2 flex items-center gap-2">
 
                         <span
-                          className="rounded-full bg-[#FEF0E4] px-2.5 py-1 text-[11px] font-bold text-[#F58220]"
+                          className="rounded-full bg-[#FFE3B3] px-2.5 py-1 text-[11px] font-bold text-[#EA6113]"
                           style={{
                             fontFamily:
-                              "'Plus Jakarta Sans', sans-serif",
+                              "'Fraunces', serif",
                           }}
                         >
                           {step.n}
@@ -268,7 +228,7 @@ export default function QuickDonation({
                           className="text-sm font-bold text-gray-800"
                           style={{
                             fontFamily:
-                              "'Plus Jakarta Sans', sans-serif",
+                              "'Fraunces', serif",
                           }}
                         >
                           {step.title}
@@ -309,23 +269,23 @@ export default function QuickDonation({
 
               <div
                 aria-hidden="true"
-                className="absolute -inset-5 rounded-[38px] bg-[#F58220]/10 blur-2xl"
+                className="absolute -inset-5 rounded-[38px] bg-[#EA6113]/10 "
               />
 
 
               {/* MAIN CARD */}
 
-              <div className="relative overflow-hidden rounded-[32px] border border-white/70 bg-white p-7 shadow-[0_20px_60px_rgba(120,70,30,0.12)] sm:p-10">
+              <div className="relative overflow-hidden rounded-[32px] border border-white/70 bg-white p-7 shadow-sm sm:p-10">
 
                 {/* CARD DECORATION */}
 
-                <div className="pointer-events-none absolute -right-20 -top-20 h-52 w-52 rounded-full bg-[#F58220]/10 blur-2xl" />
+                <div className="pointer-events-none absolute -right-20 -top-20 h-52 w-52 rounded-full bg-[#EA6113]/10 " />
 
-                <div className="pointer-events-none absolute -bottom-20 -left-20 h-48 w-48 rounded-full bg-[#FFB66F]/10 blur-2xl" />
+                <div className="pointer-events-none absolute -bottom-20 -left-20 h-48 w-48 rounded-full bg-[#F88F22]/10 " />
 
-                <div className="absolute right-6 top-6 h-20 w-20 rounded-full border border-[#F58220]/10" />
+                <div className="absolute right-6 top-6 h-20 w-20 rounded-full border border-[#EA6113]/10" />
 
-                <div className="absolute right-10 top-10 h-12 w-12 rounded-full border border-[#F58220]/10" />
+                <div className="absolute right-10 top-10 h-12 w-12 rounded-full border border-[#EA6113]/10" />
 
 
                 {/* CONTENT */}
@@ -334,7 +294,7 @@ export default function QuickDonation({
 
                   {/* HEART */}
 
-                  <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-[#F58220] to-[#D96D0A] shadow-lg shadow-orange-200">
+                  <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full  bg-[#EA6113]  shadow-lg ">
 
                     <svg
                       className="h-10 w-10 text-white"
@@ -359,7 +319,7 @@ export default function QuickDonation({
                     className="mb-3 text-2xl font-bold text-gray-800"
                     style={{
                       fontFamily:
-                        "'Plus Jakarta Sans', sans-serif",
+                        "'Fraunces', serif",
                     }}
                   >
                     Siap Berdonasi?
@@ -381,10 +341,10 @@ export default function QuickDonation({
                     onClick={() =>
                       onNavigate('donasi')
                     }
-                    className="btn-primary mb-3 w-full rounded-xl py-4 text-base font-bold shadow-lg shadow-orange-200 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl"
+                    className="btn-primary mb-3 w-full rounded-xl py-4 text-base font-bold shadow-lg  transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl"
                     style={{
                       fontFamily:
-                        "'Plus Jakarta Sans', sans-serif",
+                        "'Fraunces', serif",
                     }}
                   >
                     Mulai Berdonasi Sekarang
@@ -397,10 +357,10 @@ export default function QuickDonation({
                     onClick={() =>
                       onNavigate('zakat')
                     }
-                    className="w-full rounded-xl border-2 border-[#F3DEC8] bg-white py-3.5 text-sm font-semibold text-gray-600 transition-all duration-200 hover:border-[#F58220] hover:bg-[#FFF8F2] hover:text-[#F58220]"
+                    className="w-full rounded-xl border-2 border-[#E8CDAA] bg-white py-3.5 text-sm font-semibold text-gray-600 transition-all duration-200 hover:border-[#EA6113] hover:bg-[#FFF8EA] hover:text-[#EA6113]"
                     style={{
                       fontFamily:
-                        "'Plus Jakarta Sans', sans-serif",
+                        "'Fraunces', serif",
                     }}
                   >
                     Hitung Zakat Terlebih Dahulu →
@@ -409,7 +369,7 @@ export default function QuickDonation({
 
                   {/* FEATURES */}
 
-                  <div className="mt-8 grid grid-cols-3 gap-3 border-t border-[#F3DEC8] pt-6">
+                  <div className="mt-8 grid grid-cols-3 gap-3 border-t border-[#E8CDAA] pt-6">
 
                     {[
                       {
@@ -436,7 +396,7 @@ export default function QuickDonation({
                           className="flex flex-col items-center gap-2"
                         >
 
-                          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[#FEF0E4] text-xs font-bold text-[#F58220]">
+                          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[#FFE3B3] text-xs font-bold text-[#EA6113]">
                             {item.icon}
                           </div>
 

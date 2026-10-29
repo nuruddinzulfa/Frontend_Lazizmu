@@ -106,13 +106,13 @@ function NewsCard({
           overflow-hidden
           rounded-[28px]
           border
-          border-[#F1D9C1]
+          border-[#E8CDAA]
           bg-white
-          shadow-[0_10px_35px_rgba(120,70,30,0.08)]
+          shadow-sm
           transition-all
           duration-300
           hover:-translate-y-1
-          hover:shadow-[0_20px_50px_rgba(120,70,30,0.14)]
+          shadow-sm
           lg:col-span-2
           lg:flex
         "
@@ -124,7 +124,7 @@ function NewsCard({
             relative
             h-64
             overflow-hidden
-            bg-[#FEF0E4]
+            bg-[#FFE3B3]
             lg:h-auto
             lg:w-1/2
             lg:min-h-[340px]
@@ -152,10 +152,10 @@ function NewsCard({
                 w-full
                 items-center
                 justify-center
-                bg-gradient-to-br
-                from-[#FFF0E4]
-                via-[#FFF8F2]
-                to-[#FFE5CD]
+
+                bg-[#FFF8EA]
+
+
               "
             >
               <div className="text-center">
@@ -183,7 +183,7 @@ function NewsCard({
                     font-bold
                     uppercase
                     tracking-wider
-                    text-[#F58220]
+                    text-[#EA6113]
                   "
                 >
                   Lazismu Pemalang
@@ -199,10 +199,10 @@ function NewsCard({
               pointer-events-none
               absolute
               inset-0
-              bg-gradient-to-t
-              from-black/45
-              via-black/5
-              to-transparent
+
+              bg-black/60
+
+
             "
           />
 
@@ -214,7 +214,7 @@ function NewsCard({
               left-5
               top-5
               rounded-full
-              bg-[#F58220]
+              bg-[#EA6113]
               px-3.5
               py-1.5
               text-xs
@@ -266,12 +266,12 @@ function NewsCard({
                 text-gray-900
                 transition-colors
                 duration-200
-                group-hover:text-[#F58220]
+                group-hover:text-[#EA6113]
                 sm:text-2xl
               "
               style={{
                 fontFamily:
-                  "'Plus Jakarta Sans', sans-serif",
+                  "'Fraunces', serif",
               }}
             >
               {article.title}
@@ -302,11 +302,11 @@ function NewsCard({
               gap-2
               text-sm
               font-bold
-              text-[#F58220]
+              text-[#EA6113]
             "
             style={{
               fontFamily:
-                "'Plus Jakarta Sans', sans-serif",
+                "'Fraunces', serif",
             }}
           >
             <span>Baca Selengkapnya</span>
@@ -354,14 +354,14 @@ function NewsCard({
         overflow-hidden
         rounded-[26px]
         border
-        border-[#F1D9C1]
+        border-[#E8CDAA]
         bg-white
-        shadow-[0_8px_28px_rgba(120,70,30,0.06)]
+        shadow-sm
         transition-all
         duration-300
         hover:-translate-y-2
-        hover:border-[#F58220]/30
-        hover:shadow-[0_18px_40px_rgba(120,70,30,0.12)]
+        hover:border-[#EA6113]/30
+        shadow-sm
       "
     >
       {/* IMAGE */}
@@ -371,7 +371,7 @@ function NewsCard({
           relative
           h-48
           overflow-hidden
-          bg-[#FEF0E4]
+          bg-[#FFE3B3]
         "
       >
         {thumbnail ? (
@@ -395,10 +395,10 @@ function NewsCard({
               w-full
               items-center
               justify-center
-              bg-gradient-to-br
-              from-[#FFF0E4]
-              via-[#FFF8F2]
-              to-[#FFE5CD]
+
+              bg-[#FFF8EA]
+
+
             "
           >
             <div className="text-center">
@@ -426,7 +426,7 @@ function NewsCard({
                   font-bold
                   uppercase
                   tracking-wider
-                  text-[#F58220]
+                  text-[#EA6113]
                 "
               >
                 Lazismu Pemalang
@@ -440,10 +440,10 @@ function NewsCard({
             pointer-events-none
             absolute
             inset-0
-            bg-gradient-to-t
-            from-black/25
-            via-transparent
-            to-transparent
+
+            bg-black/60
+
+
           "
         />
       </div>
@@ -471,11 +471,11 @@ function NewsCard({
             text-gray-800
             transition-colors
             duration-200
-            group-hover:text-[#F58220]
+            group-hover:text-[#EA6113]
           "
           style={{
             fontFamily:
-              "'Plus Jakarta Sans', sans-serif",
+              "'Fraunces', serif",
           }}
         >
           {article.title}
@@ -506,11 +506,11 @@ function NewsCard({
             gap-1.5
             text-xs
             font-bold
-            text-[#F58220]
+            text-[#EA6113]
           "
           style={{
             fontFamily:
-              "'Plus Jakarta Sans', sans-serif",
+              "'Fraunces', serif",
           }}
         >
           <span>Baca Selengkapnya</span>
@@ -617,114 +617,8 @@ export default function NewsSection({
   return (
     <section
       id="news"
-      className="
-        relative
-        overflow-hidden
-        bg-gradient-to-br
-        from-[#FFF9F4]
-        via-[#FFF1E5]
-        to-[#FFE4CC]
-        py-20
-        sm:py-24
-      "
+      className="landing-section landing-section--cream landing-section--orb-l"
     >
-      {/* BACKGROUND DECORATION */}
-
-      <div
-        aria-hidden="true"
-        className="
-          pointer-events-none
-          absolute
-          -left-40
-          -top-40
-          h-[430px]
-          w-[430px]
-          rounded-full
-          bg-[#F58220]/10
-          blur-3xl
-        "
-      />
-
-      <div
-        aria-hidden="true"
-        className="
-          pointer-events-none
-          absolute
-          -right-40
-          bottom-[-120px]
-          h-[500px]
-          w-[500px]
-          rounded-full
-          bg-[#F58220]/10
-          blur-3xl
-        "
-      />
-
-      <div
-        aria-hidden="true"
-        className="
-          pointer-events-none
-          absolute
-          -right-20
-          -top-20
-          h-[320px]
-          w-[320px]
-          rounded-full
-          border-2
-          border-[#F58220]/10
-        "
-      />
-
-      <div
-        aria-hidden="true"
-        className="
-          pointer-events-none
-          absolute
-          right-10
-          top-[-60px]
-          h-[210px]
-          w-[210px]
-          rounded-full
-          border-2
-          border-[#F58220]/10
-        "
-      />
-
-      <div
-        aria-hidden="true"
-        className="
-          pointer-events-none
-          absolute
-          left-8
-          top-40
-          h-24
-          w-24
-          opacity-25
-        "
-        style={{
-          backgroundImage:
-            "radial-gradient(#F58220 1.5px, transparent 1.5px)",
-          backgroundSize: "12px 12px",
-        }}
-      />
-
-      <div
-        aria-hidden="true"
-        className="
-          pointer-events-none
-          absolute
-          bottom-24
-          right-12
-          h-24
-          w-24
-          opacity-20
-        "
-        style={{
-          backgroundImage:
-            "radial-gradient(#F58220 1.5px, transparent 1.5px)",
-          backgroundSize: "12px 12px",
-        }}
-      />
 
       {/* CONTENT */}
 
@@ -766,12 +660,12 @@ export default function NewsSection({
                 gap-2
                 rounded-full
                 border
-                border-[#F58220]/15
+                border-[#EA6113]/15
                 bg-white/80
                 px-4
                 py-2
                 shadow-sm
-                backdrop-blur-sm
+
               "
             >
               <span
@@ -782,10 +676,10 @@ export default function NewsSection({
                   items-center
                   justify-center
                   rounded-full
-                  bg-[#FFF0E4]
+                  bg-[#FFE3B3]
                   text-xs
                   font-bold
-                  text-[#F58220]
+                  text-[#EA6113]
                 "
               >
                 ✦
@@ -797,7 +691,7 @@ export default function NewsSection({
                   font-bold
                   uppercase
                   tracking-[0.14em]
-                  text-[#F58220]
+                  text-[#EA6113]
                 "
               >
                 Berita & Informasi
@@ -813,7 +707,7 @@ export default function NewsSection({
               "
               style={{
                 fontFamily:
-                  "'Plus Jakarta Sans', sans-serif",
+                  "'Fraunces', serif",
               }}
             >
               Kabar Terkini
@@ -825,9 +719,9 @@ export default function NewsSection({
                 h-1
                 w-14
                 rounded-full
-                bg-gradient-to-r
-                from-[#F58220]
-                to-[#D96808]
+
+                bg-[#EA6113]
+
               "
             />
           </div>
@@ -863,12 +757,12 @@ export default function NewsSection({
             className="
               rounded-[28px]
               border
-              border-[#F1D9C1]
+              border-[#E8CDAA]
               bg-white/80
               py-14
               text-center
               shadow-sm
-              backdrop-blur-sm
+
             "
           >
             <div
@@ -880,7 +774,7 @@ export default function NewsSection({
                 animate-spin
                 rounded-full
                 border-4
-                border-[#F58220]
+                border-[#EA6113]
                 border-t-transparent
               "
             />
@@ -943,12 +837,12 @@ export default function NewsSection({
                 max-w-xl
                 rounded-[28px]
                 border
-                border-[#F1D9C1]
+                border-[#E8CDAA]
                 bg-white/80
                 p-10
                 text-center
                 shadow-sm
-                backdrop-blur-sm
+
               "
             >
               <div
@@ -961,7 +855,7 @@ export default function NewsSection({
                   items-center
                   justify-center
                   rounded-full
-                  bg-[#FFF0E4]
+                  bg-[#FFE3B3]
                   text-3xl
                 "
               >
@@ -1034,25 +928,25 @@ export default function NewsSection({
               gap-2
               rounded-xl
               border-2
-              border-[#F58220]
+              border-[#EA6113]
               bg-white/90
               px-7
               py-3
               text-sm
               font-semibold
-              text-[#F58220]
+              text-[#EA6113]
               shadow-sm
-              backdrop-blur-sm
+
               transition-all
               duration-200
               hover:-translate-y-0.5
-              hover:bg-[#F58220]
+              hover:bg-[#EA6113]
               hover:text-white
               hover:shadow-lg
             "
             style={{
               fontFamily:
-                "'Plus Jakarta Sans', sans-serif",
+                "'Fraunces', serif",
             }}
           >
             Semua Berita

@@ -156,7 +156,7 @@ export default function PublikasiPage() {
             className="text-3xl sm:text-4xl lg:text-5xl font-bold"
             style={{
               fontFamily:
-                "'Plus Jakarta Sans', sans-serif",
+                "'Playfair Display', serif",
             }}
           >
             Laporan

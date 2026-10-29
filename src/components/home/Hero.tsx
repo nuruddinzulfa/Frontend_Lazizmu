@@ -507,53 +507,7 @@ export default function Hero({
           DECORATION
       ====================================================== */}
 
-      {!isLoading && (
-        <div
-          className="
-            pointer-events-none
-            absolute
-            right-0
-            top-0
-            hidden
-            h-[500px]
-            w-[500px]
-            opacity-10
-            lg:block
-          "
-        >
-          <svg
-            viewBox="0 0 200 200"
-            fill="none"
-            className="h-full w-full"
-          >
-            <polygon
-              points="100,10 190,55 190,145 100,190 10,145 10,55"
-              stroke="#F58220"
-              strokeWidth="1"
-            />
-
-            <polygon
-              points="100,30 170,67 170,133 100,170 30,133 30,67"
-              stroke="#F58220"
-              strokeWidth="0.8"
-            />
-
-            <polygon
-              points="100,50 150,79 150,121 100,150 50,121 50,79"
-              stroke="#F58220"
-              strokeWidth="0.6"
-            />
-
-            <circle
-              cx="100"
-              cy="100"
-              r="40"
-              stroke="#F58220"
-              strokeWidth="0.8"
-            />
-          </svg>
-        </div>
-      )}
+     
 
       {/* ======================================================
           CONTENT

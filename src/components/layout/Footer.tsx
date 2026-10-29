@@ -1,9 +1,8 @@
 import logo from '../../imports/4.png'
-
-type Page = 'home' | 'zakat'
+import type { NavPage } from '../../App'
 
 interface FooterProps {
-  onNavigate: (page: Page) => void
+  onNavigate: (page: NavPage) => void
 }
 
 const socialLinks = [
@@ -51,12 +50,11 @@ const socialLinks = [
 
 export default function Footer({ onNavigate }: FooterProps) {
   return (
-    <footer className="site-footer bg-gray-900 text-gray-300">
-      {/* Mountain silhouette divider */}
-      <div className="w-full overflow-hidden bg-[#FFF8F2]">
-        <svg viewBox="0 0 1440 80" fill="none" preserveAspectRatio="none" className="w-full block">
-          <path d="M0 0 L0 60 L180 30 L360 50 L540 15 L720 45 L900 20 L1080 48 L1260 25 L1440 40 L1440 0 Z" fill="#111827" />
-        </svg>
+    <footer className="site-footer text-gray-300">
+      <div className="footer-accent" aria-hidden="true">
+        <span />
+        <span />
+        <span />
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-12">
@@ -76,7 +74,7 @@ export default function Footer({ onNavigate }: FooterProps) {
                   key={s.label}
                   href={s.href}
                   aria-label={s.label}
-                  className="w-9 h-9 rounded-xl bg-gray-800 text-gray-400 hover:bg-[#F58220] hover:text-white flex items-center justify-center transition-all duration-200"
+                  className="footer-social w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200"
                 >
                   {s.icon}
                 </a>
@@ -86,15 +84,38 @@ export default function Footer({ onNavigate }: FooterProps) {
 
           {/* Links */}
           <div>
-            <h4 className="font-bold text-white mb-4 text-sm" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            <h4 className="font-bold text-white mb-4 text-sm" style={{ fontFamily: "'Fraunces', serif" }}>
               Layanan
             </h4>
             <ul className="space-y-2.5 text-sm">
-              {['Donasi Online', 'Kalkulator Zakat', 'Laporan Keuangan'].map(l => (
+              {[
+                { label: 'Donasi Online', page: 'donasi' as const },
+                { label: 'Kalkulator Zakat', page: 'zakat' as const },
+                { label: 'Campaign', page: 'campaign' as const },
+                { label: 'Laporan Keuangan', page: 'publikasi' as const },
+              ].map(item => (
+                <li key={item.label}>
+                  <button
+                    onClick={() => onNavigate(item.page)}
+                    className="text-gray-400 hover:text-[#176B4D] transition-colors text-left"
+                  >
+                    {item.label}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="font-bold text-white mb-4 text-sm" style={{ fontFamily: "'Fraunces', serif" }}>
+              Program
+            </h4>
+            <ul className="space-y-2.5 text-sm">
+              {['Pendidikan', 'Kesehatan', 'Ekonomi', 'Sosial Dakwah', 'Kemanusiaan', 'Lingkungan'].map(l => (
                 <li key={l}>
                   <button
-                    onClick={() => l === 'Kalkulator Zakat' ? onNavigate('zakat') : undefined}
-                    className="text-gray-400 hover:text-[#F58220] transition-colors text-left"
+                    onClick={() => onNavigate('program')}
+                    className="text-left text-gray-400 hover:text-[#176B4D] transition-colors"
                   >
                     {l}
                   </button>
@@ -103,42 +124,27 @@ export default function Footer({ onNavigate }: FooterProps) {
             </ul>
           </div>
 
-          <div>
-            <h4 className="font-bold text-white mb-4 text-sm" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-              Program
-            </h4>
-            <ul className="space-y-2.5 text-sm">
-              {['Pendidikan', 'Kesehatan', 'Ekonomi', 'Sosial Dakwah', 'Kemanusiaan', 'lingkungan'].map(l => (
-                <li key={l}>
-                  <a href="#programs" className="text-gray-400 hover:text-[#F58220] transition-colors">
-                    {l}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-
           {/* Contact + Newsletter */}
           <div>
-            <h4 className="font-bold text-white mb-4 text-sm" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            <h4 className="font-bold text-white mb-4 text-sm" style={{ fontFamily: "'Fraunces', serif" }}>
               Kontak
             </h4>
             <ul className="space-y-3 text-sm text-gray-400 mb-6">
               <li className="flex items-start gap-2">
-                <svg className="w-4 h-4 mt-0.5 text-[#F58220] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 mt-0.5 text-[#176B4D] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
                 <span>Jl. Dr. Cipto Magunkusumo No.8, Sirandu, Kec. Pemalang, Kabupaten Pemalang, Jawa Tengah 52319</span>
               </li>
               <li className="flex items-center gap-2">
-                <svg className="w-4 h-4 text-[#F58220]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 text-[#176B4D]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                 </svg>
                 <span>0811-2993-327</span>
               </li>
               <li className="flex items-center gap-2">
-                <svg className="w-4 h-4 text-[#F58220]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 text-[#176B4D]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
                 <span>lazismupemalangkab@gmail.com</span>
@@ -146,25 +152,16 @@ export default function Footer({ onNavigate }: FooterProps) {
             </ul>
 
 
-            <div>
-              <div></div>
-              <div>
-                <button>
-                  <svg >
-                  </svg>
-                </button>
-              </div>
-            </div>
           </div>
         </div>
 
         {/* Bottom bar */}
-        <div className="border-t border-gray-800 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-500">
+        <div className="footer-bottom border-t pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
           <div>© 2025 Lazismu Kabupaten Pemalang. Semua hak dilindungi.</div>
           <div className="flex gap-4">
-            <a href="#" className="hover:text-[#F58220] transition-colors">Kebijakan Privasi</a>
-            <a href="#" className="hover:text-[#F58220] transition-colors">Syarat & Ketentuan</a>
-            <a href="#" className="hover:text-[#F58220] transition-colors">Sitemap</a>
+            <a href="#" className="hover:text-[#176B4D] transition-colors">Kebijakan Privasi</a>
+            <a href="#" className="hover:text-[#176B4D] transition-colors">Syarat & Ketentuan</a>
+            <a href="#" className="hover:text-[#176B4D] transition-colors">Sitemap</a>
           </div>
         </div>
       </div>

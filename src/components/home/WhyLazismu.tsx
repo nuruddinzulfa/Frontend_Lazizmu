@@ -127,51 +127,7 @@ export default function WhyLazismu() {
   const { inView, ref } = useInView()
 
   return (
-    <section className="relative overflow-hidden bg-white py-20 sm:py-24">
-
-      {/* =====================================================
-          BACKGROUND DECORATION
-      ===================================================== */}
-
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -left-40 -top-40 h-[430px] w-[430px] rounded-full bg-[#F58220]/10 blur-3xl"
-      />
-
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -right-40 bottom-[-120px] h-[500px] w-[500px] rounded-full bg-[#F58220]/10 blur-3xl"
-      />
-
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -right-20 -top-20 h-[300px] w-[300px] rounded-full border-2 border-[#F58220]/10"
-      />
-
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute right-8 top-[-60px] h-[190px] w-[190px] rounded-full border-2 border-[#F58220]/10"
-      />
-
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute left-10 top-36 h-24 w-24 opacity-25"
-        style={{
-          backgroundImage:
-            'radial-gradient(#F58220 1.5px, transparent 1.5px)',
-          backgroundSize: '12px 12px',
-        }}
-      />
-
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute bottom-24 right-12 h-24 w-24 opacity-20"
-        style={{
-          backgroundImage:
-            'radial-gradient(#F58220 1.5px, transparent 1.5px)',
-          backgroundSize: '12px 12px',
-        }}
-      />
+    <section className="landing-section landing-section--soft landing-section--orb-l">
 
       {/* =====================================================
           CONTENT
@@ -194,13 +150,13 @@ export default function WhyLazismu() {
           }`}
         >
 
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[#F58220]/15 bg-white/80 px-4 py-2 shadow-sm backdrop-blur-sm">
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[#EA6113]/15 bg-white/80 px-4 py-2 shadow-sm ">
 
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#FFF0E4] text-xs font-bold text-[#F58220]">
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#FFE3B3] text-xs font-bold text-[#EA6113]">
               ✦
             </span>
 
-            <span className="text-xs font-bold uppercase tracking-[0.14em] text-[#F58220]">
+            <span className="text-xs font-bold uppercase tracking-[0.14em] text-[#EA6113]">
               Mengapa Kami
             </span>
 
@@ -210,14 +166,14 @@ export default function WhyLazismu() {
             className="text-3xl font-bold leading-tight text-gray-900 sm:text-4xl"
             style={{
               fontFamily:
-                "'Plus Jakarta Sans', sans-serif",
+                "'Fraunces', serif",
             }}
           >
             Kenapa Pilih Lazismu
             Pemalang?
           </h2>
 
-          <div className="mx-auto mt-4 h-1 w-14 rounded-full bg-gradient-to-r from-[#F58220] to-[#D96808]" />
+          <div className="mx-auto mt-4 h-1 w-14 rounded-full  bg-[#EA6113] " />
 
           <p className="mt-5 text-sm leading-7 text-gray-600 sm:text-base">
             Kami berkomitmen mengelola dana umat
@@ -242,31 +198,22 @@ export default function WhyLazismu() {
         >
 
           {reasons.map(
-            (reason, index) => (
+            (reason) => (
               <div
                 key={reason.title}
-                className="group relative overflow-hidden rounded-[26px] border border-[#F1D9C1] bg-white/90 p-7 shadow-[0_8px_30px_rgba(120,70,30,0.06)] backdrop-blur-sm transition-all duration-300 hover:-translate-y-2 hover:border-[#F58220]/40 hover:shadow-[0_18px_45px_rgba(120,70,30,0.12)]"
+                className="group relative overflow-hidden rounded-[26px] border border-[#E8CDAA] bg-white/90 p-7 shadow-sm  transition-all duration-300 hover:-translate-y-2 hover:border-[#EA6113]/40 shadow-sm"
               >
 
                 {/* CARD GLOW */}
 
                 <div
                   aria-hidden="true"
-                  className="pointer-events-none absolute -right-12 -top-12 h-32 w-32 rounded-full bg-[#F58220]/5 blur-2xl transition-all duration-300 group-hover:bg-[#F58220]/10"
+                  className="pointer-events-none absolute -right-12 -top-12 h-32 w-32 rounded-full bg-[#EA6113]/5  transition-all duration-300 group-hover:bg-[#EA6113]/10"
                 />
-
-                {/* NUMBER */}
-
-                <div className="absolute right-5 top-5 text-5xl font-black text-[#F58220]/[0.05]">
-                  {String(
-                    index + 1
-                  ).padStart(2, '0')}
-                </div>
-
 
                 {/* ICON */}
 
-                <div className="relative mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[#FFF0E4] to-[#FFE4CC] text-[#F58220] shadow-sm transition-all duration-300 group-hover:scale-110 group-hover:rotate-2 group-hover:shadow-md">
+                <div className="relative mb-6 flex h-14 w-14 items-center justify-center rounded-2xl  bg-[#FFF8EA]  text-[#EA6113] shadow-sm transition-all duration-300 group-hover:scale-110 group-hover:rotate-2 group-hover:shadow-md">
                   {reason.icon}
                 </div>
 
@@ -277,7 +224,7 @@ export default function WhyLazismu() {
                   className="relative mb-3 text-base font-bold text-gray-800"
                   style={{
                     fontFamily:
-                      "'Plus Jakarta Sans', sans-serif",
+                      "'Fraunces', serif",
                   }}
                 >
                   {reason.title}
@@ -293,7 +240,7 @@ export default function WhyLazismu() {
 
                 {/* BOTTOM ACCENT */}
 
-                <div className="mt-6 h-1 w-8 rounded-full bg-[#F58220]/30 transition-all duration-300 group-hover:w-16 group-hover:bg-[#F58220]" />
+                <div className="mt-6 h-1 w-8 rounded-full bg-[#EA6113]/30 transition-all duration-300 group-hover:w-16 group-hover:bg-[#EA6113]" />
 
               </div>
             )

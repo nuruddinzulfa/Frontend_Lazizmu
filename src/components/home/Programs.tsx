@@ -39,7 +39,7 @@ function PillarIcon({
 
           <path
             d="M32 30V48"
-            stroke="#F58220"
+            stroke="#EA6113"
             strokeWidth="2"
             strokeLinecap="round"
           />
@@ -75,7 +75,7 @@ function PillarIcon({
 
           <path
             d="M17 31H25L29 23L34 39L39 29L42 31H48"
-            stroke="#F58220"
+            stroke="#EA6113"
             strokeWidth="3"
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -172,7 +172,7 @@ function PillarIcon({
 
           <path
             d="M28 48V39C28 36.8 29.8 35 32 35C34.2 35 36 36.8 36 39V48H28Z"
-            fill="#F58220"
+            fill="#EA6113"
           />
 
           <path
@@ -184,14 +184,14 @@ function PillarIcon({
             cx="24"
             cy="37"
             r="2"
-            fill="#F58220"
+            fill="#EA6113"
           />
 
           <circle
             cx="40"
             cy="37"
             r="2"
-            fill="#F58220"
+            fill="#EA6113"
           />
         </svg>
       )
@@ -319,32 +319,32 @@ function PillarIcon({
 const pillars = [
   {
     name: 'Pendidikan',
-    color: '#F58220',
+    color: '#EA6113',
     desc: 'Pendidikan adalah kunci utama untuk membuka pintu masa depan yang cerah. Lazismu terus berupaya memberikan akses pendidikan berkualitas bagi seluruh lapisan masyarakat, terutama mereka yang kurang beruntung.',
   },
   {
     name: 'Kesehatan',
-    color: '#E94224',
+    color: '#F88F22',
     desc: 'Kesehatan menjadi aset yang tak ternilai. Lazismu hadir dengan komitmen untuk membantu masyarakat memperoleh akses layanan kesehatan yang layak dan mewujudkan masyarakat yang sehat dan sejahtera.',
   },
   {
     name: 'Ekonomi',
-    color: '#D21F26',
+    color: '#EA6113',
     desc: 'Melalui Pilar Ekonomi, Lazismu berkomitmen memberdayakan masyarakat, khususnya mereka yang berada di garis kemiskinan, agar mampu meningkatkan taraf hidup dan kemandirian ekonomi.',
   },
   {
     name: 'Sosial Dakwah',
-    color: '#F9B233',
+    color: '#FBB931',
     desc: 'Pilar Sosial Dakwah berfokus pada penguatan kehidupan sosial dan dakwah dengan menebarkan kebaikan, kepedulian, serta membangun masyarakat yang lebih baik.',
   },
   {
     name: 'Kemanusiaan',
-    color: '#94C11F',
+    color: '#F88F22',
     desc: 'Lazismu senantiasa hadir di tengah masyarakat untuk memberikan bantuan dan dukungan. Pilar Kemanusiaan menjadi wujud nyata komitmen untuk meringankan beban sesama.',
   },
   {
     name: 'Lingkungan',
-    color: '#C8D52D',
+    color: '#FBB931',
     desc: 'Pilar Lingkungan berfokus pada kepedulian terhadap kelestarian alam serta kontribusi positif bagi lingkungan dan generasi yang akan datang.',
   },
 ]
@@ -381,52 +381,8 @@ export default function Programs({
   return (
     <section
       id="programs"
-      className="relative overflow-hidden bg-gradient-to-br from-[#FFF9F4] via-[#FFF1E5] to-[#FFE3CA] py-20 sm:py-24"
+      className="landing-section landing-section--cream landing-section--orb-l"
     >
-
-      {/* =====================================================
-          BACKGROUND DECORATION
-      ===================================================== */}
-
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -left-40 -top-40 h-[430px] w-[430px] rounded-full bg-[#F58220]/10 blur-3xl"
-      />
-
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -right-40 bottom-[-120px] h-[500px] w-[500px] rounded-full bg-[#F58220]/10 blur-3xl"
-      />
-
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -right-20 -top-20 h-[320px] w-[320px] rounded-full border-2 border-[#F58220]/10"
-      />
-
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute right-10 top-[-60px] h-[210px] w-[210px] rounded-full border-2 border-[#F58220]/10"
-      />
-
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute left-8 top-40 h-24 w-24 opacity-25"
-        style={{
-          backgroundImage:
-            'radial-gradient(#F58220 1.5px, transparent 1.5px)',
-          backgroundSize: '12px 12px',
-        }}
-      />
-
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute bottom-24 right-12 h-24 w-24 opacity-20"
-        style={{
-          backgroundImage:
-            'radial-gradient(#F58220 1.5px, transparent 1.5px)',
-          backgroundSize: '12px 12px',
-        }}
-      />
 
       {/* =====================================================
           CONTENT
@@ -440,9 +396,9 @@ export default function Programs({
 
         <div className="mx-auto mb-12 max-w-2xl text-center">
 
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[#F58220]/15 bg-white/80 px-4 py-2 text-xs font-bold uppercase tracking-[0.14em] text-[#F58220] shadow-sm backdrop-blur-sm">
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[#EA6113]/15 bg-white/80 px-4 py-2 text-xs font-bold uppercase tracking-[0.14em] text-[#EA6113] shadow-sm ">
 
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#FFF0E4] text-sm">
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#FFE3B3] text-sm">
               ✦
             </span>
 
@@ -454,14 +410,14 @@ export default function Programs({
             className="text-3xl font-bold leading-tight text-gray-900 sm:text-4xl"
             style={{
               fontFamily:
-                "'Plus Jakarta Sans', sans-serif",
+                "'Fraunces', serif",
             }}
           >
             6 Pilar Program
             Unggulan
           </h2>
 
-          <div className="mx-auto mt-4 h-1 w-14 rounded-full bg-gradient-to-r from-[#F58220] to-[#D96808]" />
+          <div className="mx-auto mt-4 h-1 w-14 rounded-full  bg-[#EA6113] " />
 
           <p className="mx-auto mt-5 max-w-xl text-sm leading-7 text-gray-600 sm:text-base">
             Setiap pilar mewakili komitmen
@@ -479,7 +435,7 @@ export default function Programs({
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
 
           {pillars.map(
-            (pillar, index) => (
+            (pillar) => (
               <button
                 key={pillar.name}
                 type="button"
@@ -488,27 +444,19 @@ export default function Programs({
                     pillar.name
                   )
                 }
-                className="group relative w-full overflow-hidden rounded-[28px] border border-[#F1D9C1] bg-white p-6 text-left shadow-[0_8px_30px_rgba(120,70,30,0.06)] transition-all duration-300 hover:-translate-y-2 hover:border-[#F58220]/40 hover:shadow-[0_20px_45px_rgba(120,70,30,0.13)] sm:p-7"
+                className="group relative w-full overflow-hidden rounded-[28px] border border-[#E8CDAA] bg-white p-6 text-left shadow-sm transition-all duration-300 hover:-translate-y-2 hover:border-[#EA6113]/40 shadow-sm sm:p-7"
               >
 
                 {/* CARD GLOW */}
 
                 <div
                   aria-hidden="true"
-                  className="pointer-events-none absolute -right-14 -top-14 h-36 w-36 rounded-full opacity-0 blur-2xl transition-opacity duration-300 group-hover:opacity-100"
+                  className="pointer-events-none absolute -right-14 -top-14 h-36 w-36 rounded-full opacity-0  transition-opacity duration-300 group-hover:opacity-100"
                   style={{
                     backgroundColor:
                       pillar.color,
                   }}
                 />
-
-                {/* NUMBER */}
-
-                <div className="absolute right-5 top-4 text-5xl font-black text-gray-100 transition-colors duration-300 group-hover:text-[#F58220]/10">
-                  {String(
-                    index + 1
-                  ).padStart(2, '0')}
-                </div>
 
                 {/* HEADER */}
 
@@ -530,15 +478,35 @@ export default function Programs({
                     />
                   </div>
 
+                  {/* ARROW */}
+
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#FFF8EA] text-[#EA6113] transition-all duration-300 group-hover:bg-[#EA6113] group-hover:text-white">
+
+                    <svg
+                      className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 5l7 7-7 7"
+                      />
+                    </svg>
+
+                  </div>
+
                 </div>
 
                 {/* TITLE */}
 
                 <h3
-                  className="relative mt-6 text-lg font-bold text-gray-900 transition-colors duration-200 group-hover:text-[#F58220]"
+                  className="relative mt-6 text-lg font-bold text-gray-900 transition-colors duration-200 group-hover:text-[#EA6113]"
                   style={{
                     fontFamily:
-                      "'Plus Jakarta Sans', sans-serif",
+                      "'Fraunces', serif",
                   }}
                 >
                   {pillar.name}
@@ -552,7 +520,7 @@ export default function Programs({
 
                 {/* ACTION */}
 
-                <div className="relative mt-6 flex items-center gap-2 text-sm font-bold text-[#F58220]">
+                <div className="relative mt-6 flex items-center gap-2 text-sm font-bold text-[#EA6113]">
 
                   <span>
                     Lihat Program

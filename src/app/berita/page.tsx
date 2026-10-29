@@ -165,7 +165,7 @@ const filtered = regular
             className="text-3xl sm:text-4xl lg:text-5xl font-bold"
             style={{
               fontFamily:
-                "'Plus Jakarta Sans', sans-serif",
+                "'Playfair Display', serif",
             }}
           >
             Berita & Informasi

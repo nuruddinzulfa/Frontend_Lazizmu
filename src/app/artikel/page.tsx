@@ -258,7 +258,7 @@ export default function ArtikelPage({
             className="text-3xl sm:text-4xl lg:text-5xl font-bold"
             style={{
               fontFamily:
-                "'Plus Jakarta Sans', sans-serif",
+                "'Playfair Display', serif",
             }}
           >
             Artikel Islami

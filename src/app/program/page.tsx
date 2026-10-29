@@ -1014,7 +1014,7 @@ export default function ProgramPage({
               "
               style={{
                 fontFamily:
-                  "'Plus Jakarta Sans', sans-serif",
+                  "'Playfair Display', serif",
               }}
             >
               Program & Campaign
@@ -1155,7 +1155,7 @@ export default function ProgramPage({
                 "
                 style={{
                   fontFamily:
-                    "'Plus Jakarta Sans', sans-serif",
+                    "'Playfair Display', serif",
                 }}
               >
                 6 Pilar Program
@@ -1453,10 +1453,10 @@ export default function ProgramPage({
               "
               style={{
                 fontFamily:
-                  "'Plus Jakarta Sans', sans-serif",
+                  "'Playfair Display', serif",
               }}
             >
-              Campaign Amal
+              Kampanye Amal
             </h2>
 
             <div

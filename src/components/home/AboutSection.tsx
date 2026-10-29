@@ -146,132 +146,9 @@ export default function AboutSection({
   return (
     <section
       id="about"
-      className="
-    relative
-    overflow-hidden
-    bg-[#FFF8F2]
-    py-20
-  "
+      className="landing-section landing-section--cream landing-section--orb-r"
     >
-      {/* ================================================================
-          BACKGROUND DECORATION
-      ================================================================ */}
 
-      {/* Orange glow kiri atas */}
-      <div
-        aria-hidden="true"
-        className="
-          pointer-events-none
-          absolute
-          -left-40
-          -top-40
-          h-[420px]
-          w-[420px]
-          rounded-full
-          bg-[#F58220]/10
-          blur-3xl
-        "
-      />
-
-      {/* Orange glow kanan bawah */}
-      <div
-        aria-hidden="true"
-        className="
-          pointer-events-none
-          absolute
-          -bottom-40
-          -right-40
-          h-[460px]
-          w-[460px]
-          rounded-full
-          bg-[#F58220]/10
-          blur-3xl
-        "
-      />
-
-      {/* Pattern titik kiri */}
-      <div
-        aria-hidden="true"
-        className="
-          pointer-events-none
-          absolute
-          left-6
-          top-24
-          h-32
-          w-32
-          opacity-30
-        "
-        style={{
-          backgroundImage:
-            'radial-gradient(circle, #F58220 1.5px, transparent 1.5px)',
-          backgroundSize: '12px 12px',
-        }}
-      />
-
-      {/* Pattern titik kanan bawah */}
-      <div
-        aria-hidden="true"
-        className="
-          pointer-events-none
-          absolute
-          bottom-24
-          right-8
-          h-36
-          w-36
-          opacity-20
-        "
-        style={{
-          backgroundImage:
-            'radial-gradient(circle, #F58220 1.5px, transparent 1.5px)',
-          backgroundSize: '12px 12px',
-        }}
-      />
-
-      {/* Lingkaran dekoratif kanan atas */}
-      <div
-        aria-hidden="true"
-        className="
-          pointer-events-none
-          absolute
-          -right-20
-          top-16
-          h-48
-          w-48
-          rounded-full
-          border
-          border-[#F58220]/10
-        "
-      />
-
-      <div
-        aria-hidden="true"
-        className="
-          pointer-events-none
-          absolute
-          right-8
-          top-24
-          h-24
-          w-24
-          rounded-full
-          border
-          border-[#F58220]/10
-        "
-      />
-
-      {/* Lingkaran kecil */}
-      <div
-        aria-hidden="true"
-        className="
-          pointer-events-none
-          absolute
-          bottom-[30%]
-          left-[5%]
-          h-5
-          w-5
-          rounded-full
-          bg-[#F58220]/10
-        "
-      />
       <div
         className="
     relative
@@ -390,9 +267,9 @@ export default function AboutSection({
                   pointer-events-none
                   absolute
                   inset-0
-                  bg-gradient-to-t
-                  from-[#F58220]/40
-                  to-transparent
+
+                  bg-[#EA6113]
+
                 "
               />
 
@@ -408,7 +285,7 @@ export default function AboutSection({
                 max-w-[220px]
                 rounded-2xl
                 border
-                border-[#F3DEC8]
+                border-[#E8CDAA]
                 bg-white
                 p-5
                 shadow-xl
@@ -421,11 +298,11 @@ export default function AboutSection({
                   mb-1
                   text-3xl
                   font-bold
-                  text-[#F58220]
+                  text-[#EA6113]
                 "
                 style={{
                   fontFamily:
-                    "'Plus Jakarta Sans', sans-serif",
+                    "'Fraunces', serif",
                 }}
               >
                 20+
@@ -444,25 +321,6 @@ export default function AboutSection({
 
             </div>
 
-            {/* DECORATION */}
-
-            <div
-              className="
-                absolute
-                -left-6
-                -top-6
-                h-24
-                w-24
-                rounded-2xl
-                opacity-20
-              "
-              style={{
-                backgroundImage:
-                  'radial-gradient(circle, #F58220 1.5px, transparent 1.5px)',
-                backgroundSize:
-                  '10px 10px',
-              }}
-            />
 
           </div>
 
@@ -478,7 +336,7 @@ export default function AboutSection({
                 font-semibold
                 uppercase
                 tracking-wider
-                text-[#F58220]
+                text-[#EA6113]
               "
             >
               Tentang Kami
@@ -496,14 +354,14 @@ export default function AboutSection({
               "
               style={{
                 fontFamily:
-                  "'Plus Jakarta Sans', sans-serif",
+                  "'Fraunces', serif",
               }}
             >
               {profile?.name || 'Lazismu'}
 
               <br />
 
-              <span className="orange-gradient-text">
+              <span className="accent-text">
                 {profile?.tagline ||
                   'yang Amanah & Terpercaya'}
               </span>
@@ -643,8 +501,8 @@ export default function AboutSection({
                       gap-3
                       rounded-xl
                       border
-                      border-[#F3DEC8]
-                      bg-[#FFF8F2]
+                      border-[#E8CDAA]
+                      bg-[#FFF8EA]
                       p-3
                     "
                   >
@@ -664,11 +522,11 @@ export default function AboutSection({
                         className="
                           text-xs
                           font-bold
-                          text-[#F58220]
+                          text-[#EA6113]
                         "
                         style={{
                           fontFamily:
-                            "'Plus Jakarta Sans', sans-serif",
+                            "'Fraunces', serif",
                         }}
                       >
                         {milestone.year}
@@ -710,7 +568,7 @@ export default function AboutSection({
               "
               style={{
                 fontFamily:
-                  "'Plus Jakarta Sans', sans-serif",
+                  "'Fraunces', serif",
               }}
             >
               Selengkapnya Tentang Kami →
@@ -728,7 +586,7 @@ export default function AboutSection({
           className="
             mb-20
             border-t
-            border-[#F3DEC8]
+            border-[#E8CDAA]
           "
         />
 
@@ -760,7 +618,7 @@ export default function AboutSection({
         font-semibold
         uppercase
         tracking-wider
-        text-[#F58220]
+        text-[#EA6113]
       "
     >
       Arah & Tujuan
@@ -776,7 +634,7 @@ export default function AboutSection({
       "
       style={{
         fontFamily:
-          "'Plus Jakarta Sans', sans-serif",
+          "'Fraunces', serif",
       }}
     >
       Visi dan Misi Lazismu
@@ -803,9 +661,9 @@ export default function AboutSection({
         relative
         overflow-hidden
         rounded-3xl
-        bg-gradient-to-br
-        from-[#F58220]
-        to-[#D96D0A]
+
+        bg-[#EA6113]
+
         p-10
       "
     >
@@ -826,29 +684,19 @@ export default function AboutSection({
           viewBox="0 0 160 160"
           fill="none"
         >
-          <polygon
-            points="
-              80,8
-              152,44
-              152,116
-              80,152
-              8,116
-              8,44
-            "
+          <circle
+            cx="80"
+            cy="80"
+            r="71"
             stroke="white"
             strokeWidth="1.5"
             fill="none"
           />
 
-          <polygon
-            points="
-              80,28
-              132,56
-              132,104
-              80,132
-              28,104
-              28,56
-            "
+          <circle
+            cx="80"
+            cy="80"
+            r="51"
             stroke="white"
             strokeWidth="1"
             fill="none"
@@ -920,7 +768,7 @@ export default function AboutSection({
 
         {/* LABEL */}
 
-        <div
+        {/* <div
           className="
             mb-3
             text-sm
@@ -931,7 +779,21 @@ export default function AboutSection({
           "
         >
           Visi
-        </div>
+        </div> */}
+        <h3
+        className="
+          mb-6
+          text-xl
+          font-bold
+          text-gray-800
+        "
+        style={{
+          fontFamily:
+            "'Fraunces', serif",
+        }}
+      >
+        Visi 
+      </h3>
 
         {/* VISION */}
 
@@ -990,8 +852,8 @@ export default function AboutSection({
       className="
         rounded-3xl
         border
-        border-[#F3DEC8]
-        bg-[#FFF8F2]
+        border-[#E8CDAA]
+        bg-[#FFF8EA]
         p-10
       "
     >
@@ -1006,14 +868,14 @@ export default function AboutSection({
           items-center
           justify-center
           rounded-2xl
-          bg-[#FEF0E4]
+          bg-[#FFE3B3]
         "
       >
         <svg
           className="
             h-7
             w-7
-            text-[#F58220]
+            text-[#EA6113]
           "
           fill="none"
           stroke="currentColor"
@@ -1036,18 +898,18 @@ export default function AboutSection({
 
       {/* LABEL */}
 
-      <div
+      {/* <div
         className="
           mb-3
           text-sm
           font-semibold
           uppercase
           tracking-wider
-          text-[#F58220]
+          text-[#EA6113]
         "
       >
         Misi
-      </div>
+      </div> */}
 
       {/* TITLE */}
 
@@ -1060,10 +922,10 @@ export default function AboutSection({
         "
         style={{
           fontFamily:
-            "'Plus Jakarta Sans', sans-serif",
+            "'Fraunces', serif",
         }}
       >
-        Misi Kami
+        Misi 
       </h3>
 
       {/* MISSION */}
@@ -1135,13 +997,13 @@ export default function AboutSection({
             className="
               rounded-full
               border
-              border-[#F3DEC8]
+              border-[#E8CDAA]
               bg-white
               px-3
               py-1.5
               text-xs
               font-semibold
-              text-[#F58220]
+              text-[#EA6113]
             "
           >
             {value}
@@ -1160,7 +1022,7 @@ export default function AboutSection({
             mb-20
             mt-4
             border-t
-            border-[#F3DEC8]
+            border-[#E8CDAA]
           "
         />
 
@@ -1347,12 +1209,12 @@ function OrgChart({
             items-center
             gap-2
             rounded-full
-            bg-[#FEF0E4]
+            bg-[#FFE3B3]
             px-4
             py-1.5
             text-sm
             font-semibold
-            text-[#F58220]
+            text-[#EA6113]
           "
         >
           Struktur Organisasi
@@ -1366,7 +1228,7 @@ function OrgChart({
           "
           style={{
             fontFamily:
-              "'Plus Jakarta Sans', sans-serif",
+              "'Fraunces', serif",
           }}
         >
           Badan Pengelola {organizationName}
@@ -1381,7 +1243,7 @@ function OrgChart({
           className="
             rounded-2xl
             border
-            border-[#F3DEC8]
+            border-[#E8CDAA]
             bg-white
             p-10
             text-center
@@ -1418,7 +1280,7 @@ function OrgChart({
           className="
             rounded-2xl
             border
-            border-[#F3DEC8]
+            border-[#E8CDAA]
             bg-white
             p-10
             text-center
@@ -1463,7 +1325,7 @@ function OrgChart({
                       overflow-hidden
                       rounded-2xl
                       border
-                      border-[#F3DEC8]
+                      border-[#E8CDAA]
                       bg-white
                       shadow-sm
                       transition-all
@@ -1520,9 +1382,9 @@ function OrgChart({
                           justify-center
                           overflow-hidden
                           rounded-full
-                          bg-gradient-to-br
-                          from-[#F58220]
-                          to-[#D96D0A]
+
+                          bg-[#EA6113]
+
                         "
                       >
 
@@ -1547,7 +1409,7 @@ function OrgChart({
                             "
                             style={{
                               fontFamily:
-                                "'Plus Jakarta Sans', sans-serif",
+                                "'Fraunces', serif",
                             }}
                           >
                             {person.name
@@ -1576,7 +1438,7 @@ function OrgChart({
                           font-semibold
                           uppercase
                           tracking-wide
-                          text-[#F58220]
+                          text-[#EA6113]
                         "
                       >
                         {
@@ -1595,7 +1457,7 @@ function OrgChart({
                         "
                         style={{
                           fontFamily:
-                            "'Plus Jakarta Sans', sans-serif",
+                            "'Fraunces', serif",
                         }}
                       >
                         {person.name}
@@ -1613,8 +1475,8 @@ function OrgChart({
                           justify-center
                           rounded-full
                           border-2
-                          border-[#F3DEC8]
-                          text-[#F58220]
+                          border-[#E8CDAA]
+                          text-[#EA6113]
                           transition-transform
                           duration-200
                           ${isExpanded
@@ -1634,8 +1496,8 @@ function OrgChart({
                       <div
                         className="
                           border-t
-                          border-[#F3DEC8]
-                          bg-[#FFF8F2]
+                          border-[#E8CDAA]
+                          bg-[#FFF8EA]
                           p-5
                         "
                       >
@@ -1674,7 +1536,7 @@ function OrgChart({
                             font-semibold
                             text-gray-400
                             transition-colors
-                            hover:text-[#F58220]
+                            hover:text-[#EA6113]
                           "
                         >
                           <span>×</span>
@@ -1712,16 +1574,16 @@ function OrgChart({
                   gap-2
                   rounded-xl
                   border
-                  border-[#F58220]
+                  border-[#EA6113]
                   bg-white
                   px-6
                   py-3
                   text-sm
                   font-semibold
-                  text-[#F58220]
+                  text-[#EA6113]
                   transition-all
                   duration-200
-                  hover:bg-[#F58220]
+                  hover:bg-[#EA6113]
                   hover:text-white
                 "
               >

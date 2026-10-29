@@ -64,26 +64,6 @@ function formatRupiah(
   return `Rp ${amount.toLocaleString("id-ID")}`;
 }
 
-function stripHtml(
-  html: string | null | undefined
-): string {
-  if (!html) {
-    return "";
-  }
-
-  return html
-    .replace(/<[^>]*>/g, " ")
-    .replace(/&nbsp;/gi, " ")
-    .replace(/&amp;/gi, "&")
-    .replace(/&lt;/gi, "<")
-    .replace(/&gt;/gi, ">")
-    .replace(/&quot;/gi, '"')
-    .replace(/&#039;/gi, "'")
-    .replace(/&#39;/gi, "'")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
 /* =========================================================
    THUMBNAIL URL
 ========================================================= */
@@ -127,7 +107,7 @@ function getCategoryColor(
     value.includes("ekonomi") ||
     value.includes("umkm")
   ) {
-    return "bg-green-50 text-green-700 border-green-100";
+    return "bg-orange-50 text-orange-700 border-orange-100";
   }
 
   if (
@@ -146,7 +126,7 @@ function getCategoryColor(
     value.includes("kemanusiaan") ||
     value.includes("sosial")
   ) {
-    return "bg-orange-50 text-orange-700 border-orange-100";
+    return "bg-orange-50 text-orange-800 border-orange-100";
   }
 
   return "bg-gray-50 text-gray-700 border-gray-100";
@@ -173,20 +153,14 @@ function CampaignCard({
     campaign.target_amount ?? 0
   );
 
-  const rawPercentage =
-    target > 0
-      ? (collected / target) * 100
-      : 0;
-
   const percentage =
-    Math.min(
-      Number(rawPercentage.toFixed(2)),
-      100
-    );
-
-  const progressWidth =
-    collected > 0 && percentage > 0
-      ? Math.max(percentage, 0.5)
+    target > 0
+      ? Math.min(
+          100,
+          Math.round(
+            (collected / target) * 100
+          )
+        )
       : 0;
 
   const thumbnailUrl = getThumbnailUrl(
@@ -225,14 +199,14 @@ function CampaignCard({
 
   return (
     <article
-      className="group flex h-full flex-col overflow-hidden rounded-[28px] border border-[#F1D9C1] bg-white shadow-[0_10px_35px_rgba(120,70,30,0.08)] transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_20px_50px_rgba(120,70,30,0.14)]"
+      className="group flex h-full flex-col overflow-hidden rounded-[28px] border border-[#E8CDAA] bg-white shadow-sm transition-all duration-300 hover:-translate-y-2 shadow-sm"
       style={{
         animationDelay: `${delay}ms`,
       }}
     >
       {/* IMAGE */}
 
-      <div className="relative h-56 overflow-hidden bg-[#FEF0E4]">
+      <div className="relative h-56 overflow-hidden bg-[#FFE3B3]">
         {thumbnailUrl ? (
           <img
             src={thumbnailUrl}
@@ -255,7 +229,7 @@ function CampaignCard({
                 🤲
               </div>
 
-              <p className="text-xs font-semibold text-[#F58220]">
+              <p className="text-xs font-semibold text-[#EA6113]">
                 Lazismu Pemalang
               </p>
             </div>
@@ -264,13 +238,13 @@ function CampaignCard({
 
         {/* IMAGE OVERLAY */}
 
-        <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-black/5 to-transparent" />
+        <div className="absolute inset-0  bg-black/60  " />
 
         {/* CATEGORY */}
 
         <div className="absolute left-4 top-4">
           <span
-            className={`inline-flex rounded-full border px-3 py-1.5 text-xs font-bold backdrop-blur-sm ${getCategoryColor(
+            className={`inline-flex rounded-full border px-3 py-1.5 text-xs font-bold  ${getCategoryColor(
               campaign.category
             )}`}
           >
@@ -285,7 +259,7 @@ function CampaignCard({
           onClick={() =>
             setFavorited((current) => !current)
           }
-          className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full border border-white/70 bg-white/90 shadow-sm backdrop-blur transition-all duration-200 hover:scale-110 hover:bg-white"
+          className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full border border-white/70 bg-white/90 shadow-sm  transition-all duration-200 hover:scale-110 hover:bg-white"
           aria-label="Favoritkan campaign"
         >
           <svg
@@ -316,10 +290,10 @@ function CampaignCard({
 
       <div className="flex flex-1 flex-col p-5 sm:p-6">
         <h3
-          className="mb-2 line-clamp-2 text-lg font-bold leading-snug text-gray-900 transition-colors group-hover:text-[#F58220]"
+          className="mb-2 line-clamp-2 text-lg font-bold leading-snug text-gray-900 transition-colors group-hover:text-[#EA6113]"
           style={{
             fontFamily:
-              "'Plus Jakarta Sans', sans-serif",
+              "'Fraunces', serif",
           }}
         >
           {campaign.title}
@@ -327,7 +301,7 @@ function CampaignCard({
 
         {campaign.short_description && (
           <p className="mb-5 line-clamp-2 text-sm leading-6 text-gray-500">
-            {stripHtml(campaign.short_description)}
+            {campaign.short_description}
           </p>
         )}
 
@@ -339,16 +313,16 @@ function CampaignCard({
               Progress donasi
             </span>
 
-            <span className="font-bold text-[#F58220]">
+            <span className="font-bold text-[#EA6113]">
               {percentage}%
             </span>
           </div>
 
-          <div className="h-2.5 overflow-hidden rounded-full bg-[#F5E9DE]">
+          <div className="h-2.5 overflow-hidden rounded-full bg-[#FFF0D0]">
             <div
-              className="h-full rounded-full bg-gradient-to-r from-[#F58220] via-[#F47716] to-[#D96808] transition-all duration-700"
+              className="h-full rounded-full  bg-[#EA6113]   transition-all duration-700"
               style={{
-                width: `${progressWidth}%`,
+                width: `${percentage}%`,
               }}
             />
           </div>
@@ -361,7 +335,7 @@ function CampaignCard({
                 className="text-base font-bold text-gray-900"
                 style={{
                   fontFamily:
-                    "'Plus Jakarta Sans', sans-serif",
+                    "'Fraunces', serif",
                 }}
               >
                 {formatRupiah(collected)}
@@ -374,7 +348,7 @@ function CampaignCard({
               )}
             </div>
 
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#FFF1E5] text-[#F58220] transition-transform duration-300 group-hover:translate-x-1">
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#FFE3B3] text-[#EA6113] transition-transform duration-300 group-hover:translate-x-1">
               →
             </div>
           </div>
@@ -480,61 +454,8 @@ export default function FeaturedCampaigns({
   return (
     <section
       id="campaigns"
-      className="relative overflow-hidden bg-[#FFFAF6] py-20 sm:py-24"
+      className="landing-section landing-section--soft landing-section--orb-r"
     >
-      {/* =====================================================
-          BACKGROUND DECORATION
-      ===================================================== */}
-
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -left-40 -top-40 h-[430px] w-[430px] rounded-full bg-[#F58220]/15 blur-3xl"
-      />
-
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -right-40 top-0 h-[500px] w-[500px] rounded-full bg-[#F58220]/10 blur-3xl"
-      />
-
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute bottom-[-200px] left-[30%] h-[450px] w-[450px] rounded-full bg-[#FFAD63]/20 blur-3xl"
-      />
-
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -right-20 -top-20 h-[320px] w-[320px] rounded-full border-2 border-[#F58220]/10"
-      />
-
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute right-8 top-[-70px] h-[210px] w-[210px] rounded-full border-2 border-[#F58220]/10"
-      />
-
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -bottom-32 -left-24 h-[300px] w-[300px] rounded-full border-2 border-[#F58220]/10"
-      />
-
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute left-8 top-28 h-28 w-28 opacity-30"
-        style={{
-          backgroundImage:
-            "radial-gradient(#F58220 1.5px, transparent 1.5px)",
-          backgroundSize: "12px 12px",
-        }}
-      />
-
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute bottom-24 right-12 h-24 w-24 opacity-20"
-        style={{
-          backgroundImage:
-            "radial-gradient(#F58220 1.5px, transparent 1.5px)",
-          backgroundSize: "12px 12px",
-        }}
-      />
 
       {/* =====================================================
           CONTENT
@@ -555,12 +476,12 @@ export default function FeaturedCampaigns({
               : "translate-y-6 opacity-0"
           }`}
         >
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[#F58220]/15 bg-white/80 px-4 py-2 shadow-sm backdrop-blur-sm">
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#FFF0E4] text-xs font-bold text-[#F58220]">
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[#EA6113]/15 bg-white/80 px-4 py-2 shadow-sm ">
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#FFE3B3] text-xs font-bold text-[#EA6113]">
               ✦
             </span>
 
-            <span className="text-xs font-bold uppercase tracking-[0.14em] text-[#F58220]">
+            <span className="text-xs font-bold uppercase tracking-[0.14em] text-[#EA6113]">
               Program Kebaikan
             </span>
           </div>
@@ -569,13 +490,13 @@ export default function FeaturedCampaigns({
             className="text-3xl font-bold text-gray-900 sm:text-4xl"
             style={{
               fontFamily:
-                "'Plus Jakarta Sans', sans-serif",
+                "'Fraunces', serif",
             }}
           >
             Campaign Unggulan
           </h2>
 
-          <div className="mx-auto mt-4 h-1 w-14 rounded-full bg-gradient-to-r from-[#F58220] to-[#D96808]" />
+          <div className="mx-auto mt-4 h-1 w-14 rounded-full  bg-[#EA6113] " />
 
           <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-gray-600 sm:text-base">
             Pilih campaign yang sesuai
@@ -591,8 +512,8 @@ export default function FeaturedCampaigns({
         =================================================== */}
 
         {loading && (
-          <div className="relative overflow-hidden rounded-3xl border border-[#F1D9C1] bg-white/80 py-16 text-center shadow-sm backdrop-blur-sm">
-            <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-4 border-[#F58220] border-t-transparent" />
+          <div className="relative overflow-hidden rounded-3xl border border-[#E8CDAA] bg-white/80 py-16 text-center shadow-sm ">
+            <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-4 border-[#EA6113] border-t-transparent" />
 
             <p className="text-sm font-medium text-gray-500">
               Mengambil campaign...
@@ -623,8 +544,8 @@ export default function FeaturedCampaigns({
         {!loading &&
           !error &&
           campaigns.length === 0 && (
-            <div className="mx-auto max-w-xl rounded-3xl border border-[#F1D9C1] bg-white/90 p-10 text-center shadow-sm backdrop-blur-sm">
-              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[#FFF0E4] text-3xl">
+            <div className="mx-auto max-w-xl rounded-3xl border border-[#E8CDAA] bg-white/90 p-10 text-center shadow-sm ">
+              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[#FFE3B3] text-3xl">
                 🤲
               </div>
 
@@ -682,10 +603,10 @@ export default function FeaturedCampaigns({
             onClick={() =>
               onNavigate("program")
             }
-            className="group inline-flex items-center gap-2 rounded-xl border-2 border-[#F58220] bg-white/90 px-7 py-3 text-sm font-semibold text-[#F58220] shadow-sm backdrop-blur-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#F58220] hover:text-white hover:shadow-lg"
+            className="group inline-flex items-center gap-2 rounded-xl border-2 border-[#EA6113] bg-white/90 px-7 py-3 text-sm font-semibold text-[#EA6113] shadow-sm  transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#EA6113] hover:text-white hover:shadow-lg"
             style={{
               fontFamily:
-                "'Plus Jakarta Sans', sans-serif",
+                "'Fraunces', serif",
             }}
           >
             Lihat Semua Campaign

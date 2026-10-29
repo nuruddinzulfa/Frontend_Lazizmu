@@ -6,8 +6,6 @@ import {
   type Campaign,
 } from '@/service/campaign.service'
 
-import API_URL from '@/lib/api'
-
 interface CampaignPageProps {
   onOpenCampaign?: (id: number) => void
 }
@@ -63,7 +61,7 @@ function PillarIcon({
 
           <path
             d="M32 30V48"
-            stroke="#F58220"
+            stroke="#176B4D"
             strokeWidth="2"
             strokeLinecap="round"
           />
@@ -103,7 +101,7 @@ function PillarIcon({
 
           <path
             d="M17 31H25L29 23L34 39L39 29L42 31H48"
-            stroke="#E94224"
+            stroke="#2F855A"
             strokeWidth="3"
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -208,7 +206,7 @@ function PillarIcon({
 
           <path
             d="M28 48V39C28 36.8 29.8 35 32 35C34.2 35 36 36.8 36 39V48H28Z"
-            fill="#F9B233"
+            fill="#F4C542"
           />
 
           <path
@@ -220,14 +218,14 @@ function PillarIcon({
             cx="24"
             cy="37"
             r="2"
-            fill="#F9B233"
+            fill="#F4C542"
           />
 
           <circle
             cx="40"
             cy="37"
             r="2"
-            fill="#F9B233"
+            fill="#F4C542"
           />
         </svg>
       )
@@ -366,22 +364,22 @@ const categoryConfig: Record<
   }
 > = {
   Pendidikan: {
-    color: '#F58220',
-    light: '#FFF0E3',
+    color: '#176B4D',
+    light: '#F5E9A6',
   },
 
   Kesehatan: {
-    color: '#E94224',
+    color: '#2F855A',
     light: '#FDEAE6',
   },
 
   Ekonomi: {
-    color: '#D21F26',
+    color: '#176B4D',
     light: '#FBE7E8',
   },
 
   'Sosial Dakwah': {
-    color: '#F9B233',
+    color: '#F4C542',
     light: '#FFF5DD',
   },
 
@@ -458,13 +456,7 @@ const getThumbnailUrl = (
     return thumbnail
   }
 
-  const baseUrl = API_URL.replace(/\/api\/?$/, '')
-
-  const cleanPath = thumbnail
-    .replace(/^\/+/, '')
-    .replace(/^storage\//, '')
-
-  return `${baseUrl}/storage/${cleanPath}`
+  return `http://127.0.0.1:8000/storage/${thumbnail}`
 }
 
 const getCategoryConfig = (
@@ -590,7 +582,7 @@ export default function ProgramPage({
   -------------------------------------------------------------------------- */
 
   return (
-    <div className="min-h-screen bg-[#FFF8F2]">
+    <div className="min-h-screen bg-[#F7F6E8]">
 
       {/* HEADER */}
 
@@ -598,7 +590,7 @@ export default function ProgramPage({
 
         <div className="text-center">
 
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-[#F58220] px-4 py-1.5 text-xs font-bold uppercase tracking-wide text-white">
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-[#176B4D] px-4 py-1.5 text-xs font-bold uppercase tracking-wide text-white">
             Campaign
           </div>
 
@@ -606,7 +598,7 @@ export default function ProgramPage({
             className="text-3xl font-bold text-gray-900 sm:text-4xl"
             style={{
               fontFamily:
-                "'Plus Jakarta Sans', sans-serif",
+                "'Fraunces', serif",
             }}
           >
             Kampanye Kebaikan
@@ -647,7 +639,7 @@ export default function ProgramPage({
               onChange={(e) =>
                 setSearch(e.target.value)
               }
-              className="w-full rounded-xl border border-[#F3DEC8] bg-white py-3 pl-11 pr-4 text-sm outline-none transition focus:border-[#F58220] focus:ring-1 focus:ring-[#F58220]"
+              className="w-full rounded-xl border border-[#D7DCC0] bg-white py-3 pl-11 pr-4 text-sm outline-none transition focus:border-[#176B4D] focus:ring-1 focus:ring-[#176B4D]"
             />
 
           </div>
@@ -679,7 +671,7 @@ export default function ProgramPage({
                     activeCategory ===
                     category
                       ? 'text-white shadow-sm'
-                      : 'border border-[#F3DEC8] bg-white text-gray-600 hover:border-[#F58220] hover:text-[#F58220]'
+                      : 'border border-[#D7DCC0] bg-white text-gray-600 hover:border-[#176B4D] hover:text-[#176B4D]'
                   }`}
                   style={
                     activeCategory ===
@@ -697,7 +689,7 @@ export default function ProgramPage({
                     'Semua' &&
                     config && (
                       <span
-                        className="flex h-6 w-6 items-center justify-center rounded-full"
+                        className="pillar-icon-shell flex h-7 w-7 items-center justify-center rounded-full border border-black/10"
                         style={{
                           backgroundColor:
                             activeCategory ===
@@ -750,11 +742,11 @@ export default function ProgramPage({
           !error &&
           filteredCampaigns.length ===
             0 && (
-            <div className="rounded-2xl border border-[#F3DEC8] bg-white py-20 text-center">
+            <div className="rounded-2xl border border-[#D7DCC0] bg-white py-20 text-center">
 
-              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-[#FFF0DE]">
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-[#F5E9A6]">
                 <svg
-                  className="h-8 w-8 text-[#F58220]"
+                  className="h-8 w-8 text-[#176B4D]"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -802,20 +794,16 @@ export default function ProgramPage({
                       campaign.collected_amount || 0
                     )
 
-                  const rawPercentage =
-                    target > 0
-                      ? (collected / target) * 100
-                      : 0
-
                   const percentage =
-                    Math.min(
-                      Number(rawPercentage.toFixed(2)),
-                      100
-                    )
-
-                  const progressWidth =
-                    collected > 0 && percentage > 0
-                      ? Math.max(percentage, 0.5)
+                    target > 0
+                      ? Math.min(
+                          Math.round(
+                            (collected /
+                              target) *
+                              100
+                          ),
+                          100
+                        )
                       : 0
 
                   const thumbnail =
@@ -846,7 +834,7 @@ export default function ProgramPage({
                   return (
                     <div
                       key={campaign.id}
-                      className="group overflow-hidden rounded-2xl border border-[#F3DEC8] bg-white shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-lg"
+                      className="group overflow-hidden rounded-2xl border border-[#D7DCC0] bg-white shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-lg"
                     >
 
                       {/* ==================================================
@@ -879,10 +867,10 @@ export default function ProgramPage({
 
                             <div className="absolute left-4 top-4">
 
-                              <div className="flex items-center gap-2 rounded-full bg-white/95 px-3 py-1.5 shadow-sm backdrop-blur">
+                              <div className="flex items-center gap-2 rounded-full bg-white/95 px-3 py-1.5 shadow-sm ">
 
                                 <span
-                                  className="flex h-7 w-7 items-center justify-center rounded-full"
+                                className="pillar-icon-shell flex h-8 w-8 items-center justify-center rounded-full border border-black/10"
                                   style={{
                                     backgroundColor:
                                       config.color,
@@ -958,7 +946,7 @@ export default function ProgramPage({
                         <div className="flex items-center gap-2">
 
                           <span
-                            className="flex h-7 w-7 items-center justify-center rounded-full"
+                            className="pillar-icon-shell flex h-8 w-8 items-center justify-center rounded-full border border-black/10"
                             style={{
                               backgroundColor:
                                 config.color,
@@ -995,9 +983,36 @@ export default function ProgramPage({
                        {/* DESCRIPTION */}
 
 {campaign.short_description && (
-  <p className="mt-2 line-clamp-2 overflow-hidden text-sm leading-relaxed text-gray-500">
-    {stripHtml(campaign.short_description)}
-  </p>
+  <div
+    className="
+      mt-2
+      line-clamp-2
+      overflow-hidden
+      text-sm
+      leading-relaxed
+      text-gray-500
+
+      [&_p]:m-0
+      [&_p]:mb-1
+
+      [&_strong]:font-bold
+      [&_em]:italic
+      [&_u]:underline
+
+      [&_ol]:ml-5
+      [&_ol]:list-decimal
+
+      [&_ul]:ml-5
+      [&_ul]:list-disc
+
+      [&_li]:mb-1
+    "
+    dangerouslySetInnerHTML={{
+      __html: normalizeRichText(
+        campaign.short_description
+      ),
+    }}
+  />
 )}
 
                         {/* PROGRESS */}
@@ -1029,7 +1044,7 @@ export default function ProgramPage({
                             <div
                               className="h-full rounded-full transition-all duration-500"
                               style={{
-                                width: `${progressWidth}%`,
+                                width: `${percentage}%`,
                                 backgroundColor:
                                   config.color,
                               }}
