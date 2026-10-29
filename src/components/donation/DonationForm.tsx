@@ -1516,28 +1516,25 @@ export default function DonationForm({
   */
 
   if (isPaymentChecking) {
-    return (
-      <div className="min-h-screen bg-[#FFF8F2] px-4 py-8 flex items-center justify-center">
-
-        <div className="max-w-md w-full bg-white rounded-3xl border border-[#F3DEC8] shadow-lg p-10 text-center">
-
-          <div className="w-10 h-10 border-4 border-[#F58220] border-t-transparent rounded-full animate-spin mx-auto mb-5" />
-
-          <h1 className="text-xl font-bold text-gray-900 mb-3">
-            Memverifikasi Pembayaran
-          </h1>
-
-          <p className="text-gray-500 text-sm leading-6">
-            Mohon tunggu sebentar. Kami sedang
-            mencocokkan status pembayaran DOKU
-            dengan sistem LAZISMU Pemalang.
-          </p>
-
+  return (
+    <div className="flex min-h-[100svh] items-center justify-center bg-[#FFF8F2] px-4 py-8">
+      <div className="w-full max-w-md rounded-3xl border border-[#F3DEC8] bg-white p-6 text-center shadow-lg sm:p-8">
+        <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-full bg-orange-50">
+          <div className="h-9 w-9 animate-spin rounded-full border-4 border-[#F58220] border-t-transparent" />
         </div>
 
+        <h1 className="payment-status-title mb-3 text-gray-900">
+          Memverifikasi Pembayaran
+        </h1>
+
+        <p className="mx-auto max-w-sm text-sm leading-6 text-gray-500">
+          Mohon tunggu sebentar. Kami sedang mencocokkan status pembayaran
+          DOKU dengan sistem LAZISMU Pemalang.
+        </p>
       </div>
-    )
-  }
+    </div>
+  )
+}
 
   /*
   |--------------------------------------------------------------------------
@@ -1734,54 +1731,45 @@ export default function DonationForm({
   */
 
   if (isPaymentPending) {
-    return (
-      <div className="min-h-screen bg-[#FFF8F2] pt-20 flex items-center justify-center px-4">
-
-        <div className="max-w-lg w-full bg-white rounded-3xl border border-[#F3DEC8] shadow-lg p-10 text-center">
-
-          <div className="text-5xl mb-5">
-            ⏳
-          </div>
-
-          <h1 className="text-2xl font-bold text-gray-900 mb-3">
-            Menunggu Pembayaran
-          </h1>
-
-          <p className="text-gray-500 text-sm mb-7">
-            Transaksi Anda berhasil
-            dibuat, tetapi pembayaran
-            belum dikonfirmasi.
-          </p>
-
-          {returnedOrderId && (
-            <div className="bg-[#FFF8F2] rounded-xl border border-[#F3DEC8] p-4 mb-6">
-
-              <div className="text-xs text-gray-400 mb-1">
-                Nomor Transaksi
-              </div>
-
-              <div className="font-mono text-sm font-semibold break-all">
-                {returnedOrderId}
-              </div>
-
-            </div>
-          )}
-
-          <button
-            type="button"
-            onClick={
-              handleBackHome
-            }
-            className="btn-primary w-full py-3.5 font-bold"
-          >
-            Kembali ke Website
-          </button>
-
+  return (
+    <div className="flex min-h-[100svh] items-center justify-center bg-[#FFF8F2] px-4 py-8">
+      <div className="w-full max-w-md rounded-3xl border border-[#F3DEC8] bg-white p-6 text-center shadow-lg sm:p-8">
+        <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-amber-50 text-3xl">
+          ⏳
         </div>
 
+        <h1 className="payment-status-title mb-3 text-gray-900">
+          Menunggu Pembayaran
+        </h1>
+
+        <p className="mx-auto mb-6 max-w-sm text-sm leading-6 text-gray-500">
+          Transaksi Anda berhasil dibuat, tetapi pembayaran belum dikonfirmasi.
+          Status akan diperbarui setelah pembayaran terverifikasi.
+        </p>
+
+        {returnedOrderId && (
+          <div className="mb-5 rounded-xl border border-[#F3DEC8] bg-[#FFF8F2] p-4">
+            <p className="mb-2 text-xs text-gray-500">
+              Nomor Transaksi
+            </p>
+
+            <p className="break-all font-mono text-xs font-semibold leading-5 text-gray-800 sm:text-sm">
+              {returnedOrderId}
+            </p>
+          </div>
+        )}
+
+        <button
+          type="button"
+          onClick={handleBackHome}
+          className="btn-primary w-full rounded-xl py-3.5 text-sm font-bold"
+        >
+          Kembali ke Website
+        </button>
       </div>
-    )
-  }
+    </div>
+  )
+}
 
   /*
   |--------------------------------------------------------------------------
