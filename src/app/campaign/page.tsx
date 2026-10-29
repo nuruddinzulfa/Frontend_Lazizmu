@@ -974,11 +974,11 @@ export default function ProgramPage({
 
                         {/* TITLE */}
 
-                        <h2 className="mt-3 line-clamp-2 text-lg font-bold text-gray-900">
-                          {
-                            campaign.title
-                          }
-                        </h2>
+                        
+<h2 className="campaign-card-title mt-3 line-clamp-2 font-bold text-gray-900">
+  {campaign.title}
+</h2>
+
 
                        
 {/* DESCRIPTION */}
