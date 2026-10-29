@@ -980,40 +980,14 @@ export default function ProgramPage({
                           }
                         </h2>
 
-                       {/* DESCRIPTION */}
-
+                       
+{/* DESCRIPTION */}
 {campaign.short_description && (
-  <div
-    className="
-      mt-2
-      line-clamp-2
-      overflow-hidden
-      text-sm
-      leading-relaxed
-      text-gray-500
-
-      [&_p]:m-0
-      [&_p]:mb-1
-
-      [&_strong]:font-bold
-      [&_em]:italic
-      [&_u]:underline
-
-      [&_ol]:ml-5
-      [&_ol]:list-decimal
-
-      [&_ul]:ml-5
-      [&_ul]:list-disc
-
-      [&_li]:mb-1
-    "
-    dangerouslySetInnerHTML={{
-      __html: normalizeRichText(
-        campaign.short_description
-      ),
-    }}
-  />
+  <p className="mt-2 line-clamp-2 overflow-hidden text-sm leading-relaxed text-gray-500">
+    {stripHtml(campaign.short_description)}
+  </p>
 )}
+
 
                         {/* PROGRESS */}
 

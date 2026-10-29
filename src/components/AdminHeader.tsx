@@ -50,14 +50,15 @@ export default function AdminHeader({
         ============================================================ */}
 
         <div className="min-w-0">
-          <h1
-            className="truncate text-lg font-bold tracking-[-0.025em] text-[#202631]"
-            style={{
-              fontFamily: "'Plus Jakarta Sans', sans-serif",
-            }}
-          >
-            {displayTitle}
-          </h1>
+ <h1
+  className="max-w-[60vw] truncate text-[18px] leading-6 font-bold tracking-[-0.02em] text-[#202631] sm:text-[20px]"
+  style={{
+    fontFamily: "'Plus Jakarta Sans', sans-serif",
+    fontSize: '20px',
+  }}
+>
+  {displayTitle}
+</h1>
 
           <p className="hidden truncate text-xs text-gray-500 sm:block">
             {subtitle}

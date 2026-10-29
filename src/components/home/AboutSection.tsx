@@ -264,13 +264,12 @@ export default function AboutSection({
 
               <div
                 className="
-                  pointer-events-none
-                  absolute
-                  inset-0
-
-                  bg-[#EA6113]
-
-                "
+    pointer-events-none
+    absolute
+    inset-0
+    bg-[#EA6113]/15
+    mix-blend-multiply
+  "
               />
 
             </div>
@@ -595,69 +594,68 @@ export default function AboutSection({
         ================================================================ */}
 
         <div
-  ref={
-    ref2 as React.RefObject<HTMLDivElement>
-  }
-  className={`
+          ref={
+            ref2 as React.RefObject<HTMLDivElement>
+          }
+          className={`
     transition-all
     delay-100
     duration-700
-    ${
-      inView2
-        ? 'translate-y-0 opacity-100'
-        : 'translate-y-8 opacity-0'
-    }
+    ${inView2
+              ? 'translate-y-0 opacity-100'
+              : 'translate-y-8 opacity-0'
+            }
   `}
->
-  {/* HEADER */}
+        >
+          {/* HEADER */}
 
-  <div className="mb-12 text-center">
-    <span
-      className="
+          <div className="mb-12 text-center">
+            <span
+              className="
         text-sm
         font-semibold
         uppercase
         tracking-wider
         text-[#EA6113]
       "
-    >
-      Arah & Tujuan
-    </span>
+            >
+              Arah & Tujuan
+            </span>
 
-    <h2
-      className="
+            <h2
+              className="
         mt-2
         text-3xl
         font-bold
         text-gray-900
         sm:text-4xl
       "
-      style={{
-        fontFamily:
-          "'Fraunces', serif",
-      }}
-    >
-      Visi dan Misi Lazismu
-    </h2>
-  </div>
+              style={{
+                fontFamily:
+                  "'Fraunces', serif",
+              }}
+            >
+              Visi dan Misi Lazismu
+            </h2>
+          </div>
 
-  {/* VISI & MISI */}
+          {/* VISI & MISI */}
 
-  <div
-    className="
+          <div
+            className="
       grid
       grid-cols-1
       items-start
       gap-8
       lg:grid-cols-2
     "
-  >
-    {/* ==========================================================
+          >
+            {/* ==========================================================
         VISI
     ========================================================== */}
 
-    <div
-      className="
+            <div
+              className="
         relative
         overflow-hidden
         rounded-3xl
@@ -666,11 +664,11 @@ export default function AboutSection({
 
         p-10
       "
-    >
-      {/* DECORATION */}
+            >
+              {/* DECORATION */}
 
-      <div
-        className="
+              <div
+                className="
           pointer-events-none
           absolute
           right-0
@@ -679,47 +677,47 @@ export default function AboutSection({
           w-40
           opacity-10
         "
-      >
-        <svg
-          viewBox="0 0 160 160"
-          fill="none"
-        >
-          <circle
-            cx="80"
-            cy="80"
-            r="71"
-            stroke="white"
-            strokeWidth="1.5"
-            fill="none"
-          />
+              >
+                <svg
+                  viewBox="0 0 160 160"
+                  fill="none"
+                >
+                  <circle
+                    cx="80"
+                    cy="80"
+                    r="71"
+                    stroke="white"
+                    strokeWidth="1.5"
+                    fill="none"
+                  />
 
-          <circle
-            cx="80"
-            cy="80"
-            r="51"
-            stroke="white"
-            strokeWidth="1"
-            fill="none"
-          />
+                  <circle
+                    cx="80"
+                    cy="80"
+                    r="51"
+                    stroke="white"
+                    strokeWidth="1"
+                    fill="none"
+                  />
 
-          <circle
-            cx="80"
-            cy="80"
-            r="28"
-            stroke="white"
-            strokeWidth="1"
-            fill="none"
-          />
-        </svg>
-      </div>
+                  <circle
+                    cx="80"
+                    cy="80"
+                    r="28"
+                    stroke="white"
+                    strokeWidth="1"
+                    fill="none"
+                  />
+                </svg>
+              </div>
 
-      {/* CONTENT */}
+              {/* CONTENT */}
 
-      <div className="relative z-10">
-        {/* ICON */}
+              <div className="relative z-10">
+                {/* ICON */}
 
-        <div
-          className="
+                <div
+                  className="
             mb-6
             flex
             h-14
@@ -729,28 +727,28 @@ export default function AboutSection({
             rounded-2xl
             bg-white/20
           "
-        >
-          <svg
-            className="h-7 w-7 text-white"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={1.8}
-              d="
+                >
+                  <svg
+                    className="h-7 w-7 text-white"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={1.8}
+                      d="
                 M15 12a3 3 0 11-6 0
                 3 3 0 016 0z
               "
-            />
+                    />
 
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={1.8}
-              d="
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={1.8}
+                      d="
                 M2.458 12C3.732 7.943
                 7.523 5 12 5
                 c4.478 0 8.268 2.943
@@ -762,13 +760,13 @@ export default function AboutSection({
                 -8.268-2.943
                 -9.542-7z
               "
-            />
-          </svg>
-        </div>
+                    />
+                  </svg>
+                </div>
 
-        {/* LABEL */}
+                {/* LABEL */}
 
-        {/* <div
+                {/* <div
           className="
             mb-3
             text-sm
@@ -780,30 +778,30 @@ export default function AboutSection({
         >
           Visi
         </div> */}
-        <h3
-        className="
+                <h3
+                  className="
           mb-6
           text-xl
           font-bold
           text-gray-800
         "
-        style={{
-          fontFamily:
-            "'Fraunces', serif",
-        }}
-      >
-        Visi 
-      </h3>
+                  style={{
+                    fontFamily:
+                      "'Fraunces', serif",
+                  }}
+                >
+                  Visi
+                </h3>
 
-        {/* VISION */}
+                {/* VISION */}
 
-        {profileLoading ? (
-  <p className="text-sm text-white/70">
-    Memuat visi...
-  </p>
-) : (
-  <div
-    className="
+                {profileLoading ? (
+                  <p className="text-sm text-white/70">
+                    Memuat visi...
+                  </p>
+                ) : (
+                  <div
+                    className="
       max-w-none
       text-lg
       leading-relaxed
@@ -834,33 +832,33 @@ export default function AboutSection({
       [&_ol>li>p]:mb-0
       [&_ul>li>p]:mb-0
     "
-    dangerouslySetInnerHTML={{
-      __html:
-        profile?.vision ||
-        '<p>Visi belum tersedia.</p>',
-    }}
-  />
-)}
-      </div>
-    </div>
+                    dangerouslySetInnerHTML={{
+                      __html:
+                        profile?.vision ||
+                        '<p>Visi belum tersedia.</p>',
+                    }}
+                  />
+                )}
+              </div>
+            </div>
 
-    {/* ==========================================================
+            {/* ==========================================================
         MISI
     ========================================================== */}
 
-    <div
-      className="
+            <div
+              className="
         rounded-3xl
         border
         border-[#E8CDAA]
         bg-[#FFF8EA]
         p-10
       "
-    >
-      {/* ICON */}
+            >
+              {/* ICON */}
 
-      <div
-        className="
+              <div
+                className="
           mb-6
           flex
           h-14
@@ -870,35 +868,35 @@ export default function AboutSection({
           rounded-2xl
           bg-[#FFE3B3]
         "
-      >
-        <svg
-          className="
+              >
+                <svg
+                  className="
             h-7
             w-7
             text-[#EA6113]
           "
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={1.8}
-            d="
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1.8}
+                    d="
               M9 5H7a2 2 0 00-2 2v12
               a2 2 0 002 2h10a2 2 0 002-2V7
               a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2
               a2 2 0 002-2M9 5a2 2 0 012-2h2
               a2 2 0 012 2m-6 9l2 2 4-4
             "
-          />
-        </svg>
-      </div>
+                  />
+                </svg>
+              </div>
 
-      {/* LABEL */}
+              {/* LABEL */}
 
-      {/* <div
+              {/* <div
         className="
           mb-3
           text-sm
@@ -911,32 +909,32 @@ export default function AboutSection({
         Misi
       </div> */}
 
-      {/* TITLE */}
+              {/* TITLE */}
 
-      <h3
-        className="
+              <h3
+                className="
           mb-6
           text-xl
           font-bold
           text-gray-800
         "
-        style={{
-          fontFamily:
-            "'Fraunces', serif",
-        }}
-      >
-        Misi 
-      </h3>
+                style={{
+                  fontFamily:
+                    "'Fraunces', serif",
+                }}
+              >
+                Misi
+              </h3>
 
-      {/* MISSION */}
+              {/* MISSION */}
 
-     {profileLoading ? (
-  <p className="text-sm text-gray-400">
-    Memuat misi...
-  </p>
-) : (
-  <div
-    className="
+              {profileLoading ? (
+                <p className="text-sm text-gray-400">
+                  Memuat misi...
+                </p>
+              ) : (
+                <div
+                  className="
       max-w-none
       text-sm
       leading-relaxed
@@ -968,33 +966,33 @@ export default function AboutSection({
       [&_ol>li>p]:mb-0
       [&_ul>li>p]:mb-0
     "
-    dangerouslySetInnerHTML={{
-      __html:
-        profile?.mission ||
-        '<p>Misi belum tersedia.</p>',
-    }}
-  />
-)}
-      {/* NILAI */}
+                  dangerouslySetInnerHTML={{
+                    __html:
+                      profile?.mission ||
+                      '<p>Misi belum tersedia.</p>',
+                  }}
+                />
+              )}
+              {/* NILAI */}
 
-      <div
-        className="
+              <div
+                className="
           mt-8
           flex
           flex-wrap
           gap-2
         "
-      >
-        {[
-          'Amanah',
-          'Transparansi',
-          'Profesional',
-          'Berkemajuan',
-          'Layanan',
-        ].map((value) => (
-          <span
-            key={value}
-            className="
+              >
+                {[
+                  'Amanah',
+                  'Transparansi',
+                  'Profesional',
+                  'Berkemajuan',
+                  'Layanan',
+                ].map((value) => (
+                  <span
+                    key={value}
+                    className="
               rounded-full
               border
               border-[#E8CDAA]
@@ -1005,14 +1003,14 @@ export default function AboutSection({
               font-semibold
               text-[#EA6113]
             "
-          >
-            {value}
-          </span>
-        ))}
-      </div>
-         </div>
-    </div>
-  </div>
+                  >
+                    {value}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
 
         {/* ================================================================
             DIVIDER

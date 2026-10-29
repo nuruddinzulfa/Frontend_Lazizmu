@@ -65,6 +65,28 @@ function formatRupiah(
 }
 
 /* =========================================================
+   STRIP HTML DARI DESKRIPSI
+========================================================= */
+
+function stripHtml(
+  html: string | null | undefined
+): string {
+  if (!html) return "";
+
+  return html
+    .replace(/<[^>]*>/g, " ")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/&quot;/gi, '"')
+    .replace(/&#0*39;/gi, "'")
+    .replace(/&#x27;/gi, "'")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/* =========================================================
    THUMBNAIL URL
 ========================================================= */
 
@@ -299,11 +321,12 @@ function CampaignCard({
           {campaign.title}
         </h3>
 
-        {campaign.short_description && (
-          <p className="mb-5 line-clamp-2 text-sm leading-6 text-gray-500">
-            {campaign.short_description}
-          </p>
-        )}
+{/* DESCRIPTION */}
+{campaign.short_description && (
+  <p className="mb-5 line-clamp-2 text-sm leading-6 text-gray-500">
+    {stripHtml(campaign.short_description)}
+  </p>
+)}
 
         <div className="mt-auto">
           {/* PROGRESS */}
