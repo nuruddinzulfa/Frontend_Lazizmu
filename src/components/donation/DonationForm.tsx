@@ -1591,11 +1591,14 @@ export default function DonationForm({
                 : 'Pembayaran Donasi Berhasil'}
             </div>
 
-            <h1 className="text-2xl font-bold leading-tight text-white">
-              {isZakatTransaction
-                ? 'Alhamdulillah, Zakat Anda Telah Ditunaikan'
-                : 'Jazakumullahu Khairan'}
-            </h1>
+            <h1
+  className="!font-bold !text-white leading-tight"
+  style={{ fontSize: "32px" }}
+>
+  {isZakatTransaction
+    ? 'Alhamdulillah, Zakat Anda Telah Ditunaikan'
+    : 'Jazakumullahu Khairan'}
+</h1>
 
           </div>
 
@@ -1874,11 +1877,11 @@ export default function DonationForm({
               : '❤️ Formulir Donasi — LAZISMU Pemalang'}
           </div>
 
-          <h1 className="text-3xl sm:text-4xl font-bold text-white mb-3">
-            {isZakat
-              ? 'Tunaikan Zakat Anda'
-              : 'Tunaikan Kebaikan Anda'}
-          </h1>
+          <h1 className="text-3xl sm:text-4xl font-bold !text-white mb-3">
+  {isZakat
+    ? 'Tunaikan Zakat Anda'
+    : 'Tunaikan Kebaikan Anda'}
+</h1>
 
           <p className="text-white/75 text-sm">
             {isZakat

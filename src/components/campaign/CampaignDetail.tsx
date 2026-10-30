@@ -400,7 +400,7 @@ export default function CampaignDetail({
               className="mt-4 text-3xl font-bold leading-tight text-gray-900 sm:text-4xl"
               style={{
                 fontFamily:
-                  "'Plus Jakarta Sans', sans-serif",
+                  "'Fraunces', serif",
               }}
             >
               {campaign.title}

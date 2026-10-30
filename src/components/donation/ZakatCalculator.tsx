@@ -719,7 +719,10 @@ export default function ZakatCalculator({
                 }
                 className="bg-white rounded-2xl border border-[#F3DEC8] p-8 shadow-sm"
               >
-   <h2 className="text-xl font-bold !text-black mb-2">
+ <h2
+  className="!font-bold !text-black mb-2"
+  style={{ fontSize: "32px" }}
+>
   Zakat Profesi / Penghasilan
 </h2>
 
@@ -802,7 +805,10 @@ export default function ZakatCalculator({
                 }
                 className="bg-white rounded-2xl border border-[#F3DEC8] p-8 shadow-sm"
               >
-                <h2 className="text-xl font-bold !text-black mb-2">
+       <h2
+  className="!font-bold !text-black mb-2"
+  style={{ fontSize: "32px" }}
+>
   Zakat Maal / Harta
 </h2>
 
@@ -923,7 +929,7 @@ export default function ZakatCalculator({
                 className="text-2xl font-bold text-gray-900"
                 style={{
                   fontFamily:
-                    "'Plus Jakarta Sans', sans-serif",
+                    "'Fraunces', serif",
                 }}
               >
                 Panduan Zakat LAZISMU
