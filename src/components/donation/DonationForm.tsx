@@ -1592,8 +1592,13 @@ export default function DonationForm({
             </div>
 
             <h1
-  className="!font-bold !text-white leading-tight"
-  style={{ fontSize: "32px" }}
+  className="font-bold leading-tight"
+  style={{
+    fontSize: "32px",
+    color: "#FFFFFF",
+    WebkitTextFillColor: "#FFFFFF",
+    fontWeight: 700
+  }}
 >
   {isZakatTransaction
     ? 'Alhamdulillah, Zakat Anda Telah Ditunaikan'
@@ -1692,7 +1697,7 @@ export default function DonationForm({
                 </p>
 
                 <p className="mt-1 text-[11px] leading-5 text-green-700">
-                  Konfirmasi transaksi akan dikirim melalui WhatsApp ke nomor yang Anda masukkan saat melakukan pembayaran.
+                  Konfirmasi transaksi akan dikirim melalui Email ke nomor yang Anda masukkan saat melakukan pembayaran.
                 </p>
               </div>
 
