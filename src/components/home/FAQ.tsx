@@ -8,7 +8,7 @@ const faqs = [
   },
   {
     q: 'Bagaimana cara berdonasi melalui Lazismu Pemalang?',
-    a: 'Donasi dapat dilakukan melalui: (1) Website ini menggunakan QRIS, transfer bank, atau e-wallet; (2) Transfer langsung ke rekening Lazismu Pemalang; (3) Datang langsung ke kantor kami di Jl. Ahmad Yani No. 12, Pemalang; (4) Melalui relawan kami yang tersebar di 14 kecamatan.',
+    a: 'Donasi dapat dilakukan melalui: (1) Website ini menggunakan QRIS, transfer bank, atau e-wallet; (2) Transfer langsung ke rekening Lazismu Pemalang; (3) Datang langsung ke kantor kami di Jl. Dr. Cipto Mangunkusumo No. 8, Sirandu, Kab. Pemalang; (4) Melalui relawan kami yang tersebar di 14 kecamatan.',
   },
   {
     q: 'Berapa nisab zakat profesi saat ini?',
@@ -20,7 +20,7 @@ const faqs = [
   },
   {
     q: 'Bagaimana cara menjadi relawan Lazismu Pemalang?',
-    a: 'Anda bisa mendaftar sebagai relawan melalui formulir pendaftaran di website kami, menghubungi kantor Lazismu Pemalang, atau menghubungi WhatsApp di 0812-XXXX-XXXX. Tidak ada syarat khusus — cukup niat tulus untuk membantu sesama.',
+    a: 'Anda bisa mendaftar sebagai relawan melalui formulir pendaftaran di website kami, menghubungi kantor Lazismu Pemalang, atau menghubungi WhatsApp di No WA : 0811-299-3327. Tidak ada syarat khusus — cukup niat tulus untuk membantu sesama.',
   },
   {
     q: 'Apakah donasi saya bisa untuk program tertentu yang saya pilih?',
